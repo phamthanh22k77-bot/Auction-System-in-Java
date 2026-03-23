@@ -1,0 +1,40 @@
+# === Java & Biên dịch ===
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# === Các thư mục tạm của hệ thống build ===
+target/
+bin/
+build/
+out/
+.gradle/
+.m2/
+
+# === Cấu hình các công cụ lập trình (IDEs) ===
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.metadata/
+.bin/
+.settings/
+.loadpath
+.project
+.classpath
+
+# VS Code
+.vscode/
+
+# === Hệ điều hành ===
+.DS_Store
+Thumbs.db
