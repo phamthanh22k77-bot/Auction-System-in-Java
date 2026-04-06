@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # 🏆 Online Auction System
 
 > **Hệ Thống Đấu Giá Trực Tuyến** — Bài Tập Lớn Lập Trình Nâng Cao
@@ -343,6 +342,3 @@ chore(ci): add GitHub Actions workflow
 ## 📄 Giấy phép
 
 Dự án phục vụ mục đích học tập — UET, môn Lập Trình Nâng Cao.
-=======
-v
->>>>>>> 454f55f6986ffff30645cc084ca89269d4f8f991
