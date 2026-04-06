@@ -1,3 +1,48 @@
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+# === Java & Biên dịch ===
+*.class
+*.log
+*.ctxt
+*.jar
+*.war
+*.ear
+*.zip
+*.tar.gz
+*.rar
+
+# === Các thư mục tạm của hệ thống build ===
+target/
+bin/
+build/
+out/
+.gradle/
+.m2/
+
+# === Cấu hình các công cụ lập trình (IDEs) ===
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+out/
+
+# Eclipse
+.metadata/
+.bin/
+.settings/
+.loadpath
+.project
+.classpath
+
+# VS Code
+.vscode/
+
+# === Hệ điều hành ===
+.DS_Store
+Thumbs.db
+=======
+>>>>>>> 454f55f6986ffff30645cc084ca89269d4f8f991
 target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
@@ -36,4 +81,9 @@ build/
 .vscode/
 
 ### Mac OS ###
+<<<<<<< HEAD
 .DS_Store
+=======
+.DS_Store
+>>>>>>> 7f18a7f (feat: setup maven and package structure for client-server-common)
+>>>>>>> 454f55f6986ffff30645cc084ca89269d4f8f991
