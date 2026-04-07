@@ -52,7 +52,7 @@ public abstract class User extends Entity {
     public abstract void printInfo();
 
     // Getter cho password (chỉ dùng nội bộ hoặc cho DAO)
-    protected String getPassword() {
+    public String getPassword() {
         return password;
     }
 }
