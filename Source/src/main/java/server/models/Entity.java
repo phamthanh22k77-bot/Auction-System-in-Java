@@ -1,6 +1,6 @@
 package server.models;
 
-public abstract class Entity implements java.io.Serializable {
+public abstract class Entity {
     private final String id;
 
     public Entity(String id) {
