@@ -1,4 +1,4 @@
-package model.user;
+package server.models.user;
 
 public class Bidder extends User {
     private double balance;

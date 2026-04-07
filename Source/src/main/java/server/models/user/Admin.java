@@ -1,4 +1,4 @@
-package model.user;
+package server.models.user;
 
 public class Admin extends User {
     private String department;

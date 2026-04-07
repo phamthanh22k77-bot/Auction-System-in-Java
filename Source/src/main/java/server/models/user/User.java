@@ -1,6 +1,6 @@
-package model.user;
+package server.models.user;
 
-import model.Entity;
+import server.models.Entity;
 
 public abstract class User extends Entity {
     private String username;

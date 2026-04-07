@@ -1,6 +1,6 @@
-package model.item;
+package server.models.item;
 
-import model.Entity;
+import server.models.Entity;
 import java.time.LocalDateTime;
 
 /**

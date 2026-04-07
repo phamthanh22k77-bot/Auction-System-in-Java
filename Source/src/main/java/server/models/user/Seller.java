@@ -1,4 +1,4 @@
-package model.user;
+package server.models.user;
 
 public class Seller extends User {
     private String companyName;

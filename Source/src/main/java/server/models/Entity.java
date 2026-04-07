@@ -1,4 +1,4 @@
-package model;
+package server.models;
 
 public abstract class Entity implements java.io.Serializable {
     private final String id;

@@ -1,0 +1,18 @@
+[
+  {
+    "id": "...",
+    "role": "BIDDER",
+    "username": "ThanhBot",
+    "email": "...",
+    "password": "VNU123@",
+    "balance": 1000.0
+  },
+  {
+    "id": "1843ec1d-8b64-4193-bded-829c9ba63a7b",
+    "role": "BIDDER",
+    "username": "ThanhTop",
+    "email": "thanhtop@thanhtopgmai.com ",
+    "password": "DECKQUANTAM",
+    "balance": 0.0
+  }
+]
