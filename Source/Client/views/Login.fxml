@@ -16,7 +16,7 @@
          <children>
             <ImageView fitHeight="356.0" fitWidth="340.0" layoutX="-7.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../../../../../Downloads/Scene.png" />
+                  <Image url="@../../../../../Downloads/Scene.png" />
                </image>
             </ImageView>
             <Text fill="#6028b9" layoutX="94.0" layoutY="308.0" strokeType="OUTSIDE" strokeWidth="0.0" text="AuctionSystem">
@@ -68,7 +68,7 @@
             </Text>
             <ImageView fitHeight="80.0" fitWidth="106.0" layoutX="23.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
                <image>
-                  <Image url="@../../../../../../Downloads/logo.png" />
+                  <Image url="@../../../../../Downloads/logo.png" />
                </image>
             </ImageView>
             <Text fill="#a43737" layoutX="42.0" layoutY="158.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign in to continue">
