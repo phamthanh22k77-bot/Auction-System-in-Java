@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.image.*?>
+
+<BorderPane
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="controllers.bidder.AuctionListController"
+    style="-fx-background-color: #F5F5F5;">
+
+    <!-- ===== TOP BAR ===== -->
+    <top>
+        <VBox style="-fx-background-color: #1A237E; -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.3),8,0,0,2);">
+            <HBox alignment="CENTER_LEFT" spacing="16"
+                  style="-fx-padding: 12 20 12 20;">
+                <Label text="🏷 AuctionApp"
+                       style="-fx-text-fill: white; -fx-font-size: 18; -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="lblUsername"
+                       text="Xin chào, Bidder"
+                       style="-fx-text-fill: #90CAF9; -fx-font-size: 13;"/>
+                <Button fx:id="btnLogout"
+                        text="Đăng xuất"
+                        onAction="#handleLogout"
+                        style="-fx-background-color: transparent; -fx-text-fill: #EF9A9A;
+                               -fx-border-color: #EF9A9A; -fx-border-radius: 4; -fx-cursor: hand;
+                               -fx-padding: 4 12;"/>
+            </HBox>
+
+            <!-- Search + Filter bar -->
+            <HBox alignment="CENTER_LEFT" spacing="10"
+                  style="-fx-padding: 0 20 12 20;">
+                <TextField fx:id="txtSearch"
+                           promptText="🔍  Tìm kiếm phiên đấu giá..."
+                           onAction="#handleSearch"
+                           HBox.hgrow="ALWAYS"
+                           style="-fx-pref-width: 340; -fx-background-color: #283593;
+                                  -fx-text-fill: white; -fx-prompt-text-fill: #9FA8DA;
+                                  -fx-border-color: #5C6BC0; -fx-border-radius: 6;
+                                  -fx-background-radius: 6; -fx-padding: 7 12;"/>
+                <ComboBox fx:id="cmbCategory"
+                          promptText="Danh mục"
+                          onAction="#handleFilter"
+                          style="-fx-background-color: #283593; -fx-text-fill: white;
+                                 -fx-border-color: #5C6BC0; -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Tất cả"/>
+                            <String fx:value="Electronics"/>
+                            <String fx:value="Art"/>
+                            <String fx:value="Vehicle"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <ComboBox fx:id="cmbStatus"
+                          promptText="Trạng thái"
+                          onAction="#handleFilter"
+                          style="-fx-background-color: #283593; -fx-text-fill: white;
+                                 -fx-border-color: #5C6BC0; -fx-border-radius: 6;
+                                 -fx-background-radius: 6;">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Tất cả"/>
+                            <String fx:value="RUNNING"/>
+                            <String fx:value="OPEN"/>
+                            <String fx:value="FINISHED"/>
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Button text="Tìm" onAction="#handleSearch"
+                        style="-fx-background-color: #42A5F5; -fx-text-fill: white;
+                               -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 7 18;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- ===== CENTER: TABLE ===== -->
+    <center>
+        <VBox style="-fx-padding: 16;">
+            <!-- Summary row -->
+            <HBox spacing="12" style="-fx-padding: 0 0 12 0;">
+                <Label fx:id="lblTotalAuctions"
+                       text="Đang hiển thị: 0 phiên"
+                       style="-fx-text-fill: #616161; -fx-font-size: 13;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="↻ Làm mới" onAction="#handleRefresh"
+                        style="-fx-background-color: transparent; -fx-text-fill: #1565C0;
+                               -fx-cursor: hand; -fx-font-size: 13;"/>
+            </HBox>
+
+            <!-- Table -->
+            <TableView fx:id="tblAuctions"
+                       VBox.vgrow="ALWAYS"
+                       onMouseClicked="#handleRowDoubleClick"
+                       style="-fx-background-color: white;
+                              -fx-border-color: #E0E0E0; -fx-border-radius: 8;
+                              -fx-background-radius: 8;">
+                <columns>
+                    <TableColumn fx:id="colAuctionId"  text="Mã"         prefWidth="80"/>
+                    <TableColumn fx:id="colItemName"   text="Sản phẩm"   prefWidth="220"/>
+                    <TableColumn fx:id="colCategory"   text="Danh mục"   prefWidth="110"/>
+                    <TableColumn fx:id="colStartPrice" text="Giá khởi"   prefWidth="110"/>
+                    <TableColumn fx:id="colCurPrice"   text="Giá hiện tại" prefWidth="120"/>
+                    <TableColumn fx:id="colEndTime"    text="Kết thúc"   prefWidth="150"/>
+                    <TableColumn fx:id="colStatus"     text="Trạng thái" prefWidth="100"/>
+                </columns>
+                <placeholder>
+                    <Label text="Không có phiên đấu giá nào."
+                           style="-fx-text-fill: #9E9E9E; -fx-font-size: 14;"/>
+                </placeholder>
+            </TableView>
+        </VBox>
+    </center>
+
+    <!-- ===== BOTTOM BAR ===== -->
+    <bottom>
+        <HBox alignment="CENTER_RIGHT" spacing="12"
+              style="-fx-padding: 10 20; -fx-background-color: white;
+                     -fx-border-color: #E0E0E0; -fx-border-width: 1 0 0 0;">
+            <Label fx:id="lblBalance"
+                   text="Số dư: 0 ₫"
+                   style="-fx-text-fill: #388E3C; -fx-font-weight: bold; -fx-font-size: 14;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button fx:id="btnViewDetail"
+                    text="Xem chi tiết →"
+                    onAction="#handleViewDetail"
+                    style="-fx-background-color: #1A237E; -fx-text-fill: white;
+                           -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 8 20;
+                           -fx-font-size: 13;"/>
+        </HBox>
+    </bottom>
+</BorderPane>

@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.collections.FXCollections?>
+<?import java.lang.String?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.geometry.*?>
+
+<BorderPane
+    xmlns="http://javafx.com/javafx/17"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="controllers.seller.SellerDashboardController"
+    style="-fx-background-color: #F5F5F5;">
+
+    <!-- ===== TOP BAR ===== -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="16"
+              style="-fx-background-color: #1B5E20; -fx-padding: 12 20;
+                     -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.3),8,0,0,2);">
+            <Label text="🏪 AuctionApp — Seller"
+                   style="-fx-text-fill: white; -fx-font-size: 17; -fx-font-weight: bold;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblUsername"
+                   text="Xin chào, Seller"
+                   style="-fx-text-fill: #A5D6A7; -fx-font-size: 13;"/>
+            <Button fx:id="btnLogout" text="Đăng xuất" onAction="#handleLogout"
+                    style="-fx-background-color: transparent; -fx-text-fill: #EF9A9A;
+                           -fx-border-color: #EF9A9A; -fx-border-radius: 4;
+                           -fx-cursor: hand; -fx-padding: 4 12;"/>
+        </HBox>
+    </top>
+
+    <!-- ===== LEFT SIDEBAR: Form ===== -->
+    <left>
+        <VBox spacing="14" prefWidth="280"
+              style="-fx-background-color: white; -fx-padding: 20;
+                     -fx-border-color: #E0E0E0; -fx-border-width: 0 1 0 0;">
+
+            <Label fx:id="lblFormTitle"
+                   text="Thêm sản phẩm mới"
+                   style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #1B5E20;"/>
+            <Separator/>
+
+            <Label text="Tên sản phẩm *"
+                   style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+            <TextField fx:id="txtName" promptText="Nhập tên..."
+                       style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                              -fx-background-radius: 4; -fx-padding: 7 10;"/>
+
+            <Label text="Mô tả"
+                   style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+            <TextArea fx:id="txtDescription" promptText="Mô tả ngắn..." prefRowCount="3"
+                      wrapText="true"
+                      style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                             -fx-background-radius: 4; -fx-padding: 7 10;"/>
+
+            <Label text="Danh mục *"
+                   style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+            <ComboBox fx:id="cmbCategory" maxWidth="Infinity"
+                      promptText="Chọn danh mục"
+                      onAction="#handleCategoryChange"
+                      style="-fx-border-color: #BDBDBD; -fx-border-radius: 4; -fx-background-radius: 4;">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Electronics"/>
+                        <String fx:value="Art"/>
+                        <String fx:value="Vehicle"/>
+                    </FXCollections>
+                </items>
+            </ComboBox>
+
+            <!-- Category-specific fields — shown/hidden by controller -->
+            <VBox fx:id="vboxElectronics" spacing="8" visible="false" managed="false">
+                <Label text="Thương hiệu"
+                       style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+                <TextField fx:id="txtBrand" promptText="VD: Samsung"
+                           style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                                  -fx-background-radius: 4; -fx-padding: 7 10;"/>
+                <Label text="Bảo hành (tháng)"
+                       style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+                <TextField fx:id="txtWarranty" promptText="VD: 12"
+                           style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                                  -fx-background-radius: 4; -fx-padding: 7 10;"/>
+            </VBox>
+
+            <VBox fx:id="vboxArt" spacing="8" visible="false" managed="false">
+                <Label text="Nghệ sĩ"
+                       style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+                <TextField fx:id="txtArtist" promptText="Tên tác giả"
+                           style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                                  -fx-background-radius: 4; -fx-padding: 7 10;"/>
+                <Label text="Chất liệu"
+                       style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+                <TextField fx:id="txtMedium" promptText="VD: Sơn dầu"
+                           style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                                  -fx-background-radius: 4; -fx-padding: 7 10;"/>
+            </VBox>
+
+            <VBox fx:id="vboxVehicle" spacing="8" visible="false" managed="false">
+                <Label text="Loại động cơ"
+                       style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+                <TextField fx:id="txtEngineType" promptText="VD: Xăng, Điện"
+                           style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                                  -fx-background-radius: 4; -fx-padding: 7 10;"/>
+                <Label text="Năm sản xuất"
+                       style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+                <TextField fx:id="txtModelYear" promptText="VD: 2022"
+                           style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                                  -fx-background-radius: 4; -fx-padding: 7 10;"/>
+            </VBox>
+
+            <Label text="Giá khởi điểm (₫) *"
+                   style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+            <TextField fx:id="txtStartingPrice" promptText="VD: 500000"
+                       style="-fx-border-color: #BDBDBD; -fx-border-radius: 4;
+                              -fx-background-radius: 4; -fx-padding: 7 10;"/>
+
+            <Label text="Thời gian kết thúc *"
+                   style="-fx-text-fill: #424242; -fx-font-size: 12;"/>
+            <DatePicker fx:id="datePicker" maxWidth="Infinity"
+                        style="-fx-border-color: #BDBDBD; -fx-border-radius: 4; -fx-background-radius: 4;"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Separator/>
+
+            <Label fx:id="lblFormError" text="" wrapText="true"
+                   style="-fx-text-fill: #C62828; -fx-font-size: 12;"/>
+
+            <HBox spacing="8">
+                <Button fx:id="btnSave" text="💾 Lưu"
+                        onAction="#handleSave"
+                        HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                        style="-fx-background-color: #2E7D32; -fx-text-fill: white;
+                               -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 9;
+                               -fx-font-weight: bold;"/>
+                <Button fx:id="btnCancel" text="Huỷ"
+                        onAction="#handleCancel"
+                        style="-fx-background-color: #EEEEEE; -fx-text-fill: #424242;
+                               -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 9 16;"/>
+            </HBox>
+        </VBox>
+    </left>
+
+    <!-- ===== CENTER: Product Table ===== -->
+    <center>
+        <VBox style="-fx-padding: 16;" spacing="10">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="Sản phẩm của bạn"
+                       style="-fx-font-size: 15; -fx-font-weight: bold; -fx-text-fill: #1B5E20;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <TextField fx:id="txtSearchProduct"
+                           promptText="🔍 Tìm sản phẩm..."
+                           onAction="#handleSearchProduct"
+                           style="-fx-pref-width: 200; -fx-border-color: #BDBDBD;
+                                  -fx-border-radius: 6; -fx-background-radius: 6; -fx-padding: 6 10;"/>
+                <Button text="+ Thêm mới" onAction="#handleNew"
+                        style="-fx-background-color: #2E7D32; -fx-text-fill: white;
+                               -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 7 14;"/>
+            </HBox>
+
+            <TableView fx:id="tblProducts"
+                       VBox.vgrow="ALWAYS"
+                       onMouseClicked="#handleTableClick"
+                       style="-fx-background-color: white; -fx-border-color: #E0E0E0;
+                              -fx-border-radius: 8; -fx-background-radius: 8;">
+                <columns>
+                    <TableColumn fx:id="colItemId"     text="Mã"          prefWidth="80"/>
+                    <TableColumn fx:id="colName"       text="Tên SP"      prefWidth="200"/>
+                    <TableColumn fx:id="colCat"        text="Danh mục"    prefWidth="110"/>
+                    <TableColumn fx:id="colPrice"      text="Giá khởi"    prefWidth="110"/>
+                    <TableColumn fx:id="colCurPrice"   text="Giá hiện tại" prefWidth="120"/>
+                    <TableColumn fx:id="colAucStatus"  text="Đấu giá"     prefWidth="100"/>
+                    <TableColumn fx:id="colActions"    text="Hành động"   prefWidth="140"/>
+                </columns>
+                <placeholder>
+                    <Label text="Bạn chưa có sản phẩm nào. Nhấn '+ Thêm mới' để bắt đầu."
+                           style="-fx-text-fill: #9E9E9E;"/>
+                </placeholder>
+            </TableView>
+
+            <!-- Stats bar -->
+            <HBox spacing="20" style="-fx-padding: 8 0 0 0;">
+                <Label fx:id="lblTotalProducts"
+                       text="Tổng: 0 sản phẩm"
+                       style="-fx-text-fill: #616161; -fx-font-size: 12;"/>
+                <Label fx:id="lblActiveAuctions"
+                       text="Đang đấu giá: 0"
+                       style="-fx-text-fill: #2E7D32; -fx-font-size: 12; -fx-font-weight: bold;"/>
+                <Label fx:id="lblFinishedAuctions"
+                       text="Đã kết thúc: 0"
+                       style="-fx-text-fill: #78909C; -fx-font-size: 12;"/>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>
