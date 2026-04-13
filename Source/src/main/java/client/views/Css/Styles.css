@@ -1,10 +1,26 @@
-.left-form {
+/* ═══════════════════════════════════════════════════════════
+   Styles.css
+   Dung chung cho toan bo project AuctionApp
+   Cau truc:
+     1. LOGIN
+     2. SHARED BUTTONS
+     3. TABLE VIEW
+     4. TOP BAR / HEADER
+     5. FORM INPUTS
+     6. CARD
+     7. SIDEBAR (Admin)
+     8. STATUS BADGES
+═══════════════════════════════════════════════════════════ */
 
+
+/* ═══════════════════════════════════════════════════════════
+   1. LOGIN (giu nguyen code cu)
+═══════════════════════════════════════════════════════════ */
+
+.left-form {
     -fx-background-image: url("images/Scene.png");
     -fx-background-size: cover;
     -fx-background-position: center center;
-
-    /* Lệnh tạo viền ngăn cách 2 bên */
     -fx-border-width: 0 1px 0 0;
     -fx-border-color: #d3d3d3;
 }
@@ -26,7 +42,7 @@
     -fx-font-size: 14px;
     -fx-font-weight: bold;
     -fx-cursor: hand;
-    -fx-background-radius: 5px; /* Bo góc nhẹ cho nút bấm */
+    -fx-background-radius: 5px;
 }
 
 .btn:hover {
@@ -34,4 +50,386 @@
     -fx-text-fill: #4e4376;
     -fx-border-color: #4e4376;
     -fx-border-radius: 5px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   2. SHARED BUTTONS
+═══════════════════════════════════════════════════════════ */
+
+/* Nut chinh (xanh dam) — dung cho: Xem chi tiet, Luu, Dang nhap */
+.btn-primary {
+    -fx-background-color: #1A237E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-primary:hover {
+    -fx-background-color: #283593;
+}
+
+/* Nut nguy hiem (do) — dung cho: Dau gia, Xoa, Dang xuat */
+.btn-danger {
+    -fx-background-color: #C62828;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-danger:hover {
+    -fx-background-color: #B71C1C;
+}
+
+/* Nut thu cap (xanh la) — dung cho: Them moi, Luu san pham */
+.btn-success {
+    -fx-background-color: #2E7D32;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-success:hover {
+    -fx-background-color: #1B5E20;
+}
+
+/* Nut phu (xam) — dung cho: Huy, Quay lai */
+.btn-secondary {
+    -fx-background-color: #EEEEEE;
+    -fx-text-fill: #424242;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-secondary:hover {
+    -fx-background-color: #E0E0E0;
+}
+
+/* Nut trong suot — dung trong Header */
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 4 10;
+}
+.btn-ghost:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-background-radius: 6;
+}
+
+/* Nut dang xuat — vien do */
+.btn-logout {
+    -fx-background-color: transparent;
+    -fx-text-fill: #EF9A9A;
+    -fx-border-color: #EF9A9A;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+    -fx-padding: 4 12;
+    -fx-font-size: 13;
+}
+.btn-logout:hover {
+    -fx-background-color: #C62828;
+    -fx-text-fill: white;
+    -fx-border-color: #C62828;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   3. TABLE VIEW
+═══════════════════════════════════════════════════════════ */
+
+.table-view {
+    -fx-background-color: white;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 13;
+}
+
+.table-view .column-header-background {
+    -fx-background-color: #F5F5F5;
+    -fx-background-radius: 8 8 0 0;
+}
+
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: #F5F5F5;
+    -fx-border-color: #E0E0E0;
+    -fx-border-width: 0 0 1 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: #424242;
+    -fx-padding: 10 8;
+}
+
+.table-row-cell {
+    -fx-background-color: white;
+    -fx-border-color: transparent;
+    -fx-padding: 4 0;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: #FAFAFA;
+}
+
+.table-row-cell:selected {
+    -fx-background-color: #E3F2FD;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #F0F4FF;
+    -fx-cursor: hand;
+}
+
+/* Table Admin (dark theme) */
+.table-view-dark {
+    -fx-background-color: #2C2C2C;
+    -fx-border-color: #3A3A3A;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 13;
+}
+
+.table-view-dark .column-header-background {
+    -fx-background-color: #1E1E1E;
+}
+
+.table-view-dark .column-header,
+.table-view-dark .filler {
+    -fx-background-color: #1E1E1E;
+    -fx-border-color: #3A3A3A;
+    -fx-border-width: 0 0 1 0;
+    -fx-font-weight: bold;
+    -fx-text-fill: #EEEEEE;
+    -fx-padding: 10 8;
+}
+
+.table-view-dark .table-row-cell {
+    -fx-background-color: #2C2C2C;
+    -fx-text-fill: #BDBDBD;
+}
+
+.table-view-dark .table-row-cell:odd {
+    -fx-background-color: #272727;
+}
+
+.table-view-dark .table-row-cell:selected {
+    -fx-background-color: #1A3A5F;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   4. TOP BAR / HEADER
+═══════════════════════════════════════════════════════════ */
+
+/* Header xanh dam — Bidder, AuctionList, ItemDetail */
+.top-bar-blue {
+    -fx-background-color: #1A237E;
+    -fx-padding: 12 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* Header xanh la — Seller */
+.top-bar-green {
+    -fx-background-color: #1B5E20;
+    -fx-padding: 12 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* Header toi — Admin, BiddingScreen */
+.top-bar-dark {
+    -fx-background-color: #1A1A1A;
+    -fx-padding: 12 20;
+    -fx-border-color: #333333;
+    -fx-border-width: 0 0 1 0;
+}
+
+.top-bar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 17;
+    -fx-font-weight: bold;
+}
+
+.top-bar-subtitle {
+    -fx-text-fill: #90CAF9;
+    -fx-font-size: 13;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   5. FORM INPUTS
+═══════════════════════════════════════════════════════════ */
+
+/* TextField chung cho cac form */
+.input-field {
+    -fx-border-color: #BDBDBD;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 7 10;
+    -fx-font-size: 13;
+    -fx-background-color: white;
+}
+
+.input-field:focused {
+    -fx-border-color: #1A237E;
+    -fx-border-width: 1.5;
+}
+
+/* TextField dark (BiddingScreen) */
+.input-field-dark {
+    -fx-background-color: #0A1628;
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #4A6080;
+    -fx-border-color: #2A4F7A;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 10 12;
+    -fx-font-size: 14;
+}
+
+.input-field-dark:focused {
+    -fx-border-color: #42A5F5;
+}
+
+/* TextArea */
+.text-area-field {
+    -fx-border-color: #BDBDBD;
+    -fx-border-radius: 4;
+    -fx-background-radius: 4;
+    -fx-padding: 7 10;
+    -fx-font-size: 13;
+}
+
+/* Label thong bao loi */
+.label-error {
+    -fx-text-fill: #C62828;
+    -fx-font-size: 12;
+}
+
+/* Label thong bao thanh cong */
+.label-success {
+    -fx-text-fill: #2E7D32;
+    -fx-font-size: 12;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   6. CARD (BidderDashboard)
+═══════════════════════════════════════════════════════════ */
+
+/* Card san pham dau gia */
+.auction-card {
+    -fx-background-color: white;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 6, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.auction-card:hover {
+    -fx-border-color: #90CAF9;
+    -fx-effect: dropshadow(gaussian, rgba(26,35,126,0.15), 10, 0, 0, 3);
+}
+
+/* Card nha ban hang */
+.seller-card {
+    -fx-background-color: white;
+    -fx-padding: 16 20;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 1);
+    -fx-alignment: center;
+}
+
+.seller-card:hover {
+    -fx-border-color: #A5D6A7;
+    -fx-effect: dropshadow(gaussian, rgba(46,125,50,0.15), 8, 0, 0, 2);
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   7. SIDEBAR (AdminDashboard)
+═══════════════════════════════════════════════════════════ */
+
+.sidebar {
+    -fx-background-color: #1A1A1A;
+    -fx-padding: 16;
+    -fx-border-color: #333333;
+    -fx-border-width: 0 1 0 0;
+}
+
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #BDBDBD;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 10 14;
+    -fx-font-size: 13;
+}
+
+.nav-btn:hover {
+    -fx-background-color: #252525;
+    -fx-text-fill: #F5F5F5;
+}
+
+.nav-btn-active {
+    -fx-background-color: #2D2D2D;
+    -fx-text-fill: #F5F5F5;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 10 14;
+    -fx-font-size: 13;
+}
+
+/* Stat card trong Admin Overview */
+.stat-card {
+    -fx-background-color: #2C2C2C;
+    -fx-padding: 20;
+    -fx-background-radius: 10;
+    -fx-border-color: #3A3A3A;
+    -fx-border-radius: 10;
+    -fx-alignment: center;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   8. STATUS BADGES
+═══════════════════════════════════════════════════════════ */
+
+/* Dung de to mau dong TableView theo trang thai phien */
+.status-running {
+    -fx-text-fill: #2E7D32;
+    -fx-font-weight: bold;
+}
+
+.status-open {
+    -fx-text-fill: #1565C0;
+    -fx-font-weight: bold;
+}
+
+.status-finished {
+    -fx-text-fill: #757575;
+}
+
+.status-canceled {
+    -fx-text-fill: #C62828;
+}
+
+/* Badge danh muc (Electronics / Art / Vehicle) */
+.badge-category {
+    -fx-background-color: #E3F2FD;
+    -fx-text-fill: #1565C0;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+    -fx-font-size: 10;
 }
