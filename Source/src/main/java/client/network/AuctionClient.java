@@ -1,11 +1,11 @@
-package Server;
+package client.network;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.LinkedList;
 import java.util.Objects;
 
-public class Client {
+public class AuctionClient {
 
     // Các variable cần nhận
     private InetSocketAddress socketAddress;
@@ -15,7 +15,7 @@ public class Client {
 
 
     // Constructors
-    public Client(Socket socket) {
+    public AuctionClient(Socket socket) {
         this.socketAddress = new InetSocketAddress(socket.getInetAddress(), socket.getPort());
         this.socket = socket;
         this.registeredAuctions = new LinkedList<>();

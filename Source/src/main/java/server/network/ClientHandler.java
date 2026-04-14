@@ -1,7 +1,7 @@
-package Server;
+package server.network;
 
-import Server.AuctionException.*;
-import Server.ServerException.*;
+import server.auction.*;
+import server.network.*;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;

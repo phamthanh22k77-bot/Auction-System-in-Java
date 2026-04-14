@@ -1,4 +1,4 @@
-package Server.AuctionException;
+package server.auction;
 
 public class AuctionClientIsOwnerException extends AuctionException {
 

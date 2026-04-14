@@ -1,7 +1,7 @@
-package Server;
+package server.network;
 
-import Server.AuctionException.*;
-import Server.ServerException.*;
+import server.auction.*;
+import server.network.*;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Server {
+public class AuctionServer {
 
     // Lập attribute
     private static ExecutorService pool = Executors.newFixedThreadPool(4);
