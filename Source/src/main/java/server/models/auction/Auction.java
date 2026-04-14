@@ -3,36 +3,32 @@ package server.models.auction;
 import server.models.Entity;
 import java.time.LocalDateTime;
 
-/**
- * Lớp Auction - Đại diện cho một phiên đấu giá độc lập.
- * Áp dụng tính Đóng gói (Encapsulation) và Kế thừa (Inheritance từ Entity).
- */
 public class Auction extends Entity {
-    private String itemId;             // ID của vật phẩm được đưa ra đấu giá
-    private String sellerId;           // ID của người bán
-    private LocalDateTime startTime;   // Thời gian bắt đầu phiên
-    private LocalDateTime endTime;     // Thời gian kết thúc phiên
-    private double startingPrice;      // Giá khởi điểm
-    private double currentHighestBid;  // Giá cao nhất hiện tại
-    private String highestBidderId;    // ID người đang trả giá cao nhất (Leader)
-    private AuctionStatus status;      // Trạng thái phiên đấu giá
+    private String itemId; // ID của vật phẩm được đưa ra đấu giá
+    private String sellerId; // ID của người bán
+    private LocalDateTime startTime; // Thời gian bắt đầu phiên
+    private LocalDateTime endTime; // Thời gian kết thúc phiên
+    private double startingPrice; // Giá khởi điểm
+    private double currentHighestBid; // Giá cao nhất hiện tại
+    private String highestBidderId; // ID người đang trả giá cao nhất (Leader)
+    private AuctionStatus status; // Trạng thái phiên đấu giá
 
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
-    private double minimumBidIncrement; 
+    private double minimumBidIncrement;
 
     // Theo yêu cầu phân công: OPEN -> RUNNING -> FINISHED -> PAID/CANCELED
     public enum AuctionStatus {
-        PENDING,   // Chờ tới giờ mở
-        OPEN,      // Sẵn sàng nhận lượt đấu giá
-        RUNNING,   // Đang diễn ra
-        FINISHED,  // Đã kết thúc (đóng phiên)
-        PAID,      // Đã thanh toán
-        CANCELED   // Bị hủy
+        PENDING, // Chờ tới giờ mở
+        OPEN, // Sẵn sàng nhận lượt đấu giá
+        RUNNING, // Đang diễn ra
+        FINISHED, // Đã kết thúc (đóng phiên)
+        PAID, // Đã thanh toán
+        CANCELED // Bị hủy
     }
 
     // 1. Constructor khởi tạo phiên đấu giá mới
-    public Auction(String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime, 
-                   double startingPrice, double minimumBidIncrement) {
+    public Auction(String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime,
+            double startingPrice, double minimumBidIncrement) {
         super(); // Khởi tạo ID (UUID) từ base class Entity
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -41,13 +37,13 @@ public class Auction extends Entity {
         this.startingPrice = startingPrice;
         this.currentHighestBid = startingPrice; // Lúc đầu giá cao nhất chính là giá khởi điểm
         this.minimumBidIncrement = minimumBidIncrement;
-        this.status = AuctionStatus.PENDING; 
+        this.status = AuctionStatus.PENDING;
     }
 
     // 2. Constructor dùng khi load dữ liệu từ Database
-    public Auction(String id, String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime, 
-                   double startingPrice, double currentHighestBid, String highestBidderId, 
-                   double minimumBidIncrement, AuctionStatus status) {
+    public Auction(String id, String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime,
+            double startingPrice, double currentHighestBid, String highestBidderId,
+            double minimumBidIncrement, AuctionStatus status) {
         super(id);
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -69,7 +65,7 @@ public class Auction extends Entity {
         LocalDateTime now = LocalDateTime.now();
         // Không đổi trạng thái nếu đã kết thúc, thanh toán hoặc bị huỷ
         if (status == AuctionStatus.CANCELED || status == AuctionStatus.PAID || status == AuctionStatus.FINISHED) {
-            return; 
+            return;
         }
 
         if (now.isBefore(startTime)) {
@@ -90,32 +86,77 @@ public class Auction extends Entity {
 
     // --- Getters & Setters (Tính đóng gói - Encapsulation) ---
 
-    public String getItemId() { return itemId; }
-    public void setItemId(String itemId) { this.itemId = itemId; }
+    public String getItemId() {
+        return itemId;
+    }
 
-    public String getSellerId() { return sellerId; }
-    public void setSellerId(String sellerId) { this.sellerId = sellerId; }
+    public void setItemId(String itemId) {
+        this.itemId = itemId;
+    }
 
-    public LocalDateTime getStartTime() { return startTime; }
-    public void setStartTime(LocalDateTime startTime) { this.startTime = startTime; }
+    public String getSellerId() {
+        return sellerId;
+    }
 
-    public LocalDateTime getEndTime() { return endTime; }
-    public void setEndTime(LocalDateTime endTime) { this.endTime = endTime; }
+    public void setSellerId(String sellerId) {
+        this.sellerId = sellerId;
+    }
 
-    public double getStartingPrice() { return startingPrice; }
-    public void setStartingPrice(double startingPrice) { this.startingPrice = startingPrice; }
+    public LocalDateTime getStartTime() {
+        return startTime;
+    }
 
-    public double getCurrentHighestBid() { return currentHighestBid; }
-    public void setCurrentHighestBid(double currentHighestBid) { this.currentHighestBid = currentHighestBid; }
+    public void setStartTime(LocalDateTime startTime) {
+        this.startTime = startTime;
+    }
 
-    public String getHighestBidderId() { return highestBidderId; }
-    public void setHighestBidderId(String highestBidderId) { this.highestBidderId = highestBidderId; }
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
 
-    public double getMinimumBidIncrement() { return minimumBidIncrement; }
-    public void setMinimumBidIncrement(double minimumBidIncrement) { this.minimumBidIncrement = minimumBidIncrement; }
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
 
-    public AuctionStatus getStatus() { return status; }
-    public void setStatus(AuctionStatus status) { this.status = status; }
+    public double getStartingPrice() {
+        return startingPrice;
+    }
+
+    public void setStartingPrice(double startingPrice) {
+        this.startingPrice = startingPrice;
+    }
+
+    public double getCurrentHighestBid() {
+        return currentHighestBid;
+    }
+
+    public void setCurrentHighestBid(double currentHighestBid) {
+        this.currentHighestBid = currentHighestBid;
+    }
+
+    public String getHighestBidderId() {
+        return highestBidderId;
+    }
+
+    public void setHighestBidderId(String highestBidderId) {
+        this.highestBidderId = highestBidderId;
+    }
+
+    public double getMinimumBidIncrement() {
+        return minimumBidIncrement;
+    }
+
+    public void setMinimumBidIncrement(double minimumBidIncrement) {
+        this.minimumBidIncrement = minimumBidIncrement;
+    }
+
+    public AuctionStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AuctionStatus status) {
+        this.status = status;
+    }
 
     @Override
     public String toString() {

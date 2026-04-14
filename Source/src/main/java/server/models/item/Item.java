@@ -3,10 +3,6 @@ package server.models.item;
 import server.models.Entity;
 import java.time.LocalDateTime;
 
-/**
- * Lớp Item - Lớp trừu tượng nền tảng cho mọi vật phẩm đấu giá.
- * Đảm bảo tính đóng gói (Encapsulation) và tính trừu tượng (Abstraction).
- */
 public abstract class Item extends Entity {
     private String name;
     private String description;
