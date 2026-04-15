@@ -27,12 +27,12 @@ public class AutoBid extends Entity {
     // Thuộc tính
     // -----------------------------------------------------------------------
 
-    private final String    auctionId;      // Phiên đấu giá mà auto-bid này thuộc về
-    private final String    bidderId;       // Người sở hữu auto-bid này
-    private final double    maxBid;         // Giá tối đa không được vượt qua
-    private final double    increment;      // Bước giá tăng mỗi lần hệ thống tự đặt
+    private final String auctionId;      // Phiên đấu giá mà auto-bid này thuộc về
+    private final String bidderId;       // Người sở hữu auto-bid này
+    private final double maxBid;         // Giá tối đa không được vượt qua
+    private final double increment;      // Bước giá tăng mỗi lần hệ thống tự đặt
     private final LocalDateTime registeredAt; // Thời điểm đăng ký (dùng để ưu tiên)
-    private       boolean   active;         // false nếu đã bị loại (maxBid không đủ)
+    private boolean active;         // false nếu đã bị loại (maxBid không đủ)
 
     // -----------------------------------------------------------------------
     // Constructor
@@ -48,30 +48,28 @@ public class AutoBid extends Entity {
      */
     public AutoBid(String auctionId, String bidderId, double maxBid, double increment) {
         super(); // ID tự sinh UUID
-        if (maxBid <= 0)       throw new IllegalArgumentException("maxBid phải > 0");
-        if (increment <= 0)    throw new IllegalArgumentException("increment phải > 0");
+        if (maxBid <= 0) throw new IllegalArgumentException("maxBid phải > 0");
+        if (increment <= 0) throw new IllegalArgumentException("increment phải > 0");
 
-        this.auctionId    = auctionId;
-        this.bidderId     = bidderId;
-        this.maxBid       = maxBid;
-        this.increment    = increment;
+        this.auctionId = auctionId;
+        this.bidderId = bidderId;
+        this.maxBid = maxBid;
+        this.increment = increment;
         this.registeredAt = LocalDateTime.now();
-        this.active       = true;
+        this.active = true;
     }
 
     /**
      * Nạp AutoBid TỪ FILE / DATABASE (ID và registeredAt có sẵn).
      */
-    public AutoBid(String id, String auctionId, String bidderId,
-                   double maxBid, double increment,
-                   LocalDateTime registeredAt, boolean active) {
+    public AutoBid(String id, String auctionId, String bidderId, double maxBid, double increment, LocalDateTime registeredAt, boolean active) {
         super(id);
-        this.auctionId    = auctionId;
-        this.bidderId     = bidderId;
-        this.maxBid       = maxBid;
-        this.increment    = increment;
+        this.auctionId = auctionId;
+        this.bidderId = bidderId;
+        this.maxBid = maxBid;
+        this.increment = increment;
         this.registeredAt = registeredAt;
-        this.active       = active;
+        this.active = active;
     }
 
     // -----------------------------------------------------------------------
@@ -115,17 +113,12 @@ public class AutoBid extends Entity {
 
     /**
      * Xử lý tất cả auto-bid đang hoạt động cho phiên {@code auction}.
-     *
-     * <p>Thuật toán:
-     * <ol>
-     *   <li>Lọc các auto-bid còn active và có thể cạnh tranh.</li>
-     *   <li>Sắp xếp theo maxBid giảm dần → người có maxBid cao hơn được ưu tiên.</li>
-     *   <li>Nếu maxBid bằng nhau → ưu tiên theo registeredAt (đăng ký sớm hơn = ưu tiên hơn).</li>
-     *   <li>Auto-bid xếp #1 sẽ đặt giá = (maxBid của #2) + increment của #1.</li>
-     *      Nếu chỉ có 1 auto-bid → đặt currentPrice + increment của nó.</li>
-     *   <li>Auto-bid nào không đủ điều kiện sẽ bị deactivate().</li>
-     * </ol>
-     *
+     * Lọc các auto-bid còn active và có thể cạnh tranh.
+     * Sắp xếp theo maxBid giảm dần → người có maxBid cao hơn được ưu tiên.
+     * Nếu maxBid bằng nhau → ưu tiên theo registeredAt (đăng ký sớm hơn = ưu tiên hơn).
+     * Auto-bid xếp #1 sẽ đặt giá = (maxBid của #2) + increment của #1.
+     * Nếu chỉ có 1 auto-bid → đặt currentPrice + increment của nó.
+     * Auto-bid nào không đủ điều kiện sẽ bị deactivate().
      * @param auction  Phiên đấu giá cần xử lý
      * @param autoBids Danh sách tất cả auto-bid của phiên này
      * @return ID của người thắng sau khi xử lý, null nếu không có ai đủ điều kiện
@@ -157,13 +150,10 @@ public class AutoBid extends Entity {
 
         // Bước 2: Sắp xếp — maxBid cao hơn → xếp trước
         //                      maxBid bằng nhau → đăng ký sớm hơn → xếp trước (ưu tiên)
-        candidates.sort(
-                Comparator.comparingDouble(AutoBid::getMaxBid).reversed()
-                        .thenComparing(AutoBid::getRegisteredAt)
-        );
+        candidates.sort(Comparator.comparingDouble(AutoBid::getMaxBid).reversed().thenComparing(AutoBid::getRegisteredAt));
 
-        AutoBid winner   = candidates.get(0); // Người có ưu thế cao nhất
-        double  bidPrice;
+        AutoBid winner = candidates.get(0); // Người có ưu thế cao nhất
+        double bidPrice;
 
         if (candidates.size() == 1) {
             // Chỉ 1 người → đặt thêm increment của chính họ
@@ -211,22 +201,19 @@ public class AutoBid extends Entity {
     /**
      * Xử lý khi một bid THỦ CÔNG được đặt (kích hoạt phản ứng dây chuyền).
      *
-     * <p>Khi bidder thường đặt giá, hệ thống kiểm tra xem có auto-bid nào
-     * phản ứng lại không, và chạy vòng lặp cho đến khi ổn định.</p>
+     * Khi bidder thường đặt giá, hệ thống kiểm tra xem có auto-bid nào
+     * phản ứng lại không, và chạy vòng lặp cho đến khi ổn định.
      *
      * @param manualBidAmount Giá vừa được đặt thủ công
      * @param manualBidderId  ID người vừa đặt thủ công
      * @param auction         Phiên đấu giá
      * @param autoBids        Danh sách auto-bid của phiên
      */
-    public static synchronized void handleManualBid(double manualBidAmount,
-                                                    String manualBidderId,
-                                                    Auction auction,
-                                                    List<AutoBid> autoBids) {
+    public static synchronized void handleManualBid(double manualBidAmount, String manualBidderId, Auction auction, List<AutoBid> autoBids) {
         System.out.printf("%n[AutoBid] Phát hiện bid thủ công từ %s: $%.2f. Kích hoạt auto-bid...%n",
                 manualBidderId, manualBidAmount);
 
-        int maxRounds = 20; // Chặn vòng lặp vô tận trong trường hợp cực đoan
+        int maxRounds = 20; // Chặn vòng lặp vô tận
         int round     = 0;
 
         while (round < maxRounds) {
@@ -255,17 +242,15 @@ public class AutoBid extends Entity {
     // Getters
     // -----------------------------------------------------------------------
 
-    public String        getAuctionId()    { return auctionId; }
-    public String        getBidderId()     { return bidderId; }
-    public double        getMaxBid()       { return maxBid; }
-    public double        getIncrement()    { return increment; }
+    public String getAuctionId() { return auctionId; }
+    public String getBidderId() { return bidderId; }
+    public double getMaxBid() { return maxBid; }
+    public double getIncrement() { return increment; }
     public LocalDateTime getRegisteredAt() { return registeredAt; }
-    public boolean       isActive()        { return active; }
+    public boolean isActive() { return active; }
 
     @Override
     public String toString() {
-        return String.format(
-                "AutoBid{bidderId='%s', maxBid=%.2f, increment=%.2f, registeredAt=%s, active=%b}",
-                bidderId, maxBid, increment, registeredAt, active);
+        return String.format( "AutoBid{bidderId='%s', maxBid=%.2f, increment=%.2f, registeredAt=%s, active=%b}", bidderId, maxBid, increment, registeredAt, active);
     }
 }
