@@ -26,8 +26,8 @@ public class Art extends Item {
     }
 
     @Override
-    public String getCategory() {
-        return "ART";
+    public ItemCategory getCategory() {
+        return ItemCategory.ART;
     }
 
     @Override

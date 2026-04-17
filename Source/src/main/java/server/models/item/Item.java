@@ -41,7 +41,7 @@ public abstract class Item extends Entity {
         this.status = status;
     }
 
-    public abstract String getCategory();
+    public abstract ItemCategory getCategory();
 
     public abstract void printInfo();
 

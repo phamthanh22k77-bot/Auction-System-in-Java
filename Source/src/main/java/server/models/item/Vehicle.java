@@ -30,8 +30,8 @@ public class Vehicle extends Item {
     }
 
     @Override
-    public String getCategory() {
-        return "VEHICLE";
+    public ItemCategory getCategory() {
+        return ItemCategory.VEHICLE;
     }
 
     @Override
