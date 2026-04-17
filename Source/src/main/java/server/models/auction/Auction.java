@@ -18,12 +18,12 @@ public class Auction extends Entity {
 
     // Theo yêu cầu phân công: OPEN -> RUNNING -> FINISHED -> PAID/CANCELED
     public enum AuctionStatus {
-        PENDING, // Chờ tới giờ mở
-        OPEN, // Sẵn sàng nhận lượt đấu giá
-        RUNNING, // Đang diễn ra
-        FINISHED, // Đã kết thúc (đóng phiên)
-        PAID, // Đã thanh toán
-        CANCELED // Bị hủy
+        PENDING,
+        OPEN,
+        RUNNING,
+        FINISHED,
+        PAID,
+        CANCELED
     }
 
     // 1. Constructor khởi tạo phiên đấu giá mới
@@ -35,7 +35,7 @@ public class Auction extends Entity {
         this.startTime = startTime;
         this.endTime = endTime;
         this.startingPrice = startingPrice;
-        this.currentHighestBid = startingPrice; // Lúc đầu giá cao nhất chính là giá khởi điểm
+        this.currentHighestBid = startingPrice;
         this.minimumBidIncrement = minimumBidIncrement;
         this.status = AuctionStatus.PENDING;
     }
@@ -55,12 +55,6 @@ public class Auction extends Entity {
         this.minimumBidIncrement = minimumBidIncrement;
         this.status = status;
     }
-
-    // --- Các hàm Logic Nghiệp vụ (Business Logic) cơ bản ---
-
-    /**
-     * Cập nhật trạng thái của phiên đấu giá dựa trên thời gian hiện tại
-     */
     public void updateStatus() {
         LocalDateTime now = LocalDateTime.now();
         // Không đổi trạng thái nếu đã kết thúc, thanh toán hoặc bị huỷ
@@ -76,15 +70,9 @@ public class Auction extends Entity {
             setStatus(AuctionStatus.FINISHED);
         }
     }
-
-    /**
-     * Kểm tra xem phiên đấu giá có đang mở/đang diễn ra không
-     */
     public boolean isActive() {
         return this.status == AuctionStatus.RUNNING || this.status == AuctionStatus.OPEN;
     }
-
-    // --- Getters & Setters (Tính đóng gói - Encapsulation) ---
 
     public String getItemId() {
         return itemId;
