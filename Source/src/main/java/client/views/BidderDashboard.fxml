@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.text.Font?>
+
+<BorderPane prefHeight="800.0" prefWidth="1200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.BidderDashboardController">
+    
+    <top>
+        <HBox alignment="CENTER_LEFT" prefHeight="65.0" spacing="20.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 1 0;" BorderPane.alignment="CENTER">
+            <padding>
+                <Insets bottom="10.0" left="25.0" right="25.0" top="10.0" />
+            </padding>
+            <Label text="AUCTION PRO" textFill="#2c3e50">
+                <font>
+                    <Font name="System Bold" size="22.0" />
+                </font>
+            </Label>
+            <Region HBox.hgrow="ALWAYS" /> 
+            <Button style="-fx-background-color: transparent; -fx-cursor: hand;" text="Trang chủ">
+                <font><Font size="15.0" /></font>
+            </Button>
+            <Button style="-fx-background-color: transparent; -fx-cursor: hand;" text="Hỗ trợ">
+                <font><Font size="15.0" /></font>
+            </Button>
+            <HBox alignment="CENTER" spacing="15.0">
+                <Button style="-fx-background-color: #f5f6f7; -fx-background-radius: 20; -fx-cursor: hand;" text="🛒 Giỏ hàng" />
+                <Button style="-fx-background-color: #f5f6f7; -fx-background-radius: 20; -fx-cursor: hand;" text="🔔 Thông báo" />
+                <Button fx:id="profileButton" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-background-radius: 20; -fx-cursor: hand;" text="👤 User" />
+            </HBox>
+        </HBox>
+    </top>
+
+    <center>
+        <HBox prefHeight="100.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <children>
+                
+                <ScrollPane fitToWidth="true" prefWidth="800.0" style="-fx-background-color: transparent;" HBox.hgrow="ALWAYS">
+                    <VBox spacing="20.0" style="-fx-background-color: #f9f9f9;">
+                        <padding>
+                            <Insets bottom="20.0" left="25.0" right="25.0" top="20.0" />
+                        </padding>
+
+                        <VBox spacing="15.0">
+                            <children>
+                                <HBox spacing="10.0">
+                                    <Button style="-fx-background-color: #2c3e50; -fx-text-fill: white;" text="All" />
+                                    <Button style="-fx-background-color: white; -fx-border-color: #ccc; -fx-border-radius: 5;" text="Art" />
+                                    <Button style="-fx-background-color: white; -fx-border-color: #ccc; -fx-border-radius: 5;" text="Vehicles" />
+                                    <Button style="-fx-background-color: white; -fx-border-color: #ccc; -fx-border-radius: 5;" text="Electronics" />
+                                </HBox>
+                                <HBox spacing="10.0" alignment="CENTER_LEFT">
+                                    <TextField prefHeight="35.0" prefWidth="400.0" promptText="🔍 Tìm kiếm sản phẩm..." style="-fx-background-radius: 20; -fx-border-color: #ccc; -fx-border-radius: 20;" />
+                                    <Button style="-fx-background-color: white; -fx-border-color: #ccc;" text="Bộ lọc" />
+                                </HBox>
+                            </children>
+                        </VBox>
+
+                        <Label text="Sản phẩm đang đấu giá">
+                            <font><Font name="System Bold" size="18.0" /></font>
+                        </Label>
+
+                        <FlowPane fx:id="itemGridPane" hgap="20.0" vgap="20.0">
+                            <children>
+                                
+                                <VBox fx:id="carItemCard" prefWidth="220.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0); -fx-background-radius: 8; -fx-cursor: hand;" onMouseClicked="#handleCarClick">
+                                    <StackPane prefHeight="120.0" style="-fx-background-color: #ecf0f1; -fx-background-radius: 8 8 0 0;">
+                                        <Label text="[Ảnh Xe ô tô]" textFill="#7f8c8d" />
+                                    </StackPane>
+                                    <VBox spacing="5.0" style="-fx-padding: 10;">
+                                        <Label text="Tesla Model 3 - 2023" wrapText="true"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                        <Label text="Giá: 1.200.000.000 đ" textFill="#e74c3c"><font><Font name="System Bold" size="13.0" /></font></Label>
+                                        <Label text="Còn: 2d 7m 5s" textFill="#27ae60" />
+                                    </VBox>
+                                </VBox>
+                                
+                                <VBox fx:id="artItemCard" prefWidth="220.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0); -fx-background-radius: 8; -fx-cursor: hand;" onMouseClicked="#handleArtClick">
+                                    <StackPane prefHeight="120.0" style="-fx-background-color: #ecf0f1; -fx-background-radius: 8 8 0 0;">
+                                        <Label text="[Ảnh Tranh]" textFill="#7f8c8d" />
+                                    </StackPane>
+                                    <VBox spacing="5.0" style="-fx-padding: 10;">
+                                        <Label text="Bức tranh Mùa Xuân" wrapText="true"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                        <Label text="Giá: 15.000.000 đ" textFill="#e74c3c"><font><Font name="System Bold" size="13.0" /></font></Label>
+                                        <Label text="Còn: 10h 5m" textFill="#27ae60" />
+                                    </VBox>
+                                </VBox>
+                                
+                                <VBox fx:id="laptopItemCard" prefWidth="220.0" style="-fx-background-color: white; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 8, 0, 0, 0); -fx-background-radius: 8; -fx-cursor: hand;" onMouseClicked="#handleLaptopClick">
+                                    <StackPane prefHeight="120.0" style="-fx-background-color: #ecf0f1; -fx-background-radius: 8 8 0 0;">
+                                        <Label text="[Ảnh Laptop]" textFill="#7f8c8d" />
+                                    </StackPane>
+                                    <VBox spacing="5.0" style="-fx-padding: 10;">
+                                        <Label text="MacBook Pro M2 2022" wrapText="true"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                        <Label text="Giá: 32.000.000 đ" textFill="#e74c3c"><font><Font name="System Bold" size="13.0" /></font></Label>
+                                        <Label text="Còn: 1h 30m" textFill="#27ae60" />
+                                    </VBox>
+                                </VBox>
+
+                            </children>
+                        </FlowPane>
+                    </VBox>
+                </ScrollPane>
+
+                <VBox fx:id="itemDetailPanel" prefWidth="380.0" style="-fx-background-color: #ffffff; -fx-border-color: #e0e0e0; -fx-border-width: 0 0 0 1;" visible="false">
+                    <padding>
+                        <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+                    </padding>
+                    <children>
+                        <StackPane prefHeight="220.0" style="-fx-background-color: #ecf0f1; -fx-background-radius: 5;">
+                            <Label fx:id="detailImagePlaceholder" text="[Ảnh Sản Phẩm]" textFill="#7f8c8d" />
+                        </StackPane>
+                        
+                        <VBox spacing="10.0" style="-fx-padding: 15 0;">
+                            <children>
+                                <Label fx:id="detailTitleLabel" text="Tên sản phẩm đấu giá" wrapText="true">
+                                    <font><Font name="System Bold" size="18.0" /></font>
+                                </Label>
+                                <Label fx:id="detailCurrentPrice" text="Giá hiện tại: xxx đ" textFill="#e74c3c">
+                                    <font><Font name="System Bold" size="15.0" /></font>
+                                </Label>
+                                <Label fx:id="detailTimeRemaining" text="Tgian còn lại: 2d 7m 5s" textFill="#27ae60" />
+                            </children>
+                        </VBox>
+
+                        <Separator />
+
+                        <HBox alignment="CENTER_LEFT" spacing="10.0" style="-fx-padding: 15 0;">
+                            <children>
+                                <Circle fill="#d6eaf8" radius="25.0" />
+                                <VBox spacing="3.0">
+                                    <children>
+                                        <Label fx:id="detailShopName" text="Shop Ô tô Hào Hùng"><font><Font name="System Bold" size="14.0" /></font></Label>
+                                        <Label fx:id="detailShopRating" text="⭐⭐⭐⭐⭐ 99.8% uy tín" textFill="#f39c12" />
+                                    </children>
+                                </VBox>
+                            </children>
+                        </HBox>
+
+                        <Separator />
+
+                        <VBox fx:id="descriptionVBox" spacing="10.0" style="-fx-padding: 15 0;">
+                            <children>
+                                <Label text="Mô tả sản phẩm">
+                                    <font><Font name="System Bold" size="14.0" /></font>
+                                </Label>
+                                <GridPane hgap="10.0" vgap="8.0">
+                                  <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="80.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="150.0" />
+                                  </columnConstraints>
+                                  <rowConstraints>
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                  </rowConstraints>
+                                   <children>
+                                      <Label text="Brand:" />
+                                      <Label fx:id="descBrand" text="..." GridPane.columnIndex="1" />
+                                      <Label text="Model:" GridPane.rowIndex="1" />
+                                      <Label fx:id="descModel" text="..." GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                      <Label text="Year:" GridPane.rowIndex="2" />
+                                      <Label fx:id="descYear" text="..." GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                                   </children>
+                                </GridPane>
+                            </children>
+                        </VBox>
+
+                        <Region VBox.vgrow="ALWAYS" /> <Button fx:id="placeBidButton" maxWidth="Double.MAX_VALUE" prefHeight="45.0" style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-cursor: hand;" text="Đấu giá">
+                            <font><Font name="System Bold" size="16.0" /></font>
+                        </Button>
+                    </children>
+                </VBox>
+            </children>
+        </HBox>
+    </center>
+</BorderPane>

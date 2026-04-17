@@ -1,0 +1,254 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<!--
+
+    Cau truc 4 khoi chinh:
+      1. Header  — ten san pham + nut dong
+      2. Nhap gia — [-] [so tien] [+]
+      3. Vi thanh toan — so du + Nap them
+      4. Bang phi — phi thanh toan / phi dv / tong tien
+      5. Nut "Dat gia ngay"
+
+-->
+
+<BorderPane
+    prefWidth="460.0"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="client.controllers.BidConfirmationController"
+    style="-fx-background-color: white;
+           -fx-background-radius: 12;
+           -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 20, 0, 0, 4);">
+
+    <!-- ══ HEADER ══════════════════════════════════════════ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="10"
+              style="-fx-background-color: #2c3e50;
+                     -fx-background-radius: 12 12 0 0;
+                     -fx-padding: 14 20;">
+
+            <!-- Ten san pham (duoc set tu BidderDashboardController) -->
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+                <Label text="Xac nhan dat gia"
+                       style="-fx-text-fill: white; -fx-font-size: 16; -fx-font-weight: bold;"/>
+                <Label fx:id="lblItemName" text="San pham..."
+                       style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
+            </VBox>
+
+            <!-- Nut dong popup -->
+            <Button text="X" onAction="#handleClose"
+                    style="-fx-background-color: transparent;
+                           -fx-text-fill: #95a5a6; -fx-font-size: 16;
+                           -fx-cursor: hand;"/>
+        </HBox>
+    </top>
+
+    <!-- ══ NOI DUNG CHINH ══════════════════════════════════ -->
+    <center>
+        <VBox spacing="0">
+
+            <!-- ── KHOI 1: Gia dau cua ban ──────────────── -->
+            <VBox spacing="10"
+                  style="-fx-padding: 20 20 16 20;
+                         -fx-border-color: transparent transparent #f0f0f0 transparent;
+                         -fx-border-width: 0 0 1 0;">
+
+                <Label text="Gia dau cua ban"
+                       style="-fx-text-fill: #7f8c8d; -fx-font-size: 13;"/>
+
+                <!-- Gia hien tai cua phien -->
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="Gia hien tai:"
+                           style="-fx-text-fill: #95a5a6; -fx-font-size: 12;"/>
+                    <Label fx:id="lblCurrentHighest" text="0 d"
+                           style="-fx-text-fill: #e74c3c; -fx-font-size: 12; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <!-- [-] input [+] -->
+                <HBox alignment="CENTER" spacing="0"
+                      style="-fx-border-color: #bdc3c7; -fx-border-radius: 8;
+                             -fx-background-color: white; -fx-background-radius: 8;">
+
+                    <!-- Nut giam -->
+                    <Button fx:id="btnDecrease" text="-"
+                            onAction="#handleDecrease"
+                            prefWidth="48" prefHeight="52"
+                            style="-fx-background-color: #ecf0f1;
+                                   -fx-background-radius: 8 0 0 8;
+                                   -fx-font-size: 22; -fx-font-weight: bold;
+                                   -fx-text-fill: #2c3e50; -fx-cursor: hand;
+                                   -fx-border-color: transparent;"/>
+
+                    <!-- O nhap so tien -->
+                    <TextField fx:id="bidAmountField"
+                               HBox.hgrow="ALWAYS"
+                               prefHeight="52"
+                               alignment="CENTER"
+                               style="-fx-background-color: transparent;
+                                      -fx-border-color: #bdc3c7;
+                                      -fx-border-width: 0 1 0 1;
+                                      -fx-font-size: 20; -fx-font-weight: bold;
+                                      -fx-text-fill: #2c3e50;
+                                      -fx-background-radius: 0;"/>
+
+                    <!-- Nut tang -->
+                    <Button fx:id="btnIncrease" text="+"
+                            onAction="#handleIncrease"
+                            prefWidth="48" prefHeight="52"
+                            style="-fx-background-color: #ecf0f1;
+                                   -fx-background-radius: 0 8 8 0;
+                                   -fx-font-size: 22; -fx-font-weight: bold;
+                                   -fx-text-fill: #2c3e50; -fx-cursor: hand;
+                                   -fx-border-color: transparent;"/>
+                </HBox>
+
+                <!-- Quick-step buttons -->
+                <HBox spacing="8" alignment="CENTER_LEFT">
+                    <Label text="Tang nhanh:"
+                           style="-fx-text-fill: #95a5a6; -fx-font-size: 11;"/>
+                    <Button fx:id="btnStep1" text="+100k" onAction="#handleQuickStep"
+                            style="-fx-background-color: #eaf4fb;
+                                   -fx-text-fill: #2980b9; -fx-border-color: #aed6f1;
+                                   -fx-border-radius: 12; -fx-background-radius: 12;
+                                   -fx-cursor: hand; -fx-padding: 3 10; -fx-font-size: 11;"/>
+                    <Button fx:id="btnStep2" text="+500k" onAction="#handleQuickStep"
+                            style="-fx-background-color: #eaf4fb;
+                                   -fx-text-fill: #2980b9; -fx-border-color: #aed6f1;
+                                   -fx-border-radius: 12; -fx-background-radius: 12;
+                                   -fx-cursor: hand; -fx-padding: 3 10; -fx-font-size: 11;"/>
+                    <Button fx:id="btnStep3" text="+1tr" onAction="#handleQuickStep"
+                            style="-fx-background-color: #eaf4fb;
+                                   -fx-text-fill: #2980b9; -fx-border-color: #aed6f1;
+                                   -fx-border-radius: 12; -fx-background-radius: 12;
+                                   -fx-cursor: hand; -fx-padding: 3 10; -fx-font-size: 11;"/>
+                </HBox>
+            </VBox>
+
+            <!-- ── KHOI 2: Phuong thuc thanh toan ────────── -->
+            <VBox spacing="8"
+                  style="-fx-padding: 16 20;
+                         -fx-border-color: transparent transparent #f0f0f0 transparent;
+                         -fx-border-width: 0 0 1 0;">
+
+                <HBox alignment="CENTER_LEFT">
+                    <Label text="Phuong thuc thanh toan"
+                           style="-fx-text-fill: #7f8c8d; -fx-font-size: 13;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Hyperlink text="Nap them >" onAction="#handleTopUp"
+                               style="-fx-text-fill: #3498db; -fx-font-size: 12;"/>
+                </HBox>
+
+                <!-- Vi thanh toan -->
+                <HBox alignment="CENTER_LEFT" spacing="12"
+                      style="-fx-background-color: #f8f9fa;
+                             -fx-border-color: #dee2e6; -fx-border-radius: 8;
+                             -fx-background-radius: 8; -fx-padding: 12 14;">
+
+                    <!-- Icon vi -->
+                    <StackPane prefWidth="36" prefHeight="36"
+                               style="-fx-background-color: #3498db;
+                                      -fx-background-radius: 8;">
+                        <Label text="Vi" style="-fx-text-fill: white; -fx-font-size: 11; -fx-font-weight: bold;"/>
+                    </StackPane>
+
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label text="Vi dien tu AuctionApp"
+                               style="-fx-font-weight: bold; -fx-text-fill: #2c3e50; -fx-font-size: 13;"/>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="So du:"
+                                   style="-fx-text-fill: #7f8c8d; -fx-font-size: 12;"/>
+                            <Label fx:id="lblBalance" text="0 d"
+                                   style="-fx-text-fill: #27ae60; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Tick chon -->
+                    <Label text="✓"
+                           style="-fx-text-fill: #27ae60; -fx-font-size: 16; -fx-font-weight: bold;"/>
+                </HBox>
+            </VBox>
+
+            <!-- ── KHOI 3: Bang phi dau gia ───────────────── -->
+            <VBox spacing="0"
+                  style="-fx-padding: 16 20;
+                         -fx-border-color: transparent transparent #f0f0f0 transparent;
+                         -fx-border-width: 0 0 1 0;">
+
+                <Label text="Phi dau gia"
+                       style="-fx-text-fill: #7f8c8d; -fx-font-size: 13; -fx-padding: 0 0 10 0;"/>
+
+                <!-- Phi thanh toan -->
+                <HBox spacing="5" style="-fx-padding: 6 0;">
+                    <Label text="Phi thanh toan (1%):"
+                           style="-fx-text-fill: #636e72; -fx-font-size: 13;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblPaymentFee" text="0 d"
+                           style="-fx-text-fill: #2d3436; -fx-font-size: 13;"/>
+                </HBox>
+
+                <!-- Phi dich vu -->
+                <HBox spacing="5" style="-fx-padding: 6 0;">
+                    <Label text="Phi dich vu (0.5%):"
+                           style="-fx-text-fill: #636e72; -fx-font-size: 13;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblServiceFee" text="0 d"
+                           style="-fx-text-fill: #2d3436; -fx-font-size: 13;"/>
+                </HBox>
+
+                <Separator style="-fx-padding: 4 0;"/>
+
+                <!-- Tong tien -->
+                <HBox spacing="5" style="-fx-padding: 8 0 0 0;">
+                    <Label text="Tong tien:"
+                           style="-fx-text-fill: #2d3436; -fx-font-size: 14; -fx-font-weight: bold;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblTotal" text="0 d"
+                           style="-fx-text-fill: #e74c3c; -fx-font-size: 15; -fx-font-weight: bold;"/>
+                </HBox>
+
+                <!-- Canh bao so du -->
+                <Label fx:id="lblBalanceWarning" text=""
+                       style="-fx-text-fill: #e67e22; -fx-font-size: 11;
+                              -fx-padding: 4 0 0 0;"
+                       visible="false" managed="false"/>
+            </VBox>
+
+            <!-- ── THONG BAO LOI ───────────────────────────── -->
+            <Label fx:id="lblError" text=""
+                   style="-fx-text-fill: #e74c3c; -fx-font-size: 12;
+                          -fx-padding: 8 20 0 20;"
+                   wrapText="true"
+                   visible="false" managed="false"/>
+
+            <!-- ── NUT DAT GIA NGAY ──────────────────────── -->
+            <VBox style="-fx-padding: 16 20 20 20;">
+                <Button fx:id="btnConfirm"
+                        maxWidth="Infinity"
+                        prefHeight="48"
+                        text="Dat gia ngay"
+                        onAction="#handleConfirm"
+                        style="-fx-background-color: #27ae60;
+                               -fx-text-fill: white; -fx-cursor: hand;
+                               -fx-background-radius: 8;
+                               -fx-font-size: 15; -fx-font-weight: bold;">
+                    <font><Font name="System Bold" size="15.0"/></font>
+                </Button>
+            </VBox>
+
+        </VBox>
+    </center>
+
+</BorderPane>
