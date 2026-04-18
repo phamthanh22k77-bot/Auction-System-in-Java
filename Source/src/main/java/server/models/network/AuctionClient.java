@@ -1,9 +1,8 @@
-package client.network;
+package server.models.network;
 
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.LinkedList;
-import java.util.Objects;
 
 public class AuctionClient {
 
