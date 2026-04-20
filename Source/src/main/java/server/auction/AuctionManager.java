@@ -12,48 +12,36 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * AuctionManager — Singleton quản lý toàn bộ các phiên đấu giá.
+ * AuctionManager — Singleton trung tâm quản lý toàn bộ các Phiên đấu giá.
  *
- * ┌──────────────────────────────────────────────────────────────┐
- * │  Cơ chế Singleton: Double-Checked Locking (DCL)             │
- * │  - volatile đảm bảo visibility giữa các thread               │
- * │  - synchronized chỉ chạy 1 lần duy nhất khi khởi tạo        │
- * │  - Sau khi có instance, không còn overhead của lock nữa      │
- * │                                                              │
- * │  Thread-safety cho dữ liệu:                                  │
- * │  - Mỗi thao tác ghi (tao/dat/capNhat) dùng synchronized      │
- * │  - layTatCa() trả về bản sao phòng thủ (defensive copy)      │
- * │  - AuctionDAO đã được gọi bên trong synchronized block       │
- * └──────────────────────────────────────────────────────────────┘
+ * - Đảm bảo tính Thread-safe bằng Double-Checked Locking khi khởi tạo.
+ * - Triển khai cơ chế Observer Pattern thông báo sự kiện Bidding.
+ * - Tích hợp cấu trúc PriorityQueue để xử lý Auto-Bid.
  */
 public class AuctionManager {
 
-    // =========================================================================
-    // Singleton — Double-Checked Locking
-    // =========================================================================
-
     /**
-     * volatile bắt buộc: ngăn CPU/JVM tái sắp xếp lệnh (instruction reordering).
-     * Nếu thiếu volatile, thread B có thể thấy instance != null nhưng object
-     * bên trong chưa được khởi tạo hoàn toàn.
+     * Singleton Instance: Dùng từ khóa volatile để ngăn CPU tái sắp xếp lệnh
+     * (Instruction Reordering), đảm bảo khởi tạo an toàn.
      */
     private static volatile AuctionManager instance;
 
     /** Constructor private — cấm new AuctionManager() từ bên ngoài. */
-    private AuctionManager() {}
+    private AuctionManager() {
+    }
 
     /**
      * Trả về instance duy nhất của AuctionManager.
      *
      * Luồng hoạt động:
-     * 1. Kiểm tra lần 1 (KHÔNG lock)  → hầu hết các lần gọi dừng ở đây.
-     * 2. Vào synchronized block         → chỉ 1 thread được vào tại 1 thời điểm.
-     * 3. Kiểm tra lần 2 (CÓ lock)      → ngăn tạo trùng khi 2 thread vào cùng lúc.
+     * 1. Kiểm tra lần 1 (KHÔNG lock) → hầu hết các lần gọi dừng ở đây.
+     * 2. Vào synchronized block → chỉ 1 thread được vào tại 1 thời điểm.
+     * 3. Kiểm tra lần 2 (CÓ lock) → ngăn tạo trùng khi 2 thread vào cùng lúc.
      */
     public static AuctionManager getInstance() {
-        if (instance == null) {                      // Kiểm tra lần 1 — không lock (fast path)
+        if (instance == null) { // Kiểm tra lần 1 — không lock (fast path)
             synchronized (AuctionManager.class) {
-                if (instance == null) {              // Kiểm tra lần 2 — đã lock (safe path)
+                if (instance == null) { // Kiểm tra lần 2 — đã lock (safe path)
                     instance = new AuctionManager();
                 }
             }
@@ -61,14 +49,7 @@ public class AuctionManager {
         return instance;
     }
 
-    // =========================================================================
-    // Thuộc tính
-    // =========================================================================
-
-    /**
-     * Cache in-memory toàn bộ phiên đấu giá.
-     * Dùng ArrayList thông thường — thread-safety được xử lý qua synchronized method.
-     */
+    /** Danh sách lưu trữ trong bộ nhớ in-memory (Cần đồng bộ thủ công). */
     private final List<Auction> auctions = new ArrayList<>();
 
     /**
@@ -77,20 +58,43 @@ public class AuctionManager {
      */
     private final AuctionDAO dao = new AuctionDAO();
 
-    // =========================================================================
-    // Anti-Sniping — Hằng số cấu hình
-    // =========================================================================
+    /** Danh sách các Observer đã đăng ký nhận thông báo. */
+    private final List<BidObserver> observers = new java.util.concurrent.CopyOnWriteArrayList<>();
 
-    /** Ngưỡng thời gian (giây) kích hoạt Anti-Sniping. */
+    /**
+     * Cho phép ai đó đăng ký nhận thông báo (Ví dụ: Class in Log, Class gửi tin
+     * Network)
+     */
+    public void addObserver(BidObserver observer) {
+        if (!observers.contains(observer)) {
+            observers.add(observer);
+            System.out.println(
+                    "[Observer] Đã có một khán giả đăng ký nhận tin Bid mới: " + observer.getClass().getSimpleName());
+        }
+    }
+
+    /** Xóa đăng ký khi không muốn nhận thông báo nữa */
+    public void removeObserver(BidObserver observer) {
+        if (observers.remove(observer)) {
+            System.out.println("[Observer] Đã hủy đăng ký nhận tin của: " + observer.getClass().getSimpleName());
+        }
+    }
+
+    /**
+     * HÀM PHÁT LOA: Gọi tất cả những ai có trong danh sách đang đăng ký để báo tin.
+     * Nó tự động chạy qua cái danh sách và ấn nút "onBidPlaced" cho từng ông.
+     */
+    private void notifyObservers(Auction auction, String bidderId, double bidAmount) {
+        for (BidObserver obs : observers) {
+            obs.onBidPlaced(auction, bidderId, bidAmount);
+        }
+    }
+
+    /** Thời gian (giây) kích hoạt Anti-Sniping. */
     private static final long ANTI_SNIPE_THRESHOLD_SECONDS = 120; // 2 phút
 
     /** Thời gian gia hạn thêm (giây) khi Anti-Sniping kích hoạt. */
     private static final long ANTI_SNIPE_EXTENSION_SECONDS = 120; // +2 phút
-
-
-    // =========================================================================
-    // Khởi động — nạp dữ liệu từ file
-    // =========================================================================
 
     /**
      * Nạp toàn bộ dữ liệu từ file JSON vào bộ nhớ.
@@ -108,10 +112,6 @@ public class AuctionManager {
         System.out.println("[AuctionManager] Đã nạp " + auctions.size()
                 + " phiên đấu giá. Sẵn sàng nhận kết nối.");
     }
-
-    // =========================================================================
-    // Tạo phiên đấu giá mới
-    // =========================================================================
 
     /**
      * Tạo một phiên đấu giá mới và lưu ngay vào file.
@@ -141,25 +141,8 @@ public class AuctionManager {
         return auction;
     }
 
-    // =========================================================================
-    // Đặt giá thủ công (Manual Bid)
-    // =========================================================================
-
     /**
-     * Xử lý một lượt đặt giá thủ công từ client.
-     *
-     * Quy trình:
-     * 1. Kiểm tra phiên tồn tại và đang hoạt động.
-     * 2. Kiểm tra bidAmount > giá hiện tại.
-     * 3. Cập nhật giá và người dẫn đầu.
-     * 4. Kích hoạt chuỗi phản ứng Auto-Bid (nếu có).
-     * 5. Persist trạng thái mới vào file.
-     *
-     * @param auctionId   ID phiên đấu giá
-     * @param bidderId    ID người đặt giá
-     * @param bidAmount   Giá muốn đặt
-     * @param autoBids    Danh sách auto-bid của phiên này (có thể rỗng)
-     * @return true nếu đặt giá thành công, false nếu không hợp lệ
+     * Xử lý lượt Bid thủ công từ người dùng, kích hoạt phản ứng dây chuyền.
      */
     public synchronized boolean datGia(String auctionId, String bidderId,
                                        double bidAmount, List<AutoBid> autoBids)
@@ -190,6 +173,8 @@ public class AuctionManager {
         System.out.printf("[AuctionManager] %s đặt giá $%.2f cho phiên [%s].%n",
                 bidderId, bidAmount, auctionId);
 
+        notifyObservers(auction, bidderId, bidAmount);
+
         // Kích hoạt phản ứng dây chuyền Auto-Bid (nếu có đăng ký)
         if (autoBids != null && !autoBids.isEmpty()) {
             AutoBid.handleManualBid(bidAmount, bidderId, auction, autoBids);
@@ -203,22 +188,12 @@ public class AuctionManager {
         return true;
     }
 
-    // =========================================================================
-    // Anti-Sniping — Gia hạn phiên khi có bid vào phút cuối
-    // =========================================================================
-
     /**
-     * Kiểm tra và gia hạn endTime nếu bid xảy ra gần cuối phiên.
-     *
-     * ┌─────────────────────────────────────────────────────────┐
-     * │  Sniping = chờ đến giây cuối mới bid để đối thủ không     │
-     * │  kịp phản ứng.                                             │
-     * │  Giải pháp: nếu bid trong ngưỡng THRESHOLD giây cuối    │
-     * │  → tự động đẩy endTime thêm EXTENSION giây.             │
-     * └─────────────────────────────────────────────────────────┘
+     * Cơ chế Anti-Sniping: Nếu người chơi đặt giá sát giờ kết thúc,
+     * tự động cộng dồn thời gian (Extension) cho phiên đấu giá.
      */
     private void applyAntiSniping(Auction auction) {
-        LocalDateTime now     = LocalDateTime.now();
+        LocalDateTime now = LocalDateTime.now();
         LocalDateTime endTime = auction.getEndTime();
 
         long secondsLeft = ChronoUnit.SECONDS.between(now, endTime);
@@ -232,26 +207,25 @@ public class AuctionManager {
                     auction.getId(), secondsLeft,
                     ANTI_SNIPE_THRESHOLD_SECONDS,
                     ANTI_SNIPE_EXTENSION_SECONDS,
-                    newEndTime
-            );
+                    newEndTime);
         }
     }
-
-    // =========================================================================
-    // Đăng ký Auto-Bid cho một phiên
-    // =========================================================================
 
     /**
      * Cập nhật trạng thái tất cả phiên dựa trên thời gian thực.
      * Nên được gọi định kỳ bởi một ScheduledExecutorService trên server.
      *
      * Ví dụ gọi định kỳ mỗi 30 giây:
+     *
      * <pre>
-     *   ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-     *   scheduler.scheduleAtFixedRate(() -> {
-     *       try { AuctionManager.getInstance().capNhatTrangThai(); }
-     *       catch (IOException e) { e.printStackTrace(); }
-     *   }, 0, 30, TimeUnit.SECONDS);
+     * ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
+     * scheduler.scheduleAtFixedRate(() -> {
+     *     try {
+     *         AuctionManager.getInstance().capNhatTrangThai();
+     *     } catch (IOException e) {
+     *         e.printStackTrace();
+     *     }
+     * }, 0, 30, TimeUnit.SECONDS);
      * </pre>
      */
     public synchronized void capNhatTrangThai() throws IOException {
@@ -271,10 +245,6 @@ public class AuctionManager {
         }
     }
 
-    // =========================================================================
-    // Kết thúc / Hủy phiên thủ công (do Admin)
-    // =========================================================================
-
     /**
      * Đánh dấu phiên đấu giá là FINISHED (hoặc CANCELED).
      *
@@ -286,7 +256,8 @@ public class AuctionManager {
             throws IOException {
 
         Auction auction = timTheoId(auctionId);
-        if (auction == null) return false;
+        if (auction == null)
+            return false;
 
         AuctionStatus newStatus = huy ? AuctionStatus.CANCELED : AuctionStatus.FINISHED;
         auction.setStatus(newStatus);
@@ -305,7 +276,8 @@ public class AuctionManager {
      */
     public synchronized boolean xacNhanThanhToan(String auctionId) throws IOException {
         Auction auction = timTheoId(auctionId);
-        if (auction == null) return false;
+        if (auction == null)
+            return false;
         if (auction.getStatus() != AuctionStatus.FINISHED) {
             System.out.println("[AuctionManager] Chỉ phiên FINISHED mới có thể PAID.");
             return false;
@@ -316,10 +288,6 @@ public class AuctionManager {
         return true;
     }
 
-    // =========================================================================
-    // Tìm kiếm & Lọc (Read-only — không cần synchronized)
-    // =========================================================================
-
     /**
      * Tìm phiên theo ID. Tìm trong cache in-memory (không đọc file).
      *
@@ -328,7 +296,8 @@ public class AuctionManager {
      */
     public Auction timTheoId(String id) {
         for (Auction a : auctions) {
-            if (a.getId().equals(id)) return a;
+            if (a.getId().equals(id))
+                return a;
         }
         return null;
     }
@@ -342,7 +311,8 @@ public class AuctionManager {
     public List<Auction> layTheoTrangThai(AuctionStatus status) {
         List<Auction> result = new ArrayList<>();
         for (Auction a : auctions) {
-            if (a.getStatus() == status) result.add(a);
+            if (a.getStatus() == status)
+                result.add(a);
         }
         return Collections.unmodifiableList(result);
     }
@@ -356,7 +326,8 @@ public class AuctionManager {
     public List<Auction> layTheoSeller(String sellerId) {
         List<Auction> result = new ArrayList<>();
         for (Auction a : auctions) {
-            if (a.getSellerId().equals(sellerId)) result.add(a);
+            if (a.getSellerId().equals(sellerId))
+                result.add(a);
         }
         return Collections.unmodifiableList(result);
     }

@@ -9,23 +9,12 @@ import java.util.List;
 import java.util.PriorityQueue;
 
 /**
- * AutoBid - Đăng ký đặt giá tự động cho một phiên đấu giá.
- *
- * ┌─────────────────────────────────────────────────────────┐
- * │ Cách hoạt động: │
- * │ 1. Bidder đăng ký AutoBid với maxBid và increment. │
- * │ 2. Khi có bid mới từ đối thủ, hệ thống tự động gọi │
- * │ processAutoBids() để xử lý tất cả auto-bid. │
- * │ 3. Ưu tiên theo thứ tự: registeredAt sớm nhất trước. │
- * │ 4. Giá đặt không được vượt quá maxBid. │
- * │ 5. Khi 2 auto-bid bằng nhau → người đăng ký trước win.│
- * └─────────────────────────────────────────────────────────┘
+ * Khách thể đại diện cho cấu hình Đấu giá tự động (Auto-Bid) của một Bidder.
+ * Cơ chế:
+ * 1. Đăng ký thông qua maxBid và increment.
+ * 2. Lưu trữ và sắp xếp trong PriorityQueue theo mức độ ưu tiên (Giá tối đa).
  */
 public class AutoBid extends Entity {
-
-    // -----------------------------------------------------------------------
-    // Thuộc tính
-    // -----------------------------------------------------------------------
 
     private final String auctionId; // Phiên đấu giá mà auto-bid này thuộc về
     private final String bidderId; // Người sở hữu auto-bid này
@@ -34,18 +23,12 @@ public class AutoBid extends Entity {
     private final LocalDateTime registeredAt; // Thời điểm đăng ký (dùng để ưu tiên)
     private boolean active; // false nếu đã bị loại (maxBid không đủ)
 
-    // -----------------------------------------------------------------------
-    // Constructor
-    // -----------------------------------------------------------------------
-
     /**
-     * Tạo AutoBid MỚI (ID tự sinh, thời điểm đăng ký = ngay bây giờ).
-     *
-     * @param auctionId Phiên đấu giá
+     * Tạo AutoBid mới và đánh dấu thời điểm đăng ký thực tế.
+     * @param auctionId Thuộc phiên đấu giá nào
      * @param bidderId  Người đăng ký
-     * @param maxBid    Giá tối đa
-     * @param increment Bước tăng mỗi lần hệ thống tự đặt (phải >= minIncrement của
-     *                  Auction)
+     * @param maxBid    Mức giá trần tự động
+     * @param increment Bước giá tự tăng
      */
     public AutoBid(String auctionId, String bidderId, double maxBid, double increment) {
         super(); // ID tự sinh UUID
@@ -77,21 +60,11 @@ public class AutoBid extends Entity {
         this.active = active;
     }
 
-    // -----------------------------------------------------------------------
-    // Logic cá nhân: tính giá đặt tiếp theo
-    // -----------------------------------------------------------------------
-
     /**
-     * Tính giá mà auto-bid này sẽ đặt khi currentPrice của phiên là
-     * {@code currentPrice}.
+     * Đề xuất mức đặt giá tiếp theo dựa trên currentPrice.
+     * Đảm bảo giá không vượt qua maxBid.
      *
-     * Quy tắc:
-     * - Giá đề xuất = currentPrice + increment
-     * - Nếu đề xuất > maxBid → trả về maxBid (cố gắng hết sức)
-     * - Nếu maxBid <= currentPrice → không thể đặt, trả về -1
-     *
-     * @param currentPrice Giá hiện tại của phiên đấu giá
-     * @return Giá sẽ đặt, hoặc -1 nếu auto-bid này không còn cạnh tranh được
+     * @return Giá hợp lệ hoặc -1 nếu không thể đáp ứng khả năng cạnh tranh.
      */
     public double calculateNextBid(double currentPrice) {
         if (!active || maxBid <= currentPrice) {
@@ -113,23 +86,11 @@ public class AutoBid extends Entity {
         this.active = false;
     }
 
-    // -----------------------------------------------------------------------
-    // Static: Xử lý toàn bộ auto-bid cho một phiên đấu giá
-    // -----------------------------------------------------------------------
-
     /**
-     * Xử lý tất cả auto-bid đang hoạt động cho phiên {@code auction}.
-     * Lọc các auto-bid còn active và có thể cạnh tranh.
-     * Sắp xếp theo maxBid giảm dần → người có maxBid cao hơn được ưu tiên.
-     * Nếu maxBid bằng nhau → ưu tiên theo registeredAt (đăng ký sớm hơn = ưu tiên
-     * hơn).
-     * Auto-bid xếp #1 sẽ đặt giá = (maxBid của #2) + increment của #1.
-     * Nếu chỉ có 1 auto-bid → đặt currentPrice + increment của nó.
-     * Auto-bid nào không đủ điều kiện sẽ bị deactivate().
+     * Cốt lõi của AutoBid: Kích hoạt thuật toán giải quyết va chạm giữa các bộ AutoBid.
+     * Sử dụng cấu trúc Max-Heap (PriorityQueue) để tìm ra người chiến thắng O(logN).
      *
-     * @param auction  Phiên đấu giá cần xử lý
-     * @param autoBids Danh sách tất cả auto-bid của phiên này
-     * @return ID của người thắng sau khi xử lý, null nếu không có ai đủ điều kiện
+     * @return ID người thắng hoặc null.
      */
     public static synchronized String processAutoBids(Auction auction, List<AutoBid> autoBids) {
         if (auction.getStatus() != Auction.AuctionStatus.RUNNING) {
@@ -253,9 +214,7 @@ public class AutoBid extends Entity {
                 auction.getCurrentHighestBid(), auction.getHighestBidderId());
     }
 
-    // -----------------------------------------------------------------------
-    // Getters
-    // -----------------------------------------------------------------------
+
 
     public String getAuctionId() {
         return auctionId;
