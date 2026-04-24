@@ -1,6 +1,8 @@
 package server.network;
 
-import server.models.network.AuctionClient;
+import server.models.network.*;
+import server.auction.*;
+import server.payload.*;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -79,12 +81,12 @@ public class ClientHandler extends Thread {
     public void sendPacket(PacketMessage packetMessage) throws IOException {
         objectOutputStream.writeObject(packetMessage);
     }
-    /*//Đầu vào: nhận được yêu cầu của một client để tham gia phiên đấu giá
-    //Đầu ra: client tham gia phiên đấu giá
-    //ServerUnexpectedPayloadException khi packet nhận được payload sai kiểu
-    //AuctionAlreadyRegisteredException khi client đang cố gắng tham gia phiên đấu giá đã tham gia
-    //ServerNoAuctionException khi client đang cố gắng tham gia một phiên đấu giá đã kết thúc
-    //IOException khi phương thức packet không hoạt động trong auction
+    /*Đầu vào: nhận được yêu cầu của một client để tham gia phiên đấu giá
+    Đầu ra: client tham gia phiên đấu giá
+    ServerUnexpectedPayloadException khi packet nhận được payload sai kiểu
+    AuctionAlreadyRegisteredException khi client đang cố gắng tham gia phiên đấu giá đã tham gia
+    ServerNoAuctionException khi client đang cố gắng tham gia một phiên đấu giá đã kết thúc
+    IOException khi phương thức packet không hoạt động trong auction*/
     public void joinAuction(PacketMessage packetMessage)
             throws AuctionAlreadyRegisteredException, ServerNoAuctionException, ServerUnexpectedPayloadException, IOException {
         //Kiểm tra packet nhận được payload đúng
@@ -99,6 +101,5 @@ public class ClientHandler extends Thread {
         }
     }
 
-     Tạm thời chưa có join auction do auction chưa có biến cho phép thêm client. Gợi ý đặt tên biến l*/
 }
 

@@ -1,4 +1,4 @@
-package Server.ServerException;
+package server.models.network;
 
 public class ServerUnexpectedPayloadException extends ServerException {
 
