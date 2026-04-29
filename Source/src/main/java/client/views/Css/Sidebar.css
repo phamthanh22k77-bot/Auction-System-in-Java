@@ -1,0 +1,45 @@
+/* ═══════════════════════════════════════════════════════════
+   7. SIDEBAR (AdminDashboard)
+═══════════════════════════════════════════════════════════ */
+
+.sidebar {
+    -fx-background-color: #1A1A1A;
+    -fx-padding: 16;
+    -fx-border-color: #333333;
+    -fx-border-width: 0 1 0 0;
+}
+
+.nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #BDBDBD;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 10 14;
+    -fx-font-size: 13;
+}
+
+.nav-btn:hover {
+    -fx-background-color: #252525;
+    -fx-text-fill: #F5F5F5;
+}
+
+.nav-btn-active {
+    -fx-background-color: #2D2D2D;
+    -fx-text-fill: #F5F5F5;
+    -fx-alignment: CENTER_LEFT;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 10 14;
+    -fx-font-size: 13;
+}
+
+/* Stat card trong Admin Overview */
+.stat-card {
+    -fx-background-color: #2C2C2C;
+    -fx-padding: 20;
+    -fx-background-radius: 10;
+    -fx-border-color: #3A3A3A;
+    -fx-border-radius: 10;
+    -fx-alignment: center;
+}

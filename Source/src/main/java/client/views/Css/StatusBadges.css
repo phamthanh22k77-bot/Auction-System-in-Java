@@ -1,0 +1,31 @@
+/* ═══════════════════════════════════════════════════════════
+   8. STATUS BADGES
+═══════════════════════════════════════════════════════════ */
+
+/* Dung de to mau dong TableView theo trang thai phien */
+.status-running {
+    -fx-text-fill: #2E7D32;
+    -fx-font-weight: bold;
+}
+
+.status-open {
+    -fx-text-fill: #1565C0;
+    -fx-font-weight: bold;
+}
+
+.status-finished {
+    -fx-text-fill: #757575;
+}
+
+.status-canceled {
+    -fx-text-fill: #C62828;
+}
+
+/* Badge danh muc (Electronics / Art / Vehicle) */
+.badge-category {
+    -fx-background-color: #E3F2FD;
+    -fx-text-fill: #1565C0;
+    -fx-background-radius: 4;
+    -fx-padding: 2 8;
+    -fx-font-size: 10;
+}

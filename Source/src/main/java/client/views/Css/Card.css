@@ -1,0 +1,35 @@
+/* ═══════════════════════════════════════════════════════════
+   6. CARD (BidderDashboard)
+═══════════════════════════════════════════════════════════ */
+
+/* Card san pham dau gia */
+.auction-card {
+    -fx-background-color: white;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.07), 6, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.auction-card:hover {
+    -fx-border-color: #90CAF9;
+    -fx-effect: dropshadow(gaussian, rgba(26,35,126,0.15), 10, 0, 0, 3);
+}
+
+/* Card nha ban hang */
+.seller-card {
+    -fx-background-color: white;
+    -fx-padding: 16 20;
+    -fx-border-color: #E0E0E0;
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 1);
+    -fx-alignment: center;
+}
+
+.seller-card:hover {
+    -fx-border-color: #A5D6A7;
+    -fx-effect: dropshadow(gaussian, rgba(46,125,50,0.15), 8, 0, 0, 2);
+}
