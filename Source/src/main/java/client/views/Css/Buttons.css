@@ -1,0 +1,85 @@
+/* ═══════════════════════════════════════════════════════════
+   2. SHARED BUTTONS
+═══════════════════════════════════════════════════════════ */
+
+/* Nut chinh (xanh dam) — dung cho: Xem chi tiet, Luu, Dang nhap */
+.btn-primary {
+    -fx-background-color: #1A237E;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-primary:hover {
+    -fx-background-color: #283593;
+}
+
+/* Nut nguy hiem (do) — dung cho: Dau gia, Xoa, Dang xuat */
+.btn-danger {
+    -fx-background-color: #C62828;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-danger:hover {
+    -fx-background-color: #B71C1C;
+}
+
+/* Nut thu cap (xanh la) — dung cho: Them moi, Luu san pham */
+.btn-success {
+    -fx-background-color: #2E7D32;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-success:hover {
+    -fx-background-color: #1B5E20;
+}
+
+/* Nut phu (xam) — dung cho: Huy, Quay lai */
+.btn-secondary {
+    -fx-background-color: #EEEEEE;
+    -fx-text-fill: #424242;
+    -fx-background-radius: 6;
+    -fx-cursor: hand;
+    -fx-padding: 8 20;
+    -fx-font-size: 13;
+}
+.btn-secondary:hover {
+    -fx-background-color: #E0E0E0;
+}
+
+/* Nut trong suot — dung trong Header */
+.btn-ghost {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+    -fx-padding: 4 10;
+}
+.btn-ghost:hover {
+    -fx-background-color: rgba(0,0,0,0.06);
+    -fx-background-radius: 6;
+}
+
+/* Nut dang xuat — vien do */
+.btn-logout {
+    -fx-background-color: transparent;
+    -fx-text-fill: #EF9A9A;
+    -fx-border-color: #EF9A9A;
+    -fx-border-radius: 4;
+    -fx-cursor: hand;
+    -fx-padding: 4 12;
+    -fx-font-size: 13;
+}
+.btn-logout:hover {
+    -fx-background-color: #C62828;
+    -fx-text-fill: white;
+    -fx-border-color: #C62828;
+}

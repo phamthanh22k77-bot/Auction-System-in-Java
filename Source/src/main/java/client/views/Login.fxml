@@ -19,16 +19,16 @@
                   <Image url="@images/Scene.png" />
                </image>
             </ImageView>
-            <Text fill="#6028b9" layoutX="94.0" layoutY="308.0" strokeType="OUTSIDE" strokeWidth="0.0" text="AuctionSystem">
+            <Text fill="#3e127c" layoutX="71.0" layoutY="306.0" strokeType="OUTSIDE" strokeWidth="0.0" text="AUCTION PRO">
                <font>
-                  <Font size="25.0" />
+                  <Font name="System Bold" size="27.0" />
                </font>
             </Text>
          </children>
       </AnchorPane>
    </left>
    <right>
-      <AnchorPane prefHeight="341.0" prefWidth="260.0" style="-fx-background-color: #fffafa;" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="341.0" prefWidth="260.0" style="-fx-background-color: #fef9e7;" BorderPane.alignment="CENTER">
          <children>
             <TextField layoutX="81.0" layoutY="182.0" promptText="Username" style="-fx-background-radius: 50;">
                <font>
@@ -40,7 +40,10 @@
                   <Font name="System Italic" size="12.0" />
                </font>
             </TextField>
-            <TextField layoutX="81.0" layoutY="249.0" promptText="Password" style="-fx-background-radius: 50;" />
+            <TextField layoutX="81.0" layoutY="249.0" promptText="Password" style="-fx-background-radius: 50;">
+               <font>
+                  <Font name="System Italic" size="12.0" />
+               </font></TextField>
             <Label layoutX="11.0" layoutY="187.0" text="Username">
                <font>
                   <Font name="System Bold" size="13.0" />

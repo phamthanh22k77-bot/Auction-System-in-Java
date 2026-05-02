@@ -1,0 +1,36 @@
+/* ═══════════════════════════════════════════════════════════
+   4. TOP BAR / HEADER
+═══════════════════════════════════════════════════════════ */
+
+/* Header xanh dam — Bidder, AuctionList, ItemDetail */
+.top-bar-blue {
+    -fx-background-color: #1A237E;
+    -fx-padding: 12 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* Header xanh la — Seller */
+.top-bar-green {
+    -fx-background-color: #1B5E20;
+    -fx-padding: 12 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
+}
+
+/* Header toi — Admin, BiddingScreen */
+.top-bar-dark {
+    -fx-background-color: #1A1A1A;
+    -fx-padding: 12 20;
+    -fx-border-color: #333333;
+    -fx-border-width: 0 0 1 0;
+}
+
+.top-bar-title {
+    -fx-text-fill: white;
+    -fx-font-size: 17;
+    -fx-font-weight: bold;
+}
+
+.top-bar-subtitle {
+    -fx-text-fill: #90CAF9;
+    -fx-font-size: 13;
+}
