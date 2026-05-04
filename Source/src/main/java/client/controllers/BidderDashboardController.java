@@ -174,118 +174,73 @@ public class BidderDashboardController implements Initializable {
     // CLICK CARD SAN PHAM -> HIEN DETAIL PANEL
     // ═════════════════════════════════════════════════════════
 
+    // Moi handleXxxClick() goi navigateToItemDetail() voi du lieu cua card do.
+    // Category phai dung chinh xac "Electronics" / "Art" / "Vehicle"
+    // de ItemDetailController build spec fields dung.
+
     @FXML private void handleElec1Click() {
-        showDetail(
-            "[MacBook Pro M2]", "MacBook Pro M2 2022",
-            "32,000,000", "1h 30m",
-            "Tech Store VN", "99.2% uy tin", "#d5f5e3",
-            "Brand", "Apple",
-            "Chip",  "Apple M2 Pro",
-            "Nam",   "2022",
-            32_000_000, "AUC001"
-        );
+        navigateToItemDetail("AUC001", "MacBook Pro M2 2022",
+                "Electronics", "32,000,000", "32,000,000", "1h 30m", "RUNNING");
     }
 
     @FXML private void handleElec2Click() {
-        showDetail(
-            "[iPhone 15 Pro]", "iPhone 15 Pro Max 256GB",
-            "25,500,000", "3h 45m",
-            "Tech Store VN", "99.2% uy tin", "#d5f5e3",
-            "Brand",   "Apple",
-            "Storage", "256 GB",
-            "Mau",     "Titan Den",
-            25_500_000, "AUC002"
-        );
+        navigateToItemDetail("AUC002", "iPhone 15 Pro Max 256GB",
+                "Electronics", "25,500,000", "25,500,000", "3h 45m", "RUNNING");
     }
 
     @FXML private void handleArt1Click() {
-        showDetail(
-            "[Tranh Son Dau]", "Buc tranh Mua Xuan",
-            "15,000,000", "10h 5m",
-            "Gallery Nghe Thuat", "98.5% uy tin", "#fdebd0",
-            "Nghe si",   "Nguyen Van Binh",
-            "Chat lieu", "Son dau tren vai",
-            "Kich thuoc","80 x 100 cm",
-            15_000_000, "AUC003"
-        );
+        navigateToItemDetail("AUC003", "Buc tranh Mua Xuan",
+                "Art", "15,000,000", "15,000,000", "10h 5m", "RUNNING");
     }
 
     @FXML private void handleArt2Click() {
-        showDetail(
-            "[Tuong Da Phat]", "Tuong Da Phat co Nhat",
-            "8,500,000", "5h 20m",
-            "Gallery Nghe Thuat", "98.5% uy tin", "#fdebd0",
-            "Vat lieu", "Da tu nhien",
-            "Nguon goc","Nhat Ban TK 18",
-            "Chieu cao","45 cm",
-            8_500_000, "AUC004"
-        );
+        navigateToItemDetail("AUC004", "Tuong Da Phat co Nhat",
+                "Art", "8,500,000", "8,500,000", "5h 20m", "RUNNING");
     }
 
     @FXML private void handleVeh1Click() {
-        showDetail(
-            "[Tesla Model 3]", "Tesla Model 3 - 2023",
-            "1,200,000,000", "2d 7h 5m",
-            "Shop O to Ha Noi", "99.8% uy tin", "#d6eaf8",
-            "Dong co",  "Dien (Long Range)",
-            "Mau",      "Trang Ngoc Trai",
-            "Xuat xuong","2023",
-            1_200_000_000, "AUC005"
-        );
+        navigateToItemDetail("AUC005", "Tesla Model 3 - 2023",
+                "Vehicle", "1,200,000,000", "1,200,000,000", "2d 7h 5m", "RUNNING");
     }
 
     @FXML private void handleVeh2Click() {
-        showDetail(
-            "[Honda CBR 650]", "Honda CBR 650R 2022",
-            "85,000,000", "1d 3h",
-            "Shop O to Ha Noi", "99.8% uy tin", "#d6eaf8",
-            "Dong co",  "4 xy lanh, 649cc",
-            "Cong suat","95 HP",
-            "Nam",      "2022",
-            85_000_000, "AUC006"
-        );
+        navigateToItemDetail("AUC006", "Honda CBR 650R 2022",
+                "Vehicle", "85,000,000", "85,000,000", "1d 3h", "RUNNING");
     }
 
     /**
-     * Dien thong tin vao detail panel va hien no.
+     * Chuyen toan bo man hinh sang ItemDetail.fxml
+     * va truyen du lieu cua card vua click vao ItemDetailController.
+     *
+     * ItemDetailController.setAuctionData() se tu dong:
+     *   - Hien thong tin san pham, gia, trang thai
+     *   - Build spec fields theo category (Electronics / Art / Vehicle)
+     *   - Bat countdown
+     *   - Load lich su bid
+     *   - Hien BidPriceLineChart
      */
-    private void showDetail(
-            String imgText, String title,
-            String price,   String time,
-            String shopName,String shopRating, String avatarColor,
-            String key1, String val1,
-            String key2, String val2,
-            String key3, String val3,
-            double bidPrice, String auctionId) {
+    private void navigateToItemDetail(String auctionId, String itemName,
+                                      String category,  String startPrice,
+                                      String curPrice,  String endTime,
+                                      String status) {
+        try {
+            FXMLLoader loader = new FXMLLoader(
+                getClass().getResource("/client/views/ItemDetail.fxml"));
+            Parent root = loader.load();
 
-        selectedBidPrice  = bidPrice;
-        selectedItemName  = title;
-        selectedAuctionId = auctionId;
+            ItemDetailController ctrl = loader.getController();
+            ctrl.setAuctionData(
+                auctionId, itemName, category,
+                startPrice, curPrice, endTime, status
+            );
 
-        detailImagePlaceholder.setText(imgText);
-        detailTitleLabel     .setText(title);
-        detailCurrentPrice   .setText("Gia hien tai: " + formatMoney(bidPrice) + " d");
-        detailTimeRemaining  .setText("Con lai: " + time);
-        detailShopName       .setText(shopName);
-        detailShopRating     .setText(shopRating);
-        detailShopAvatar     .setFill(javafx.scene.paint.Color.web(avatarColor));
+            // Lay Stage tu bat ky node nao dang hien thi
+            Stage stage = (Stage) btnTabAll.getScene().getWindow();
+            stage.setScene(new Scene(root));
 
-        descKey1.setText(key1 + ":"); descVal1.setText(val1);
-        descKey2.setText(key2 + ":"); descVal2.setText(val2);
-        descKey3.setText(key3 + ":"); descVal3.setText(val3);
-
-        itemDetailPanel.setVisible(true);
-        itemDetailPanel.setManaged(true);
-    }
-
-    @FXML
-    private void handleCloseDetail() {
-        closeDetailPanel();
-    }
-
-    private void closeDetailPanel() {
-        itemDetailPanel.setVisible(false);
-        itemDetailPanel.setManaged(false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // ═════════════════════════════════════════════════════════

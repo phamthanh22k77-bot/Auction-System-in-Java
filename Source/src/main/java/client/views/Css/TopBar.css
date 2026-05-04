@@ -2,35 +2,32 @@
    4. TOP BAR / HEADER
 ═══════════════════════════════════════════════════════════ */
 
-/* Header xanh dam — Bidder, AuctionList, ItemDetail */
-.top-bar-blue {
-    -fx-background-color: #1A237E;
+/* Header vang nhat — dung chung 3 dashboard chinh:
+   BidderDashboard / SellerDashboard / AdminDashboard       */
+.top-bar-dashboard {
+    -fx-background-color: #fff891;
     -fx-padding: 12 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
-}
-
-/* Header xanh la — Seller */
-.top-bar-green {
-    -fx-background-color: #1B5E20;
-    -fx-padding: 12 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 8, 0, 0, 2);
-}
-
-/* Header toi — Admin, BiddingScreen */
-.top-bar-dark {
-    -fx-background-color: #1A1A1A;
-    -fx-padding: 12 20;
-    -fx-border-color: #333333;
+    -fx-border-color: #e0e0e0;
     -fx-border-width: 0 0 1 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 6, 0, 0, 2);
 }
 
+/* Ten logo tren top-bar-dashboard */
 .top-bar-title {
-    -fx-text-fill: white;
+    -fx-text-fill: #8a8d85;
     -fx-font-size: 17;
     -fx-font-weight: bold;
 }
 
+/* Ten nguoi dung / subtitle tren top-bar-dashboard */
 .top-bar-subtitle {
-    -fx-text-fill: #90CAF9;
+    -fx-text-fill: #7f8c8d;
     -fx-font-size: 13;
+}
+
+/* Header toi — BidConfirmation popup header (#2c3e50) */
+.top-bar-dark {
+    -fx-background-color: #2c3e50;
+    -fx-padding: 14 20;
+    -fx-background-radius: 12 12 0 0;
 }

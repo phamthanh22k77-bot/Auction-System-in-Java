@@ -17,22 +17,6 @@
     -fx-border-width: 1.5;
 }
 
-/* TextField dark (BiddingScreen) */
-.input-field-dark {
-    -fx-background-color: #0A1628;
-    -fx-text-fill: white;
-    -fx-prompt-text-fill: #4A6080;
-    -fx-border-color: #2A4F7A;
-    -fx-border-radius: 6;
-    -fx-background-radius: 6;
-    -fx-padding: 10 12;
-    -fx-font-size: 14;
-}
-
-.input-field-dark:focused {
-    -fx-border-color: #42A5F5;
-}
-
 /* TextArea */
 .text-area-field {
     -fx-border-color: #BDBDBD;
