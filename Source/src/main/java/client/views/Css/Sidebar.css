@@ -3,15 +3,15 @@
 ═══════════════════════════════════════════════════════════ */
 
 .sidebar {
-    -fx-background-color: #1A1A1A;
+    -fx-background-color: #FFFFFF;
     -fx-padding: 16;
-    -fx-border-color: #333333;
+    -fx-border-color: #E0E0E0;
     -fx-border-width: 0 1 0 0;
 }
 
 .nav-btn {
     -fx-background-color: transparent;
-    -fx-text-fill: #BDBDBD;
+    -fx-text-fill: #424242;
     -fx-alignment: CENTER_LEFT;
     -fx-background-radius: 6;
     -fx-cursor: hand;
@@ -20,26 +20,28 @@
 }
 
 .nav-btn:hover {
-    -fx-background-color: #252525;
-    -fx-text-fill: #F5F5F5;
+    -fx-background-color: #F5F5F5;
+    -fx-text-fill: #212121;
 }
 
 .nav-btn-active {
-    -fx-background-color: #2D2D2D;
-    -fx-text-fill: #F5F5F5;
+    -fx-background-color: #E8EAF6;
+    -fx-text-fill: #1A237E;
     -fx-alignment: CENTER_LEFT;
     -fx-background-radius: 6;
     -fx-cursor: hand;
     -fx-padding: 10 14;
     -fx-font-size: 13;
+    -fx-font-weight: bold;
 }
 
 /* Stat card trong Admin Overview */
 .stat-card {
-    -fx-background-color: #2C2C2C;
+    -fx-background-color: #FFFFFF;
     -fx-padding: 20;
     -fx-background-radius: 10;
-    -fx-border-color: #3A3A3A;
+    -fx-border-color: #E0E0E0;
     -fx-border-radius: 10;
     -fx-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 6, 0, 0, 2);
 }
