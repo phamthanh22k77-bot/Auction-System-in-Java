@@ -11,33 +11,12 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-/**
- * AuctionManager — Singleton trung tâm quản lý toàn bộ các Phiên đấu giá.
- *
- * - Đảm bảo tính Thread-safe bằng Double-Checked Locking khi khởi tạo.
- * - Triển khai cơ chế Observer Pattern thông báo sự kiện Bidding.
- * - Tích hợp cấu trúc PriorityQueue để xử lý Auto-Bid.
- */
+//AuctionManager — Singleton, Thread-safe, Observer Pattern, PriorityQueue
+
 public class AuctionManager {
-
-    /**
-     * Singleton Instance: Dùng từ khóa volatile để ngăn CPU tái sắp xếp lệnh
-     * (Instruction Reordering), đảm bảo khởi tạo an toàn.
-     */
     private static volatile AuctionManager instance;
-
-    /** Constructor private — cấm new AuctionManager() từ bên ngoài. */
     private AuctionManager() {
     }
-
-    /**
-     * Trả về instance duy nhất của AuctionManager.
-     *
-     * Luồng hoạt động:
-     * 1. Kiểm tra lần 1 (KHÔNG lock) → hầu hết các lần gọi dừng ở đây.
-     * 2. Vào synchronized block → chỉ 1 thread được vào tại 1 thời điểm.
-     * 3. Kiểm tra lần 2 (CÓ lock) → ngăn tạo trùng khi 2 thread vào cùng lúc.
-     */
     public static AuctionManager getInstance() {
         if (instance == null) { // Kiểm tra lần 1 — không lock (fast path)
             synchronized (AuctionManager.class) {
@@ -49,22 +28,17 @@ public class AuctionManager {
         return instance;
     }
 
-    /** Danh sách lưu trữ trong bộ nhớ in-memory (Cần đồng bộ thủ công). */
+    // Danh sách lưu trữ trong bộ nhớ in-memory
     private final List<Auction> auctions = new ArrayList<>();
 
-    /**
-     * DAO để persist/load dữ liệu từ file JSON (data/auctions.json).
-     * Được chia sẻ duy nhất qua Singleton — không cần tạo lại ở mỗi class.
-     */
+    // DAO để persist/load dữ liệu từ file JSON (data/auctions.json).
+
     private final AuctionDAO dao = new AuctionDAO();
 
-    /** Danh sách các Observer đã đăng ký nhận thông báo. */
+    // Danh sách các Observer đã đăng ký nhận thông báo.
     private final List<BidObserver> observers = new java.util.concurrent.CopyOnWriteArrayList<>();
 
-    /**
-     * Cho phép ai đó đăng ký nhận thông báo (Ví dụ: Class in Log, Class gửi tin
-     * Network)
-     */
+    //Cho phép đăng ký nhận thông báo
     public void addObserver(BidObserver observer) {
         if (!observers.contains(observer)) {
             observers.add(observer);
@@ -73,33 +47,27 @@ public class AuctionManager {
         }
     }
 
-    /** Xóa đăng ký khi không muốn nhận thông báo nữa */
+    // Xóa đăng ký
     public void removeObserver(BidObserver observer) {
         if (observers.remove(observer)) {
             System.out.println("[Observer] Đã hủy đăng ký nhận tin của: " + observer.getClass().getSimpleName());
         }
     }
 
-    /**
-     * HÀM PHÁT LOA: Gọi tất cả những ai có trong danh sách đang đăng ký để báo tin.
-     * Nó tự động chạy qua cái danh sách và ấn nút "onBidPlaced" cho từng ông.
-     */
+    // HÀM PHÁT LOA: Gọi tất cả những ai có trong danh sách đang đăng ký để báo tin.
     private void notifyObservers(Auction auction, String bidderId, double bidAmount) {
         for (BidObserver obs : observers) {
             obs.onBidPlaced(auction, bidderId, bidAmount);
         }
     }
 
-    /** Thời gian (giây) kích hoạt Anti-Sniping. */
+    // Thời gian (giây) kích hoạt Anti-Sniping.
     private static final long ANTI_SNIPE_THRESHOLD_SECONDS = 120; // 2 phút
 
-    /** Thời gian gia hạn thêm (giây) khi Anti-Sniping kích hoạt. */
+    // Thời gian gia hạn thêm (giây) khi Anti-Sniping kích hoạt.
     private static final long ANTI_SNIPE_EXTENSION_SECONDS = 120; // +2 phút
 
-    /**
-     * Nạp toàn bộ dữ liệu từ file JSON vào bộ nhớ.
-     * Gọi 1 lần khi server khởi động (trước khi nhận request từ client).
-     */
+    // Nạp toàn bộ dữ liệu từ file JSON vào bộ nhớ. Gọi 1 lần khi server khởi động (trước khi nhận request từ client).
     public synchronized void khoiDong() throws IOException {
         auctions.clear();
         auctions.addAll(dao.loadAll());
@@ -113,17 +81,6 @@ public class AuctionManager {
                 + " phiên đấu giá. Sẵn sàng nhận kết nối.");
     }
 
-    /**
-     * Tạo một phiên đấu giá mới và lưu ngay vào file.
-     *
-     * @param itemId              ID vật phẩm được đấu giá
-     * @param sellerId            ID người bán
-     * @param startTime           Thời gian bắt đầu
-     * @param endTime             Thời gian kết thúc
-     * @param startingPrice       Giá khởi điểm
-     * @param minimumBidIncrement Bước giá tối thiểu
-     * @return Auction vừa tạo (đã có ID)
-     */
     public synchronized Auction taoPhien(String itemId, String sellerId,
                                          LocalDateTime startTime, LocalDateTime endTime,
                                          double startingPrice, double minimumBidIncrement)
@@ -141,9 +98,7 @@ public class AuctionManager {
         return auction;
     }
 
-    /**
-     * Xử lý lượt Bid thủ công từ người dùng, kích hoạt phản ứng dây chuyền.
-     */
+    // Xử lý lượt Bid thủ công từ người dùng, kích hoạt phản ứng dây chuyền.
     public synchronized boolean datGia(String auctionId, String bidderId,
                                        double bidAmount, List<AutoBid> autoBids)
             throws IOException {
@@ -188,10 +143,7 @@ public class AuctionManager {
         return true;
     }
 
-    /**
-     * Cơ chế Anti-Sniping: Nếu người chơi đặt giá sát giờ kết thúc,
-     * tự động cộng dồn thời gian (Extension) cho phiên đấu giá.
-     */
+    //Cơ chế Anti-Sniping: Nếu người chơi đặt giá sát giờ kết thúc tự động cộng dồn thời gian (Extension) cho phiên đấu giá.
     private void applyAntiSniping(Auction auction) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime endTime = auction.getEndTime();
@@ -211,23 +163,7 @@ public class AuctionManager {
         }
     }
 
-    /**
-     * Cập nhật trạng thái tất cả phiên dựa trên thời gian thực.
-     * Nên được gọi định kỳ bởi một ScheduledExecutorService trên server.
-     *
-     * Ví dụ gọi định kỳ mỗi 30 giây:
-     *
-     * <pre>
-     * ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-     * scheduler.scheduleAtFixedRate(() -> {
-     *     try {
-     *         AuctionManager.getInstance().capNhatTrangThai();
-     *     } catch (IOException e) {
-     *         e.printStackTrace();
-     *     }
-     * }, 0, 30, TimeUnit.SECONDS);
-     * </pre>
-     */
+
     public synchronized void capNhatTrangThai() throws IOException {
         int updated = 0;
         for (Auction a : auctions) {
@@ -245,13 +181,6 @@ public class AuctionManager {
         }
     }
 
-    /**
-     * Đánh dấu phiên đấu giá là FINISHED (hoặc CANCELED).
-     *
-     * @param auctionId ID phiên cần kết thúc
-     * @param huy       true = CANCELED, false = FINISHED
-     * @return true nếu thao tác thành công
-     */
     public synchronized boolean ketThucPhien(String auctionId, boolean huy)
             throws IOException {
 
@@ -268,12 +197,7 @@ public class AuctionManager {
         return true;
     }
 
-    /**
-     * Đánh dấu phiên đã thanh toán (PAID).
-     *
-     * @param auctionId ID phiên cần đánh dấu
-     * @return true nếu thao tác thành công
-     */
+
     public synchronized boolean xacNhanThanhToan(String auctionId) throws IOException {
         Auction auction = timTheoId(auctionId);
         if (auction == null)
@@ -288,12 +212,8 @@ public class AuctionManager {
         return true;
     }
 
-    /**
-     * Tìm phiên theo ID. Tìm trong cache in-memory (không đọc file).
-     *
-     * @param id ID phiên đấu giá
-     * @return Auction nếu tìm thấy, null nếu không
-     */
+    //Tìm phiên theo ID. Tìm trong cache in-memory (không đọc file).
+
     public Auction timTheoId(String id) {
         for (Auction a : auctions) {
             if (a.getId().equals(id))
@@ -302,12 +222,7 @@ public class AuctionManager {
         return null;
     }
 
-    /**
-     * Lọc danh sách phiên theo trạng thái.
-     *
-     * @param status Trạng thái cần lọc
-     * @return Danh sách các phiên có trạng thái tương ứng (bản sao)
-     */
+    //Lọc danh sách phiên theo trạng thái.
     public List<Auction> layTheoTrangThai(AuctionStatus status) {
         List<Auction> result = new ArrayList<>();
         for (Auction a : auctions) {
@@ -317,12 +232,7 @@ public class AuctionManager {
         return Collections.unmodifiableList(result);
     }
 
-    /**
-     * Lọc danh sách phiên theo seller.
-     *
-     * @param sellerId ID người bán
-     * @return Danh sách phiên của seller (bản sao)
-     */
+    //Lọc danh sách phiên theo seller.
     public List<Auction> layTheoSeller(String sellerId) {
         List<Auction> result = new ArrayList<>();
         for (Auction a : auctions) {
@@ -332,17 +242,12 @@ public class AuctionManager {
         return Collections.unmodifiableList(result);
     }
 
-    /**
-     * Trả về toàn bộ danh sách phiên đấu giá.
-     * Trả về bản sao phòng thủ (defensive copy) để tránh external mutation.
-     */
+    //Trả về toàn bộ danh sách phiên đấu giá. Trả về bản sao phòng thủ (defensive copy) để tránh external mutation.
     public List<Auction> layTatCa() {
         return Collections.unmodifiableList(new ArrayList<>(auctions));
     }
 
-    /**
-     * Trả về số lượng phiên đang trong bộ nhớ.
-     */
+    //Trả về số lượng phiên đang trong bộ nhớ.
     public int soLuongPhien() {
         return auctions.size();
     }
