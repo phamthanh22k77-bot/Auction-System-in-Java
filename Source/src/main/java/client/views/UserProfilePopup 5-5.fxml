@@ -1,0 +1,391 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.Circle?>
+<?import javafx.scene.shape.Rectangle?>
+
+<!--
+    UserProfilePopup.fxml
+    Controller: client.controllers.UserProfilePopupController
+
+    Layout: popup 460x540, chia 2 cot
+      LEFT  (120px) : mini sidebar — avatar, 5 nut nav
+      RIGHT (340px) : StackPane chua 5 pane noi dung
+        paneInfo     : thong tin ca nhan
+        paneOrders   : lich su dau gia
+        paneFinance  : tai chinh / so du
+        paneSettings : cai dat tai khoan
+        (logout)     : xu ly trong controller, khong co pane rieng
+
+    Mo tu BidderDashboardController:
+        FXMLLoader loader = new FXMLLoader(...UserProfilePopup.fxml);
+        Parent root = loader.load();
+        UserProfilePopupController ctrl = loader.getController();
+        ctrl.setUserInfo(name, email, ordersCount, balance);
+        ctrl.setOwnerStage(mainStage);
+        Stage popup = new Stage();
+        popup.initOwner(mainStage);
+        popup.initStyle(StageStyle.UNDECORATED);
+        popup.setScene(new Scene(root));
+        popup.show();
+-->
+
+<HBox prefWidth="460.0" prefHeight="540.0"
+      xmlns="http://javafx.com/javafx/21"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="client.controllers.UserProfilePopupController"
+      style="-fx-background-color: white;
+             -fx-background-radius: 14;
+             -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.22), 24, 0, 0, 6);
+             -fx-border-color: #E8ECF0; -fx-border-radius: 14; -fx-border-width: 1;">
+
+    <!-- ══ LEFT SIDEBAR ══════════════════════════════════════ -->
+    <VBox prefWidth="120.0" alignment="TOP_CENTER" spacing="4"
+          style="-fx-background-color: #F7F8FA;
+                 -fx-background-radius: 14 0 0 14;
+                 -fx-border-color: #EAEDF0; -fx-border-width: 0 1 0 0;
+                 -fx-padding: 24 8 16 8;">
+
+        <!-- Avatar -->
+        <StackPane alignment="CENTER">
+            <Circle fx:id="avatarCircle" radius="32"
+                    fill="#DDE8F5"
+                    stroke="#C3D5EE" strokeWidth="2"/>
+            <Label fx:id="lblAvatarInitial" text="A"
+                   style="-fx-font-size: 22; -fx-font-weight: bold;
+                          -fx-text-fill: #2C5F9E;"/>
+        </StackPane>
+
+        <Label fx:id="lblSidebarName" text="Người dùng"
+               wrapText="true"
+               style="-fx-font-size: 11; -fx-font-weight: bold;
+                      -fx-text-fill: #2C3E50; -fx-alignment: CENTER;
+                      -fx-padding: 6 0 0 0;"
+               maxWidth="104"/>
+        <Label fx:id="lblSidebarRank" text="Hạng Đồng"
+               style="-fx-font-size: 10; -fx-text-fill: #95A5A6;"/>
+
+        <Region prefHeight="16"/>
+
+        <!-- Nav buttons -->
+        <Button fx:id="btnNavInfo" maxWidth="Infinity"
+                text="👤  Thông tin"
+                onAction="#handleNav"
+                style="-fx-background-color: #E8F4FD; -fx-text-fill: #1A5276;
+                       -fx-background-radius: 8; -fx-cursor: hand;
+                       -fx-padding: 9 8; -fx-font-size: 11; -fx-font-weight: bold;
+                       -fx-alignment: CENTER_LEFT;"/>
+        <Button fx:id="btnNavOrders" maxWidth="Infinity"
+                text="📦  Đơn hàng"
+                onAction="#handleNav"
+                style="-fx-background-color: transparent; -fx-text-fill: #5D6D7E;
+                       -fx-background-radius: 8; -fx-cursor: hand;
+                       -fx-padding: 9 8; -fx-font-size: 11;
+                       -fx-alignment: CENTER_LEFT;"/>
+        <Button fx:id="btnNavFinance" maxWidth="Infinity"
+                text="💰  Tài chính"
+                onAction="#handleNav"
+                style="-fx-background-color: transparent; -fx-text-fill: #5D6D7E;
+                       -fx-background-radius: 8; -fx-cursor: hand;
+                       -fx-padding: 9 8; -fx-font-size: 11;
+                       -fx-alignment: CENTER_LEFT;"/>
+        <Button fx:id="btnNavSettings" maxWidth="Infinity"
+                text="⚙  Cài đặt"
+                onAction="#handleNav"
+                style="-fx-background-color: transparent; -fx-text-fill: #5D6D7E;
+                       -fx-background-radius: 8; -fx-cursor: hand;
+                       -fx-padding: 9 8; -fx-font-size: 11;
+                       -fx-alignment: CENTER_LEFT;"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+        <Separator/>
+        <Button maxWidth="Infinity"
+                text="🚪  Đăng xuất"
+                onAction="#handleLogout"
+                style="-fx-background-color: transparent; -fx-text-fill: #E74C3C;
+                       -fx-background-radius: 8; -fx-cursor: hand;
+                       -fx-padding: 9 8; -fx-font-size: 11;
+                       -fx-alignment: CENTER_LEFT;"/>
+    </VBox>
+
+    <!-- ══ RIGHT CONTENT ═════════════════════════════════════ -->
+    <StackPane HBox.hgrow="ALWAYS"
+               style="-fx-padding: 0; -fx-background-color: white;
+                      -fx-background-radius: 0 14 14 0;">
+
+        <!-- ════ PANE THONG TIN ════════════════════════════ -->
+        <VBox fx:id="paneInfo" spacing="0">
+
+            <!-- Header -->
+            <HBox alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #2C3E50;
+                         -fx-background-radius: 0 14 0 0;
+                         -fx-padding: 18 20;">
+                <Label text="Thông tin cá nhân"
+                       style="-fx-text-fill: white; -fx-font-size: 14;
+                              -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="✕" onAction="#handleClose"
+                        style="-fx-background-color: rgba(255,255,255,0.15);
+                               -fx-text-fill: white; -fx-background-radius: 20;
+                               -fx-cursor: hand; -fx-padding: 2 8; -fx-font-size: 12;"/>
+            </HBox>
+
+            <VBox spacing="14" style="-fx-padding: 20 24;">
+                <!-- Hang thanh vien -->
+                <HBox alignment="CENTER"
+                      style="-fx-background-color: #F0F8FF;
+                             -fx-background-radius: 10; -fx-padding: 12;">
+                    <Label fx:id="lblRankIcon" text="🥉"
+                           style="-fx-font-size: 28;"/>
+                    <VBox spacing="2" style="-fx-padding: 0 0 0 12;">
+                        <Label fx:id="lblRankTitle" text="Hạng Đồng"
+                               style="-fx-font-size: 14; -fx-font-weight: bold;
+                                      -fx-text-fill: #2C3E50;"/>
+                        <Label fx:id="lblRankDesc" text="Cần thêm 20 đơn để lên Hạng Bạc"
+                               style="-fx-font-size: 11; -fx-text-fill: #7F8C8D;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Thong tin chi tiet -->
+                <VBox spacing="10">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="👤" style="-fx-font-size: 13;"/>
+                        <VBox spacing="1">
+                            <Label text="Họ tên"
+                                   style="-fx-font-size: 10; -fx-text-fill: #95A5A6;"/>
+                            <Label fx:id="lblName" text="—"
+                                   style="-fx-font-size: 13; -fx-font-weight: bold;
+                                          -fx-text-fill: #2C3E50;"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="✉" style="-fx-font-size: 13;"/>
+                        <VBox spacing="1">
+                            <Label text="Email"
+                                   style="-fx-font-size: 10; -fx-text-fill: #95A5A6;"/>
+                            <Label fx:id="lblEmail" text="—"
+                                   style="-fx-font-size: 13; -fx-text-fill: #2C3E50;"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="📊" style="-fx-font-size: 13;"/>
+                        <VBox spacing="1">
+                            <Label text="Số đơn thành công"
+                                   style="-fx-font-size: 10; -fx-text-fill: #95A5A6;"/>
+                            <Label fx:id="lblOrdersCount" text="0 đơn"
+                                   style="-fx-font-size: 13; -fx-font-weight: bold;
+                                          -fx-text-fill: #27AE60;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Progress tien len hang moi -->
+                <VBox spacing="6">
+                    <HBox>
+                        <Label text="Tiến độ lên hạng"
+                               style="-fx-font-size: 11; -fx-text-fill: #7F8C8D;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblProgress" text="5 / 20"
+                               style="-fx-font-size: 11; -fx-text-fill: #2C3E50;
+                                      -fx-font-weight: bold;"/>
+                    </HBox>
+                    <ProgressBar fx:id="progressRank" progress="0.25"
+                                 maxWidth="Infinity" prefHeight="8"
+                                 style="-fx-accent: #3498DB;"/>
+                </VBox>
+            </VBox>
+        </VBox>
+
+        <!-- ════ PANE DON HANG ═════════════════════════════ -->
+        <VBox fx:id="paneOrders" spacing="0" visible="false" managed="false">
+
+            <HBox alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #1A5276;
+                         -fx-background-radius: 0 14 0 0; -fx-padding: 18 20;">
+                <Label text="Lịch sử đấu giá"
+                       style="-fx-text-fill: white; -fx-font-size: 14;
+                              -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="✕" onAction="#handleClose"
+                        style="-fx-background-color: rgba(255,255,255,0.15);
+                               -fx-text-fill: white; -fx-background-radius: 20;
+                               -fx-cursor: hand; -fx-padding: 2 8; -fx-font-size: 12;"/>
+            </HBox>
+
+            <VBox spacing="8" VBox.vgrow="ALWAYS"
+                  style="-fx-padding: 16 20;">
+
+                <!-- Filter tab -->
+                <HBox spacing="6">
+                    <Button fx:id="btnOrdAll" text="Tất cả"
+                            onAction="#handleOrderFilter"
+                            style="-fx-background-color: #2C3E50; -fx-text-fill: white;
+                                   -fx-background-radius: 20; -fx-cursor: hand;
+                                   -fx-padding: 4 14; -fx-font-size: 11;"/>
+                    <Button fx:id="btnOrdWon" text="Thắng"
+                            onAction="#handleOrderFilter"
+                            style="-fx-background-color: #ECF0F1; -fx-text-fill: #5D6D7E;
+                                   -fx-background-radius: 20; -fx-cursor: hand;
+                                   -fx-padding: 4 14; -fx-font-size: 11;"/>
+                    <Button fx:id="btnOrdLost" text="Thua"
+                            onAction="#handleOrderFilter"
+                            style="-fx-background-color: #ECF0F1; -fx-text-fill: #5D6D7E;
+                                   -fx-background-radius: 20; -fx-cursor: hand;
+                                   -fx-padding: 4 14; -fx-font-size: 11;"/>
+                </HBox>
+
+                <!-- Danh sach don hang -->
+                <ListView fx:id="listOrders" VBox.vgrow="ALWAYS"
+                          style="-fx-background-color: transparent;
+                                 -fx-border-color: transparent;"/>
+
+                <Label fx:id="lblOrdersEmpty" text="Chưa có đơn hàng nào."
+                       visible="false" managed="false"
+                       style="-fx-text-fill: #BDC3C7; -fx-font-size: 13;
+                              -fx-alignment: CENTER;" maxWidth="Infinity"/>
+            </VBox>
+        </VBox>
+
+        <!-- ════ PANE TAI CHINH ════════════════════════════ -->
+        <VBox fx:id="paneFinance" spacing="0" visible="false" managed="false">
+
+            <HBox alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #1E8449;
+                         -fx-background-radius: 0 14 0 0; -fx-padding: 18 20;">
+                <Label text="Tài chính"
+                       style="-fx-text-fill: white; -fx-font-size: 14;
+                              -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="✕" onAction="#handleClose"
+                        style="-fx-background-color: rgba(255,255,255,0.15);
+                               -fx-text-fill: white; -fx-background-radius: 20;
+                               -fx-cursor: hand; -fx-padding: 2 8; -fx-font-size: 12;"/>
+            </HBox>
+
+            <VBox spacing="16" style="-fx-padding: 20 24;">
+
+                <!-- The so du -->
+                <VBox spacing="6" alignment="CENTER"
+                      style="-fx-background-color: #1E8449;
+                             -fx-background-radius: 12; -fx-padding: 20;">
+                    <Label text="Số dư khả dụng"
+                           style="-fx-text-fill: rgba(255,255,255,0.8); -fx-font-size: 11;"/>
+                    <Label fx:id="lblBalance" text="0 ₫"
+                           style="-fx-text-fill: white; -fx-font-size: 26;
+                                  -fx-font-weight: bold;"/>
+                    <Label fx:id="lblFrozenBalance" text="Đang đặt cọc: 0 ₫"
+                           style="-fx-text-fill: rgba(255,255,255,0.7); -fx-font-size: 11;"/>
+                </VBox>
+
+                <!-- 2 nut nap/rut -->
+                <HBox spacing="10">
+                    <Button maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            text="+ Nạp tiền"
+                            onAction="#handleTopUp"
+                            style="-fx-background-color: #27AE60; -fx-text-fill: white;
+                                   -fx-background-radius: 8; -fx-cursor: hand;
+                                   -fx-padding: 10; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                    <Button maxWidth="Infinity" HBox.hgrow="ALWAYS"
+                            text="↑ Rút tiền"
+                            onAction="#handleWithdraw"
+                            style="-fx-background-color: #F0F3F7; -fx-text-fill: #2C3E50;
+                                   -fx-background-radius: 8; -fx-cursor: hand;
+                                   -fx-border-color: #DDE1E7; -fx-border-radius: 8;
+                                   -fx-padding: 10; -fx-font-size: 12;"/>
+                </HBox>
+
+                <!-- Lich su giao dich -->
+                <VBox spacing="8">
+                    <Label text="Giao dịch gần đây"
+                           style="-fx-font-size: 12; -fx-font-weight: bold;
+                                  -fx-text-fill: #2C3E50;"/>
+                    <ListView fx:id="listTransactions"
+                              prefHeight="160"
+                              style="-fx-background-color: transparent;
+                                     -fx-border-color: transparent;"/>
+                </VBox>
+            </VBox>
+        </VBox>
+
+        <!-- ════ PANE CAI DAT ══════════════════════════════ -->
+        <VBox fx:id="paneSettings" spacing="0" visible="false" managed="false">
+
+            <HBox alignment="CENTER_LEFT" spacing="12"
+                  style="-fx-background-color: #6C3483;
+                         -fx-background-radius: 0 14 0 0; -fx-padding: 18 20;">
+                <Label text="Cài đặt tài khoản"
+                       style="-fx-text-fill: white; -fx-font-size: 14;
+                              -fx-font-weight: bold;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="✕" onAction="#handleClose"
+                        style="-fx-background-color: rgba(255,255,255,0.15);
+                               -fx-text-fill: white; -fx-background-radius: 20;
+                               -fx-cursor: hand; -fx-padding: 2 8; -fx-font-size: 12;"/>
+            </HBox>
+
+            <VBox spacing="14" style="-fx-padding: 20 24;">
+
+                <!-- Doi mat khau -->
+                <VBox spacing="8"
+                      style="-fx-background-color: #FDFEFE; -fx-padding: 14;
+                             -fx-background-radius: 10; -fx-border-color: #EAECEE;
+                             -fx-border-radius: 10;">
+                    <Label text="Đổi mật khẩu"
+                           style="-fx-font-size: 12; -fx-font-weight: bold;
+                                  -fx-text-fill: #2C3E50;"/>
+                    <PasswordField fx:id="txtOldPass"
+                                   promptText="Mật khẩu hiện tại"
+                                   style="-fx-border-color: #DDE1E7; -fx-border-radius: 6;
+                                          -fx-background-radius: 6; -fx-padding: 7 10;
+                                          -fx-font-size: 12;"/>
+                    <PasswordField fx:id="txtNewPass"
+                                   promptText="Mật khẩu mới"
+                                   style="-fx-border-color: #DDE1E7; -fx-border-radius: 6;
+                                          -fx-background-radius: 6; -fx-padding: 7 10;
+                                          -fx-font-size: 12;"/>
+                    <PasswordField fx:id="txtConfirmPass"
+                                   promptText="Xác nhận mật khẩu mới"
+                                   style="-fx-border-color: #DDE1E7; -fx-border-radius: 6;
+                                          -fx-background-radius: 6; -fx-padding: 7 10;
+                                          -fx-font-size: 12;"/>
+                    <Label fx:id="lblPassError" text="" wrapText="true"
+                           style="-fx-text-fill: #E74C3C; -fx-font-size: 11;"/>
+                    <Button maxWidth="Infinity" text="Cập nhật mật khẩu"
+                            onAction="#handleChangePassword"
+                            style="-fx-background-color: #6C3483; -fx-text-fill: white;
+                                   -fx-background-radius: 6; -fx-cursor: hand;
+                                   -fx-padding: 8; -fx-font-weight: bold; -fx-font-size: 12;"/>
+                </VBox>
+
+                <!-- Thong bao -->
+                <VBox spacing="10"
+                      style="-fx-background-color: #FDFEFE; -fx-padding: 14;
+                             -fx-background-radius: 10; -fx-border-color: #EAECEE;
+                             -fx-border-radius: 10;">
+                    <Label text="Thông báo"
+                           style="-fx-font-size: 12; -fx-font-weight: bold;
+                                  -fx-text-fill: #2C3E50;"/>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <CheckBox fx:id="chkNotifyBid" selected="true"
+                                  text="Khi có bid mới vượt giá của tôi"
+                                  style="-fx-font-size: 11; -fx-text-fill: #5D6D7E;"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <CheckBox fx:id="chkNotifyWin" selected="true"
+                                  text="Khi thắng phiên đấu giá"
+                                  style="-fx-font-size: 11; -fx-text-fill: #5D6D7E;"/>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <CheckBox fx:id="chkNotifyEnd" selected="false"
+                                  text="Khi phiên sắp kết thúc (30 phút)"
+                                  style="-fx-font-size: 11; -fx-text-fill: #5D6D7E;"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </VBox>
+
+    </StackPane>
+</HBox>
