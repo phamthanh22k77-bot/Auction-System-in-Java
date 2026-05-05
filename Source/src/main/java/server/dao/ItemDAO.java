@@ -51,7 +51,7 @@ public class ItemDAO {
             })
             .registerTypeAdapter(Item.class, (JsonSerializer<Item>) (src, typeOfSrc, context) -> {
                 JsonObject jsonObject = context.serialize(src, src.getClass()).getAsJsonObject();
-                jsonObject.addProperty("category", src.getCategory());
+                jsonObject.addProperty("category", src.getCategory().name());
                 return jsonObject;
             })
             .setPrettyPrinting()

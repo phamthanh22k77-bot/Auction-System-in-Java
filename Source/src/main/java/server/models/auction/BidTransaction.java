@@ -15,8 +15,6 @@ public class BidTransaction extends Entity {
         REJECTED, // Bị từ chối (giá quá thấp, phiên đã kết thúc, lỗi, v.v.)
         WINNING // Sau cùng, đây là lượt giá chiến thắng phiên
     }
-
-    // 1. Constructor cho lượt trả giá mới tạo
     public BidTransaction(String auctionId, String bidderId, double bidAmount) {
         super(); // Khởi tạo id tự sinh UUID
         this.auctionId = auctionId;

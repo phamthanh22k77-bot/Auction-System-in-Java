@@ -10,7 +10,6 @@ import client.message.*;
 import java.io.IOException;
 import static client.message.MessageType.*;
 
-
 public class ClientHandler extends Thread {
 
     // các variable cần nhận
@@ -60,7 +59,7 @@ public class ClientHandler extends Thread {
 
     @Override
     public void run() {
-        //Khởi tạo các biến, lấy instance server
+        // Khởi tạo các biến, lấy instance server
         AuctionServer server = AuctionServer.getInstance();
         String packetMessageJson = null;
         MessageType packetType = null;
@@ -76,25 +75,32 @@ public class ClientHandler extends Thread {
             isRunning = false;
         }
     }
-    //Đầu vào: phương thức nhận một packet msg, thử gửi một packet
-    //Đầu ra: packet được gửi đúng chỗ
+
+    // Đầu vào: phương thức nhận một packet msg, thử gửi một packet
+    // Đầu ra: packet được gửi đúng chỗ
     public void sendPacket(PacketMessage packetMessage) throws IOException {
         objectOutputStream.writeObject(packetMessage);
     }
-    /*Đầu vào: nhận được yêu cầu của một client để tham gia phiên đấu giá
-    Đầu ra: client tham gia phiên đấu giá
-    ServerUnexpectedPayloadException khi packet nhận được payload sai kiểu
-    AuctionAlreadyRegisteredException khi client đang cố gắng tham gia phiên đấu giá đã tham gia
-    ServerNoAuctionException khi client đang cố gắng tham gia một phiên đấu giá đã kết thúc
-    IOException khi phương thức packet không hoạt động trong auction*/
+
+    /*
+     * Đầu vào: nhận được yêu cầu của một client để tham gia phiên đấu giá
+     * Đầu ra: client tham gia phiên đấu giá
+     * ServerUnexpectedPayloadException khi packet nhận được payload sai kiểu
+     * AuctionAlreadyRegisteredException khi client đang cố gắng tham gia phiên đấu
+     * giá đã tham gia
+     * ServerNoAuctionException khi client đang cố gắng tham gia một phiên đấu giá
+     * đã kết thúc
+     * IOException khi phương thức packet không hoạt động trong auction
+     */
     public void joinAuction(PacketMessage packetMessage)
-            throws AuctionAlreadyRegisteredException, ServerNoAuctionException, ServerUnexpectedPayloadException, IOException {
-        //Kiểm tra packet nhận được payload đúng
-        if (packetMessage.getPayload() instanceof RegisterClientPayload){
-            //Tạo server instance tạm thời để chứa packet
-           AuctionServer server = AuctionServer.getInstance();
-           RegisterClientPayload clientRegisterPayload = (RegisterClientPayload) packetMessage.getPayload();
-            //Thêm object "client" của clienthandler vào auctionID tương ứng quá server
+            throws AuctionAlreadyRegisteredException, ServerNoAuctionException, ServerUnexpectedPayloadException,
+            IOException {
+        // Kiểm tra packet nhận được payload đúng
+        if (packetMessage.getPayload() instanceof RegisterClientPayload) {
+            // Tạo server instance tạm thời để chứa packet
+            AuctionServer server = AuctionServer.getInstance();
+            RegisterClientPayload clientRegisterPayload = (RegisterClientPayload) packetMessage.getPayload();
+            // Thêm object "client" của clienthandler vào auctionID tương ứng quá server
             server.joinAuction(clientRegisterPayload.getAuctionID(), client);
         } else {
             throw new ServerUnexpectedPayloadException("Packet provided the wrong payload");
@@ -102,4 +108,3 @@ public class ClientHandler extends Thread {
     }
 
 }
-
