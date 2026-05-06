@@ -2,9 +2,14 @@ package server.network;
 
 import client.message.MessageType;
 import server.models.auction.Auction;
+import server.models.item.Item;
 import server.models.network.*;
 import server.auction.*;
 import client.message.PacketMessage;
+import server.payload.*;
+import server.models.auction.*;
+import server.models.item.*;
+import server.models.user.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -161,21 +166,21 @@ public class AuctionServer {
      * dưới dạng string
      * Method không trả về gì
      */
-    public void joinAuction(int auctionId, AuctionClient client) {
+    public void joinAuction(int auctionID, AuctionClient client) throws ServerNoAuctionException{
+
         // 1. Tìm phiên đấu giá (auction) dựa trên auctionId
-        Auction auction = auctions.get(auctionId);
+        Auction auction = auctions.get(auctionID);
 
         // 2. Nếu tìm thấy phiên đấu giá hợp lệ
         if (auction != null) {
             // thêm auctionId vào danh sách đã đăng ký của client đó
-            client.getRegisteredAuctions().add(auctionId);
+            client.getRegisteredAuctions().add(auctionID);
 
-            System.out.println("[Server] Client " + client.getSocketAddress() + " đã tham gia phiên: " + auctionId);
+            System.out.println("[Server] Client " + client.getSocketAddress() + " đã tham gia phiên: " + auctionID);
         } else {
-            System.out.println("Lỗi: Không tìm thấy phiên đấu giá với ID " + auctionId);
+            System.out.println("Lỗi: Không tìm thấy phiên đấu giá với ID " + auctionID);
         }
     }
-
     public void listen() throws IOException {
 
         isAcceptingAuctions = true;
@@ -196,5 +201,6 @@ public class AuctionServer {
         }
 
     }
+    public void leaveAuction(int auctionID, AuctionClient client){}
 
 }

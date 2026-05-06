@@ -8,6 +8,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import client.message.*;
 import java.io.IOException;
+import java.util.LinkedList;
+
 import static client.message.MessageType.*;
 
 public class ClientHandler extends Thread {
@@ -106,5 +108,6 @@ public class ClientHandler extends Thread {
             throw new ServerUnexpectedPayloadException("Packet provided the wrong payload");
         }
     }
+
 
 }
