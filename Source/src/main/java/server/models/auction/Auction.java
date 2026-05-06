@@ -1,7 +1,11 @@
 package server.models.auction;
 
 import server.models.Entity;
+import server.models.network.AuctionClient;
+import server.auction.*;
+
 import java.time.LocalDateTime;
+import java.util.LinkedList;
 
 public class Auction extends Entity {
     private String itemId; // ID của vật phẩm được đưa ra đấu giá
@@ -12,6 +16,8 @@ public class Auction extends Entity {
     private double currentHighestBid; // Giá cao nhất hiện tại
     private String highestBidderId; // ID người đang trả giá cao nhất (Leader)
     private AuctionStatus status; // Trạng thái phiên đấu giá
+    private LinkedList<AuctionClient> clientList; // Tạo danh sách các client có trong một phiên đấu giá
+
 
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
     private double minimumBidIncrement;
@@ -146,6 +152,10 @@ public class Auction extends Entity {
         this.status = status;
     }
 
+    public LinkedList<AuctionClient> getClientList() {return clientList;}
+
+    public void setClientList(LinkedList<AuctionClient> clientList) {this.clientList = clientList;}
+
     @Override
     public String toString() {
         return "Auction{" +
@@ -155,5 +165,40 @@ public class Auction extends Entity {
                 ", currentHighestBid=" + currentHighestBid +
                 ", highestBidder='" + highestBidderId + '\'' +
                 '}';
+    }
+    /*
+        Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client chưa được đăng ký trong auction
+        Điều kiện sau: Phương thức thêm đối tượng Client nhận được vào biến clientList. Đối tượng Client sẽ có
+        danh sách các auction đã đăng ký được cập nhật để bao gồm ID của auction này.
+        Điều này chỉ xảy ra nếu Client chưa được đăng ký và không phải là chủ sở hữu.
+        Phương thức không trả về giá trị.
+        LƯU Ý:
+        Nếu client là chủ sở hữu của auction thì ném ra AuctionClientIsOwnerException.
+        Nếu client đã được đăng ký trước đó thì ném ra AuctionAlreadyRegisteredException.
+ */
+
+    public void addClient(AuctionClient client)
+            throws AuctionAlreadyRegisteredException, AuctionClientIsOwnerException {
+
+        // Kiểm tra xem client có phải là chủ sở hữu của auction hay không
+        if (!sellerId.equals(client.getSocket().getInetAddress().getHostAddress())) {
+
+            // Kiểm tra xem client đã đăng ký trong auction chưa
+            if (!clientList.contains(client)) {
+
+                // Thêm auction này vào danh sách các auction mà client đã đăng ký
+                client.getRegisteredAuctions().addFirst(Integer.valueOf(sellerId));
+
+                // Đăng ký client như một người tham gia auction
+                clientList.add(client);
+
+            } else {
+                throw new AuctionAlreadyRegisteredException("Client đã được đăng ký rồi");
+            }
+
+        } else {
+            throw new AuctionClientIsOwnerException("Chủ sở hữu của phiên" +
+                    " không thể đăng ký vào chính auction của mình");
+        }
     }
 }
