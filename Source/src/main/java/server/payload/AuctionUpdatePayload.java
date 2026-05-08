@@ -8,7 +8,7 @@ import java.util.Objects;
 public class AuctionUpdatePayload implements Serializable {
 
     //Attributes
-    private int auctionID;
+    private String auctionID;
     // 👉 Controller dùng để xác định auction nào cần update UI
 
     private Date bidCreationDate;
@@ -27,7 +27,7 @@ public class AuctionUpdatePayload implements Serializable {
     // 👉 Controller có thể dùng để hiển thị mô tả item
 
     //Constructors
-    public AuctionUpdatePayload(int auctionID, Date bidCreationDate, float highestBid, String itemName, String highestBidderIP, String itemDescription) {
+    public AuctionUpdatePayload(String auctionID, Date bidCreationDate, float highestBid, String itemName, String highestBidderIP, String itemDescription) {
         this.auctionID = auctionID;
         this.bidCreationDate = bidCreationDate;
         this.highestBid = highestBid;
@@ -37,12 +37,12 @@ public class AuctionUpdatePayload implements Serializable {
     }
 
     //Setters and Getters
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
         // 👉 Controller gọi để biết cần update auction nào
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -97,7 +97,7 @@ public class AuctionUpdatePayload implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         AuctionUpdatePayload that = (AuctionUpdatePayload) o;
-        return auctionID == that.auctionID &&
+        return Objects.equals(auctionID, that.auctionID) &&
                 Float.compare(that.highestBid, highestBid) == 0 &&
                 Objects.equals(bidCreationDate, that.bidCreationDate) &&
                 Objects.equals(itemName, that.itemName) &&

@@ -11,7 +11,7 @@ public class AuctionListItem implements Serializable {
     // ===== Attributes =====
 
     // ID của auction
-    private int auctionID;
+    private String auctionID;
 
     // Giá khởi điểm của item
     private float itemStartingPrice;
@@ -31,7 +31,7 @@ public class AuctionListItem implements Serializable {
     // ===== Constructor =====
 
     // Khởi tạo đầy đủ thông tin của 1 auction item
-    public AuctionListItem(int auctionID, float itemStartingPrice, String itemName,
+    public AuctionListItem(String auctionID, float itemStartingPrice, String itemName,
                            String itemDescription, String auctionOwnerIP, float highestBid) {
         this.auctionID = auctionID;
         this.itemStartingPrice = itemStartingPrice;
@@ -43,11 +43,11 @@ public class AuctionListItem implements Serializable {
 
     // ===== Getter & Setter =====
 
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -102,7 +102,7 @@ public class AuctionListItem implements Serializable {
 
         AuctionListItem that = (AuctionListItem) o;
 
-        return auctionID == that.auctionID && // so ID
+        return Objects.equals(auctionID, that.auctionID) && // so ID
                 Float.compare(that.itemStartingPrice, itemStartingPrice) == 0 && // so float an toàn
                 Float.compare(that.highestBid, highestBid) == 0 &&
                 Objects.equals(itemName, that.itemName) && // so String

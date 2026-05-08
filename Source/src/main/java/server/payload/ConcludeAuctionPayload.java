@@ -6,7 +6,7 @@ import java.io.Serializable;
 public class ConcludeAuctionPayload implements Serializable {
 
     //Attributes
-    private int auctionID;
+    private String auctionID;
     // 👉 Controller dùng để xác định auction nào đã kết thúc
 
     private float highestBid;
@@ -19,7 +19,7 @@ public class ConcludeAuctionPayload implements Serializable {
     // 👉 Controller dùng để hiển thị người thắng (winner)
 
     //Constructors
-    public ConcludeAuctionPayload(int auctionID, float highestBid, String itemName, String highestBidderIP) {
+    public ConcludeAuctionPayload(String auctionID, float highestBid, String itemName, String highestBidderIP) {
         this.auctionID = auctionID;
         this.highestBid = highestBid;
         this.itemName = itemName;
@@ -27,12 +27,12 @@ public class ConcludeAuctionPayload implements Serializable {
     }
 
     //Setters and Getters
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
         // 👉 Controller gọi để xác định auction cần update trạng thái (kết thúc)
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 

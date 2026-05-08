@@ -13,23 +13,23 @@ public class SendAuctionIDPayload implements Serializable {
 
     // ID của auction
     // 👉 Là thông tin duy nhất để xác định auction trong hệ thống
-    private int auctionID;
+    private String auctionID;
 
     // ===== Constructor =====
 
     // Khởi tạo payload với auctionID
-    public SendAuctionIDPayload(int auctionID) {
+    public SendAuctionIDPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
     // ===== Getter & Setter =====
 
     // Lấy auctionID
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -43,7 +43,7 @@ public class SendAuctionIDPayload implements Serializable {
         SendAuctionIDPayload that = (SendAuctionIDPayload) o;
 
         // So sánh theo auctionID
-        return auctionID == that.auctionID;
+        return Objects.equals(auctionID, that.auctionID);
     }
 
     @Override

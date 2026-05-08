@@ -12,23 +12,23 @@ public class RequestHighestBidPayload implements Serializable {
 
     // ID của auction cần lấy highest bid
     // 👉 Server dùng để tìm đúng auction trong hệ thống
-    private int auctionID;
+    private String auctionID;
 
     // ===== Constructor =====
 
     // Khởi tạo payload với auctionID
-    public RequestHighestBidPayload(int auctionID) {
+    public RequestHighestBidPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
     // ===== Getter & Setter =====
 
     // Lấy auctionID
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 

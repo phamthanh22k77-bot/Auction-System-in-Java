@@ -18,13 +18,11 @@ public class Auction extends Entity {
     private AuctionStatus status; // Trạng thái phiên đấu giá
     private LinkedList<AuctionClient> clientList; // Tạo danh sách các client có trong một phiên đấu giá
 
-
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
     private double minimumBidIncrement;
 
     // Theo yêu cầu phân công: OPEN -> RUNNING -> FINISHED -> PAID/CANCELED
     public enum AuctionStatus {
-        PENDING,
         OPEN,
         RUNNING,
         FINISHED,
@@ -43,7 +41,7 @@ public class Auction extends Entity {
         this.startingPrice = startingPrice;
         this.currentHighestBid = startingPrice;
         this.minimumBidIncrement = minimumBidIncrement;
-        this.status = AuctionStatus.PENDING;
+        this.status = AuctionStatus.OPEN;
     }
 
     // 2. Constructor dùng khi load dữ liệu từ Database
@@ -61,6 +59,7 @@ public class Auction extends Entity {
         this.minimumBidIncrement = minimumBidIncrement;
         this.status = status;
     }
+
     public void updateStatus() {
         LocalDateTime now = LocalDateTime.now();
         // Không đổi trạng thái nếu đã kết thúc, thanh toán hoặc bị huỷ
@@ -69,15 +68,16 @@ public class Auction extends Entity {
         }
 
         if (now.isBefore(startTime)) {
-            setStatus(AuctionStatus.PENDING);
+            setStatus(AuctionStatus.OPEN);
         } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
             setStatus(AuctionStatus.RUNNING);
         } else if (now.isAfter(endTime)) {
             setStatus(AuctionStatus.FINISHED);
         }
     }
+
     public boolean isActive() {
-        return this.status == AuctionStatus.RUNNING || this.status == AuctionStatus.OPEN;
+        return this.status == AuctionStatus.RUNNING;
     }
 
     public String getItemId() {
@@ -152,9 +152,13 @@ public class Auction extends Entity {
         this.status = status;
     }
 
-    public LinkedList<AuctionClient> getClientList() {return clientList;}
+    public LinkedList<AuctionClient> getClientList() {
+        return clientList;
+    }
 
-    public void setClientList(LinkedList<AuctionClient> clientList) {this.clientList = clientList;}
+    public void setClientList(LinkedList<AuctionClient> clientList) {
+        this.clientList = clientList;
+    }
 
     @Override
     public String toString() {
@@ -167,15 +171,19 @@ public class Auction extends Entity {
                 '}';
     }
     /*
-        Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client chưa được đăng ký trong auction
-        Điều kiện sau: Phương thức thêm đối tượng Client nhận được vào biến clientList. Đối tượng Client sẽ có
-        danh sách các auction đã đăng ký được cập nhật để bao gồm ID của auction này.
-        Điều này chỉ xảy ra nếu Client chưa được đăng ký và không phải là chủ sở hữu.
-        Phương thức không trả về giá trị.
-        LƯU Ý:
-        Nếu client là chủ sở hữu của auction thì ném ra AuctionClientIsOwnerException.
-        Nếu client đã được đăng ký trước đó thì ném ra AuctionAlreadyRegisteredException.
- */
+     * Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client chưa được đăng
+     * ký trong auction
+     * Điều kiện sau: Phương thức thêm đối tượng Client nhận được vào biến
+     * clientList. Đối tượng Client sẽ có
+     * danh sách các auction đã đăng ký được cập nhật để bao gồm ID của auction này.
+     * Điều này chỉ xảy ra nếu Client chưa được đăng ký và không phải là chủ sở hữu.
+     * Phương thức không trả về giá trị.
+     * LƯU Ý:
+     * Nếu client là chủ sở hữu của auction thì ném ra
+     * AuctionClientIsOwnerException.
+     * Nếu client đã được đăng ký trước đó thì ném ra
+     * AuctionAlreadyRegisteredException.
+     */
 
     public void addClient(AuctionClient client)
             throws AuctionAlreadyRegisteredException, AuctionClientIsOwnerException {
@@ -186,8 +194,8 @@ public class Auction extends Entity {
             // Kiểm tra xem client đã đăng ký trong auction chưa
             if (!clientList.contains(client)) {
 
-                // Thêm auction này vào danh sách các auction mà client đã đăng ký
-                client.getRegisteredAuctions().addFirst(Integer.valueOf(sellerId));
+                // Thêm ID của phiên đấu giá này vào danh sách đã đăng ký của client
+                client.getRegisteredAuctions().addFirst(this.getId());
 
                 // Đăng ký client như một người tham gia auction
                 clientList.add(client);

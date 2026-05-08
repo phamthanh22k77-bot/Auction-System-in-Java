@@ -13,12 +13,12 @@ public class ConfirmAuctionRegistrationPayload {
     // 👉 Controller có thể dùng ID này để:
     //    - Hiển thị thông báo "Đăng ký thành công"
     //    - Hoặc cập nhật UI (ví dụ: disable nút Register)
-    private int auctionID;
+    private String auctionID;
 
     // ===== Constructor =====
 
     // Khởi tạo payload với auctionID cụ thể
-    public ConfirmAuctionRegistrationPayload(int auctionID) {
+    public ConfirmAuctionRegistrationPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -26,11 +26,11 @@ public class ConfirmAuctionRegistrationPayload {
 
     // Controller gọi hàm này để lấy auctionID
     // 👉 Dùng để xác định auction nào đã được đăng ký
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 

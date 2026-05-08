@@ -14,7 +14,7 @@ public class NotifyNoAuctionWinnerPayload implements Serializable {
 
     // ID của auction đã kết thúc
     // 👉 Dùng để xác định auction nào không có winner
-    private int auctionID;
+    private String auctionID;
 
     // Tên item của auction
     // 👉 Hiển thị cho user biết item nào không bán được
@@ -27,7 +27,7 @@ public class NotifyNoAuctionWinnerPayload implements Serializable {
     // ===== Constructor =====
 
     // Khởi tạo payload với thông tin auction không có winner
-    public NotifyNoAuctionWinnerPayload(int auctionID, String itemName, float itemStartingPrice) {
+    public NotifyNoAuctionWinnerPayload(String auctionID, String itemName, float itemStartingPrice) {
         this.auctionID = auctionID;
         this.itemName = itemName;
         this.itemStartingPrice = itemStartingPrice;
@@ -36,11 +36,11 @@ public class NotifyNoAuctionWinnerPayload implements Serializable {
     // ===== Getter & Setter =====
 
     // Lấy auctionID
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -72,7 +72,7 @@ public class NotifyNoAuctionWinnerPayload implements Serializable {
         NotifyNoAuctionWinnerPayload that = (NotifyNoAuctionWinnerPayload) o;
 
         // So sánh toàn bộ thông tin auction
-        return auctionID == that.auctionID &&
+        return Objects.equals(auctionID, that.auctionID) &&
                 Float.compare(that.itemStartingPrice, itemStartingPrice) == 0 &&
                 Objects.equals(itemName, that.itemName);
     }

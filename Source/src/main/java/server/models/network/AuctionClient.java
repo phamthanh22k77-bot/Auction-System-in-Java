@@ -8,7 +8,7 @@ public class AuctionClient {
 
     // Các variable cần nhận
     private InetSocketAddress socketAddress;
-    private LinkedList<Integer> registeredAuctions;
+    private LinkedList<String> registeredAuctions;
     private int numberOfHighBids;
     private Socket socket;
 
@@ -30,11 +30,11 @@ public class AuctionClient {
         this.socketAddress = address;
     }
 
-    public LinkedList<Integer> getRegisteredAuctions() {
+    public LinkedList<String> getRegisteredAuctions() {
         return registeredAuctions;
     }
 
-    public void setRegisteredAuctions(LinkedList<Integer> registeredAuctions) {
+    public void setRegisteredAuctions(LinkedList<String> registeredAuctions) {
         this.registeredAuctions = registeredAuctions;
     }
 

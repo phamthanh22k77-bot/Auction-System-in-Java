@@ -19,17 +19,17 @@ class AuctionTest {
         assertEquals(100.0, auction.getStartingPrice(), "Gán sai startingPrice");
         assertEquals(100.0, auction.getCurrentHighestBid(), "Giá hiện tại ban đầu phải bằng giá khởi điểm");
         assertEquals(10.0, auction.getMinimumBidIncrement(), "Gán sai minimumBidIncrement");
-        assertEquals(Auction.AuctionStatus.PENDING, auction.getStatus(), "Phiên đấu giá mới tạo phải ở trạng thái PENDING");
+        assertEquals(Auction.AuctionStatus.OPEN, auction.getStatus(), "Phiên đấu giá mới tạo phải ở trạng thái OPEN (chờ đấu)");
     }
 
     @Test
-    void testUpdateStatus_TrangThaiPending() {
+    void testUpdateStatus_TrangThaiOpen() {
         LocalDateTime now = LocalDateTime.now();
         Auction auction = new Auction("item1", "seller1", now.plusHours(1), now.plusHours(2), 100.0, 10.0);
 
         auction.updateStatus();
 
-        assertEquals(Auction.AuctionStatus.PENDING, auction.getStatus(), "Chưa đến giờ bắt đầu thì phải là PENDING");
+        assertEquals(Auction.AuctionStatus.OPEN, auction.getStatus(), "Chưa đến giờ bắt đầu thì phải là OPEN");
     }
 
     @Test
@@ -72,9 +72,6 @@ class AuctionTest {
         Auction auction = new Auction("item1", "seller1", LocalDateTime.now(), LocalDateTime.now().plusHours(1), 100.0,
                 10.0);
 
-        auction.setStatus(Auction.AuctionStatus.OPEN);
-        assertTrue(auction.isActive(), "Trạng thái OPEN phải là active (true)");
-
         auction.setStatus(Auction.AuctionStatus.RUNNING);
         assertTrue(auction.isActive(), "Trạng thái RUNNING phải là active (true)");
     }
@@ -84,8 +81,8 @@ class AuctionTest {
         Auction auction = new Auction("item1", "seller1", LocalDateTime.now(), LocalDateTime.now().plusHours(1), 100.0,
                 10.0);
 
-        auction.setStatus(Auction.AuctionStatus.PENDING);
-        assertFalse(auction.isActive(), "Trạng thái PENDING không được active (false)");
+        auction.setStatus(Auction.AuctionStatus.OPEN);
+        assertFalse(auction.isActive(), "Trạng thái OPEN không được active (false) - vì chưa đến giờ");
 
         auction.setStatus(Auction.AuctionStatus.FINISHED);
         assertFalse(auction.isActive(), "Trạng thái FINISHED không được active (false)");

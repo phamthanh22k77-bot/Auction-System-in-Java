@@ -15,7 +15,7 @@ public class FirstCountdownPayload implements Serializable {
 
     // ID của auction
     // 👉 Dùng để xác định auction nào đang countdown
-    private int auctionID;
+    private String auctionID;
 
     // Tên item đang được đấu giá
     // 👉 Hiển thị trên UI cho user
@@ -28,7 +28,7 @@ public class FirstCountdownPayload implements Serializable {
     // ===== Constructor =====
 
     // Khởi tạo payload với thông tin countdown
-    public FirstCountdownPayload(int auctionID, String itemName, float highestBid) {
+    public FirstCountdownPayload(String auctionID, String itemName, float highestBid) {
         this.auctionID = auctionID;
         this.itemName = itemName;
         this.highestBid = highestBid;
@@ -37,11 +37,11 @@ public class FirstCountdownPayload implements Serializable {
     // ===== Getter & Setter =====
 
     // Lấy auctionID
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -83,7 +83,7 @@ public class FirstCountdownPayload implements Serializable {
         FirstCountdownPayload that = (FirstCountdownPayload) o;
 
         // So sánh dựa trên auctionID (coi mỗi auction là duy nhất)
-        return auctionID == that.auctionID;
+        return Objects.equals(auctionID, that.auctionID);
     }
 
     @Override

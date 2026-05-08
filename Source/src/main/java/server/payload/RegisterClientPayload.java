@@ -8,24 +8,24 @@ import java.util.Objects;
 public class RegisterClientPayload implements Serializable {
 
     // Thuộc tính: lưu ID của auction mà client muốn tham gia
-    private int auctionID;
+    private String auctionID;
     // 👉 Controller (client-side) sẽ gán giá trị này khi user chọn auction để join
     // 👉 Ví dụ: new RegisterClientPayload(auctionID)
     // 👉 Server sẽ đọc giá trị này để xử lý: joinAuction(auctionID, client)
 
     // Constructor: khởi tạo payload với auctionID
-    public RegisterClientPayload(int auctionID) {
+    public RegisterClientPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
     // Setter: cho phép thay đổi auctionID
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
         // 👉 Controller có thể dùng nếu cần cập nhật lại auctionID trước khi gửi
     }
 
     // Getter: lấy ra auctionID
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
         // 👉 Server-side (ClientHandler/Controller) sẽ gọi để biết client muốn join auction nào
     }
@@ -38,7 +38,7 @@ public class RegisterClientPayload implements Serializable {
         if (this == o) return true; // cùng vùng nhớ → chắc chắn bằng
         if (o == null || getClass() != o.getClass()) return false; // khác kiểu → không bằng
         RegisterClientPayload that = (RegisterClientPayload) o;
-        return auctionID == that.auctionID; // so sánh theo auctionID
+        return Objects.equals(auctionID, that.auctionID); // so sánh theo auctionID
     }
 
     // Override hashCode:

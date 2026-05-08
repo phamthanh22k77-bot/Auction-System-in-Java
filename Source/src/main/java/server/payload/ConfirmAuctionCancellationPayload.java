@@ -7,22 +7,22 @@ import java.util.Objects;
 public class ConfirmAuctionCancellationPayload implements Serializable {
 
     //Attributes
-    private int auctionID;
+    private String auctionID;
     // 👉 Controller dùng để xác định auction nào đã được huỷ thành công
     // 👉 Dùng để cập nhật UI (xóa khỏi list / đổi trạng thái)
 
     //Constructors
-    public ConfirmAuctionCancellationPayload(int auctionID) {
+    public ConfirmAuctionCancellationPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
     //Setters and Getters
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
         // 👉 Controller gọi để tìm auction tương ứng và cập nhật giao diện
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
         // 👉 Controller có thể set trước khi gửi nếu cần
     }

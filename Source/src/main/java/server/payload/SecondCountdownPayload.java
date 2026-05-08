@@ -12,23 +12,23 @@ public class SecondCountdownPayload implements Serializable {
 
     // ID của auction đang countdown
     // 👉 Dùng để xác định đúng auction trên UI
-    private int auctionID;
+    private String auctionID;
 
     // ===== Constructor =====
 
     // Khởi tạo payload với auctionID
-    public SecondCountdownPayload(int auctionID) {
+    public SecondCountdownPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
     // ===== Getter & Setter =====
 
     // Lấy auctionID
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -51,7 +51,7 @@ public class SecondCountdownPayload implements Serializable {
         SecondCountdownPayload that = (SecondCountdownPayload) o;
 
         // So sánh theo auctionID
-        return auctionID == that.auctionID;
+        return Objects.equals(auctionID, that.auctionID);
     }
 
     @Override

@@ -6,22 +6,22 @@ import java.util.Objects;
 public class ConfirmAuctionBidPayload {
 
     //Attributes
-    private int auctionID;
+    private String auctionID;
     // 👉 Controller (client) dùng để xác định bid thuộc auction nào
     // 👉 Thường dùng khi server xác nhận bid đã được chấp nhận
 
     //Constructors
-    public ConfirmAuctionBidPayload(int auctionID) {
+    public ConfirmAuctionBidPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
     //Setters and Getters
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
         // 👉 Controller dùng để cập nhật UI của auction tương ứng (bid thành công)
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
         // 👉 Controller có thể cập nhật lại trước khi gửi nếu cần
     }

@@ -12,7 +12,7 @@ public class MakeBidPayload implements Serializable {
 
     // ID của auction mà user đang bid
     // 👉 Server dùng để xác định đúng phiên đấu giá
-    private int auctionID;
+    private String auctionID;
 
     // Giá mà user muốn đặt (bid mới)
     // 👉 Phải lớn hơn highestBid hiện tại (server sẽ validate)
@@ -21,7 +21,7 @@ public class MakeBidPayload implements Serializable {
     // ===== Constructor =====
 
     // Khởi tạo payload với auctionID và giá bid
-    public MakeBidPayload(int auctionID, float highestBid) {
+    public MakeBidPayload(String auctionID, float highestBid) {
         this.auctionID = auctionID;
         this.highestBid = highestBid;
     }
@@ -29,11 +29,11 @@ public class MakeBidPayload implements Serializable {
     // ===== Getter & Setter =====
 
     // Lấy auctionID
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -56,7 +56,7 @@ public class MakeBidPayload implements Serializable {
         MakeBidPayload that = (MakeBidPayload) o;
 
         // So sánh cả auctionID và giá bid
-        return auctionID == that.auctionID &&
+        return Objects.equals(auctionID, that.auctionID) &&
                 Float.compare(that.highestBid, highestBid) == 0;
     }
 

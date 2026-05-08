@@ -13,7 +13,7 @@ public class SendAuctionPayload implements Serializable {
 
     // ID của auction
     // 👉 Dùng để định danh duy nhất auction
-    private int auctionID;
+    private String auctionID;
 
     // Loại auction (NORMAL, DUTCH,...)
     // 👉 Client có thể hiển thị hoặc xử lý UI khác nhau
@@ -51,7 +51,7 @@ public class SendAuctionPayload implements Serializable {
     // ===== Constructor =====
 
     // Khởi tạo payload với đầy đủ thông tin auction
-    public SendAuctionPayload(int auctionID, String auctionType, Date auctionCreationDate,
+    public SendAuctionPayload(String auctionID, String auctionType, Date auctionCreationDate,
                               Date auctionTerminationDate, Date bidCreationDate,
                               float highestBid, float itemStartingPrice,
                               String itemName, String itemDescription,
@@ -72,11 +72,11 @@ public class SendAuctionPayload implements Serializable {
 
     // ===== Getter & Setter =====
 
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -170,7 +170,7 @@ public class SendAuctionPayload implements Serializable {
         SendAuctionPayload that = (SendAuctionPayload) o;
 
         // So sánh toàn bộ dữ liệu auction
-        return auctionID == that.auctionID &&
+        return Objects.equals(auctionID, that.auctionID) &&
                 Float.compare(that.highestBid, highestBid) == 0 &&
                 Float.compare(that.itemStartingPrice, itemStartingPrice) == 0 &&
                 Objects.equals(auctionType, that.auctionType) &&

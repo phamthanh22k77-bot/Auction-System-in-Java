@@ -7,23 +7,23 @@ import java.util.Objects;
 public class CancelAuctionPayload implements Serializable {
 
     //Attributes
-    private int auctionID;
+    private String auctionID;
     // 👉 Controller (client) sẽ set giá trị này khi user chọn huỷ auction
     // 👉 Server sẽ dùng giá trị này để xác định auction cần bị cancel
 
     //Constructors
-    public CancelAuctionPayload(int auctionID){
+    public CancelAuctionPayload(String auctionID){
         this.auctionID = auctionID;
     }
 
     //Setters and Getters
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
         // 👉 Server-side sẽ gọi để xử lý: cancelAuction(auctionID)
         // 👉 Controller (server) có thể dùng để log hoặc kiểm tra request
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
         // 👉 Controller có thể cập nhật lại trước khi gửi request nếu cần
     }

@@ -6,23 +6,23 @@ import java.util.Objects;
 public class NotifyAuctionWinnerPayload implements Serializable {
 
     //Attributes
-    private int auctionID;
+    private String auctionID;
     private float highestBid;
     private String itemName;
 
     //Constructors
-    public NotifyAuctionWinnerPayload(int auctionID, float highestBid, String itemName) {
+    public NotifyAuctionWinnerPayload(String auctionID, float highestBid, String itemName) {
         this.auctionID = auctionID;
         this.highestBid = highestBid;
         this.itemName = itemName;
     }
 
     //Setters and Getters
-    public int getAuctionID() {
+    public String getAuctionID() {
         return auctionID;
     }
 
-    public void setAuctionID(int auctionID) {
+    public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
     }
 
@@ -47,7 +47,7 @@ public class NotifyAuctionWinnerPayload implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         NotifyAuctionWinnerPayload that = (NotifyAuctionWinnerPayload) o;
-        return auctionID == that.auctionID &&
+        return Objects.equals(auctionID, that.auctionID) &&
                 Float.compare(that.highestBid, highestBid) == 0 &&
                 Objects.equals(itemName, that.itemName);
     }
