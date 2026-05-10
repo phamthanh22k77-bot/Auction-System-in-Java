@@ -1,5 +1,8 @@
 package server.models.user;
 
+import server.models.auction.Auction;
+import server.models.auction.BidTransaction;
+
 public class Bidder extends User {
     private double balance;
 
@@ -17,6 +20,14 @@ public class Bidder extends User {
 
     public double getBalance() {
         return balance;
+    }
+
+    public BidTransaction placeBid(Auction auction, double amount) {
+        if (amount > balance) {
+            System.out.println("Số dư không đủ để thực hiện lượt đặt giá này!");
+            return null;
+        }
+        return new BidTransaction(auction.getId(), this.getId(), amount);
     }
 
     public void deposit(double amount) {

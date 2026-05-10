@@ -103,13 +103,10 @@ public class AuctionManager {
     }
 
     // Xử lý lượt Bid thủ công từ người dùng, kích hoạt phản ứng dây chuyền.
-    public synchronized boolean datGia(String auctionId, String bidderId,
-            double bidAmount, List<AutoBid> autoBids)
+    public synchronized boolean datGia(BidTransaction transaction, List<AutoBid> autoBids)
             throws IOException {
 
-        Auction auction = timTheoId(auctionId);
-
-        BidTransaction transaction = new BidTransaction(auctionId, bidderId, bidAmount);
+        Auction auction = timTheoId(transaction.getAuctionId());
 
         // GỌI VALIDATE TỪ TRANSACTION
         if (!transaction.validate(auction)) {
@@ -118,17 +115,17 @@ public class AuctionManager {
         }
 
         // Cập nhật giá vào Auction object
-        auction.setCurrentHighestBid(bidAmount);
-        auction.setHighestBidderId(bidderId);
+        auction.setCurrentHighestBid(transaction.getBidAmount());
+        auction.setHighestBidderId(transaction.getBidderId());
 
         System.out.printf("[AuctionManager] %s đặt giá $%.2f cho phiên [%s].%n",
-                bidderId, bidAmount, auctionId);
+                transaction.getBidderId(), transaction.getBidAmount(), transaction.getAuctionId());
 
-        notifyObservers(auction, bidderId, bidAmount);
+        notifyObservers(auction, transaction.getBidderId(), transaction.getBidAmount());
 
         // Kích hoạt phản ứng dây chuyền Auto-Bid (nếu có đăng ký)
         if (autoBids != null && !autoBids.isEmpty()) {
-            AutoBid.handleManualBid(bidAmount, bidderId, auction, autoBids);
+            AutoBid.handleManualBid(transaction.getBidAmount(), transaction.getBidderId(), auction, autoBids);
         }
 
         // Anti-Sniping: luôn chạy sau mọi bid (dù có hay không có auto-bid)
