@@ -3,6 +3,7 @@ package server.auction;
 import server.dao.AuctionDAO;
 import server.models.auction.Auction;
 import server.models.auction.Auction.AuctionStatus;
+import server.models.auction.BidTransaction;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -15,8 +16,10 @@ import java.util.List;
 
 public class AuctionManager {
     private static volatile AuctionManager instance;
+
     private AuctionManager() {
     }
+
     public static AuctionManager getInstance() {
         if (instance == null) { // Kiểm tra lần 1 — không lock (fast path)
             synchronized (AuctionManager.class) {
@@ -38,7 +41,7 @@ public class AuctionManager {
     // Danh sách các Observer đã đăng ký nhận thông báo.
     private final List<BidObserver> observers = new java.util.concurrent.CopyOnWriteArrayList<>();
 
-    //Cho phép đăng ký nhận thông báo
+    // Cho phép đăng ký nhận thông báo
     public void addObserver(BidObserver observer) {
         if (!observers.contains(observer)) {
             observers.add(observer);
@@ -67,7 +70,8 @@ public class AuctionManager {
     // Thời gian gia hạn thêm (giây) khi Anti-Sniping kích hoạt.
     private static final long ANTI_SNIPE_EXTENSION_SECONDS = 120; // +2 phút
 
-    // Nạp toàn bộ dữ liệu từ file JSON vào bộ nhớ. Gọi 1 lần khi server khởi động (trước khi nhận request từ client).
+    // Nạp toàn bộ dữ liệu từ file JSON vào bộ nhớ. Gọi 1 lần khi server khởi động
+    // (trước khi nhận request từ client).
     public synchronized void khoiDong() throws IOException {
         auctions.clear();
         auctions.addAll(dao.loadAll());
@@ -82,8 +86,8 @@ public class AuctionManager {
     }
 
     public synchronized Auction taoPhien(String itemId, String sellerId,
-                                         LocalDateTime startTime, LocalDateTime endTime,
-                                         double startingPrice, double minimumBidIncrement)
+            LocalDateTime startTime, LocalDateTime endTime,
+            double startingPrice, double minimumBidIncrement)
             throws IOException {
 
         Auction auction = new Auction(itemId, sellerId, startTime, endTime,
@@ -100,24 +104,16 @@ public class AuctionManager {
 
     // Xử lý lượt Bid thủ công từ người dùng, kích hoạt phản ứng dây chuyền.
     public synchronized boolean datGia(String auctionId, String bidderId,
-                                       double bidAmount, List<AutoBid> autoBids)
+            double bidAmount, List<AutoBid> autoBids)
             throws IOException {
 
         Auction auction = timTheoId(auctionId);
 
-        // Kiểm tra điều kiện hợp lệ
-        if (auction == null) {
-            System.out.println("[AuctionManager] Không tìm thấy phiên: " + auctionId);
-            return false;
-        }
-        if (!auction.isActive()) {
-            System.out.printf("[AuctionManager] Phiên [%s] không còn hoạt động (status=%s).%n",
-                    auctionId, auction.getStatus());
-            return false;
-        }
-        if (bidAmount <= auction.getCurrentHighestBid()) {
-            System.out.printf("[AuctionManager] Giá đặt %.2f không cao hơn giá hiện tại %.2f.%n",
-                    bidAmount, auction.getCurrentHighestBid());
+        BidTransaction transaction = new BidTransaction(auctionId, bidderId, bidAmount);
+
+        // GỌI VALIDATE TỪ TRANSACTION
+        if (!transaction.validate(auction)) {
+            System.out.println("[AuctionManager] Giao dịch không hợp lệ: " + transaction);
             return false;
         }
 
@@ -143,7 +139,8 @@ public class AuctionManager {
         return true;
     }
 
-    //Cơ chế Anti-Sniping: Nếu người chơi đặt giá sát giờ kết thúc tự động cộng dồn thời gian (Extension) cho phiên đấu giá.
+    // Cơ chế Anti-Sniping: Nếu người chơi đặt giá sát giờ kết thúc tự động cộng dồn
+    // thời gian (Extension) cho phiên đấu giá.
     private void applyAntiSniping(Auction auction) {
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime endTime = auction.getEndTime();
@@ -162,7 +159,6 @@ public class AuctionManager {
                     newEndTime);
         }
     }
-
 
     public synchronized void capNhatTrangThai() throws IOException {
         int updated = 0;
@@ -197,7 +193,6 @@ public class AuctionManager {
         return true;
     }
 
-
     public synchronized boolean xacNhanThanhToan(String auctionId) throws IOException {
         Auction auction = timTheoId(auctionId);
         if (auction == null)
@@ -212,7 +207,7 @@ public class AuctionManager {
         return true;
     }
 
-    //Tìm phiên theo ID. Tìm trong cache in-memory (không đọc file).
+    // Tìm phiên theo ID. Tìm trong cache in-memory (không đọc file).
 
     public Auction timTheoId(String id) {
         for (Auction a : auctions) {
@@ -222,7 +217,7 @@ public class AuctionManager {
         return null;
     }
 
-    //Lọc danh sách phiên theo trạng thái.
+    // Lọc danh sách phiên theo trạng thái.
     public List<Auction> layTheoTrangThai(AuctionStatus status) {
         List<Auction> result = new ArrayList<>();
         for (Auction a : auctions) {
@@ -232,7 +227,7 @@ public class AuctionManager {
         return Collections.unmodifiableList(result);
     }
 
-    //Lọc danh sách phiên theo seller.
+    // Lọc danh sách phiên theo seller.
     public List<Auction> layTheoSeller(String sellerId) {
         List<Auction> result = new ArrayList<>();
         for (Auction a : auctions) {
@@ -242,12 +237,13 @@ public class AuctionManager {
         return Collections.unmodifiableList(result);
     }
 
-    //Trả về toàn bộ danh sách phiên đấu giá. Trả về bản sao phòng thủ (defensive copy) để tránh external mutation.
+    // Trả về toàn bộ danh sách phiên đấu giá. Trả về bản sao phòng thủ (defensive
+    // copy) để tránh external mutation.
     public List<Auction> layTatCa() {
         return Collections.unmodifiableList(new ArrayList<>(auctions));
     }
 
-    //Trả về số lượng phiên đang trong bộ nhớ.
+    // Trả về số lượng phiên đang trong bộ nhớ.
     public int soLuongPhien() {
         return auctions.size();
     }

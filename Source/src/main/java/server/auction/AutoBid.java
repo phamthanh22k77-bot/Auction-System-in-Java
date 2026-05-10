@@ -2,6 +2,7 @@ package server.auction;
 
 import server.models.Entity;
 import server.models.auction.Auction;
+import server.models.auction.BidTransaction;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -23,7 +24,6 @@ public class AutoBid extends Entity {
     private final LocalDateTime registeredAt; // Thời điểm đăng ký (dùng để ưu tiên)
     private boolean active; // false nếu đã bị loại (maxBid không đủ)
 
-
     public AutoBid(String auctionId, String bidderId, double maxBid, double increment) {
         super(); // ID tự sinh UUID
         if (maxBid <= 0)
@@ -39,10 +39,10 @@ public class AutoBid extends Entity {
         this.active = true;
     }
 
-    //Nạp AutoBid
+    // Nạp AutoBid
     public AutoBid(String id, String auctionId, String bidderId,
-                   double maxBid, double increment,
-                   LocalDateTime registeredAt, boolean active) {
+            double maxBid, double increment,
+            LocalDateTime registeredAt, boolean active) {
         super(id);
         this.auctionId = auctionId;
         this.bidderId = bidderId;
@@ -81,8 +81,7 @@ public class AutoBid extends Entity {
         // Ưu tiên: maxBid cao hơn → trước; maxBid bằng nhau → đăng ký SỚM hơn → trước
         PriorityQueue<AutoBid> pq = new PriorityQueue<>(
                 Comparator.comparingDouble(AutoBid::getMaxBid).reversed()
-                        .thenComparing(AutoBid::getRegisteredAt)
-        );
+                        .thenComparing(AutoBid::getRegisteredAt));
 
         for (AutoBid ab : autoBids) {
             if (ab.canCompete(currentPrice)) {
@@ -115,22 +114,19 @@ public class AutoBid extends Entity {
         // Đảm bảo không vượt quá maxBid của winner
         bidPrice = Math.min(bidPrice, winner.getMaxBid());
 
-        // Kiểm tra hợp lệ và đặt giá vào phiên
-        if (!auction.isActive()) {
-            System.out.println("[AutoBid] Phiên không còn hoạt động.");
-            return null;
-        }
-        if (bidPrice <= auction.getCurrentHighestBid()) {
-            System.out.printf("[AutoBid] Giá tự động %.2f không cao hơn giá hiện tại %.2f.%n",
-                    bidPrice, auction.getCurrentHighestBid());
+        // Kiểm tra hợp lệ và đặt giá vào phiên bằng BidTransaction (theo đúng Class Diagram)
+        BidTransaction autoTransaction = new BidTransaction(auction.getId(), winner.getBidderId(), bidPrice);
+
+        if (!autoTransaction.validate(auction)) {
+            System.out.println("[AutoBid] Lượt đặt giá tự động không hợp lệ: " + autoTransaction);
             return null;
         }
 
-        // Cập nhật trực tiếp vào Auction
+        // Cập nhật trực tiếp vào Auction sau khi validate thành công
         auction.setCurrentHighestBid(bidPrice);
         auction.setHighestBidderId(winner.getBidderId());
 
-        System.out.printf("[AutoBid] Tự động đặt giá: %s → $%.2f%n",
+        System.out.printf("[AutoBid] Tự động đặt giá thành công: %s → $%.2f%n",
                 winner.getBidderId(), bidPrice);
 
         // Deactivate những người thua còn lại trong queue
@@ -144,12 +140,12 @@ public class AutoBid extends Entity {
         return winner.getBidderId();
     }
 
-    //Xử lý khi một bid THỦ CÔNG được đặt (kích hoạt phản ứng dây chuyền).
+    // Xử lý khi một bid THỦ CÔNG được đặt (kích hoạt phản ứng dây chuyền).
 
     public static synchronized void handleManualBid(double manualBidAmount,
-                                                    String manualBidderId,
-                                                    Auction auction,
-                                                    List<AutoBid> autoBids) {
+            String manualBidderId,
+            Auction auction,
+            List<AutoBid> autoBids) {
         System.out.printf("%n[AutoBid] Phát hiện bid thủ công từ %s: $%.2f. Kích hoạt auto-bid...%n",
                 manualBidderId, manualBidAmount);
 
@@ -180,8 +176,6 @@ public class AutoBid extends Entity {
         System.out.printf("[AutoBid] Kết thúc xử lý. Giá hiện tại: $%.2f | Người dẫn: %s%n%n",
                 auction.getCurrentHighestBid(), auction.getHighestBidderId());
     }
-
-
 
     public String getAuctionId() {
         return auctionId;

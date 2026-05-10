@@ -15,6 +15,7 @@ public class BidTransaction extends Entity {
         REJECTED, // Bị từ chối (giá quá thấp, phiên đã kết thúc, lỗi, v.v.)
         WINNING // Sau cùng, đây là lượt giá chiến thắng phiên
     }
+
     public BidTransaction(String auctionId, String bidderId, double bidAmount) {
         super(); // Khởi tạo id tự sinh UUID
         this.auctionId = auctionId;
@@ -73,6 +74,31 @@ public class BidTransaction extends Entity {
 
     public void setStatus(BidStatus status) {
         this.status = status;
+    }
+
+    // Thêm vào trước phương thức toString() trong BidTransaction.java
+    public boolean validate(Auction auction) {
+        // 1. Kiểm tra phiên đấu giá có tồn tại không
+        if (auction == null) {
+            this.status = BidStatus.REJECTED;
+            return false;
+        }
+
+        // 2. Kiểm tra phiên có đang hoạt động (RUNNING) không
+        if (!auction.isActive()) {
+            this.status = BidStatus.REJECTED;
+            return false;
+        }
+
+        // 3. Kiểm tra số tiền đặt có cao hơn giá hiện tại không
+        if (this.bidAmount <= auction.getCurrentHighestBid()) {
+            this.status = BidStatus.REJECTED;
+            return false;
+        }
+
+        // Nếu mọi thứ đều ổn, đánh dấu là ACCEPTED
+        this.status = BidStatus.ACCEPTED;
+        return true;
     }
 
     @Override
