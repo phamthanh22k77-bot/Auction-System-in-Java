@@ -414,7 +414,7 @@ public class BidderDashboardController implements Initializable {
     }
 
     // ═════════════════════════════════════════════════════════
-    // HELPER
+    // HELPER: chuyển số thành chuỗi tiền đẹp hơn (vd: 15000000 -> "15,000,000")
     // ═════════════════════════════════════════════════════════
 
     private String formatMoney(double amount) {

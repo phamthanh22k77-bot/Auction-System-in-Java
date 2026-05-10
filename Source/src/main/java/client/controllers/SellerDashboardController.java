@@ -176,8 +176,8 @@ public class SellerDashboardController implements Initializable {
     private ProductRow editingProduct = null;
 
     /** Seller hien tai — se duoc set tu LoginController sau khi dang nhap */
-    private String currentSellerId   = "SELLER_001";
-    private String currentSellerName = "Nguyen Van A";
+    private String currentSellerId   = "";
+    private String currentSellerName = "";
 
     // Style cua nav button khi active / inactive
     private static final String NAV_ACTIVE =
@@ -219,6 +219,11 @@ public class SellerDashboardController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        // Doc thong tin seller tu SessionManager
+        SessionManager session = SessionManager.getInstance();
+        currentSellerId   = session.getCurrentUser() != null ? session.getCurrentUser().getId() : "";
+        currentSellerName = session.getUsername();
+
         setupNavButtons();
         setupProductTable();
         setupOrderTable();
@@ -843,13 +848,13 @@ public class SellerDashboardController implements Initializable {
      *   SellerDashboardController ctrl = loader.getController();
      *   ctrl.setCurrentSeller(seller.getId(), seller.getUsername());
      */
+    /**
+     * @deprecated SessionManager da xu ly viec nay tu initialize().
+     * Giu lai de khong break code cu neu co noi goi den.
+     */
+    @Deprecated
     public void setCurrentSeller(String sellerId, String sellerName) {
-        this.currentSellerId   = sellerId;
-        this.currentSellerName = sellerName;
-        loadSellerInfo();
-        loadProducts();
-        loadOrders();
-        loadOverviewStats();
+        // Khong can thiet nua — du lieu lay tu SessionManager trong initialize()
     }
 
     /**

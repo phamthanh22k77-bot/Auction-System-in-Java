@@ -11,28 +11,29 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<!--
-    Login.fxml
-    SUA LOI:
-      1. Them fx:controller -> ket noi voi LoginController
-      2. Them fx:id="tname"  vao TextField username
-      3. Doi Password TextField -> PasswordField + fx:id="tpass"
-      4. Them fx:id="btnCon" + onAction="#handleLogin" vao Button
-      5. Them Label fx:id="lblError" hien thong bao loi
-      6. Xoa o Email (LoginController chi dung username + password)
--->
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="405.0" prefWidth="727.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.LoginController">
+<BorderPane
+    maxHeight="-Infinity" maxWidth="-Infinity"
+    minHeight="-Infinity" minWidth="-Infinity"
+    prefHeight="377.0" prefWidth="652.0"
+    xmlns="http://javafx.com/javafx/21"
+    xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="client.controllers.LoginController">
 
    <left>
-      <AnchorPane prefHeight="400.0" prefWidth="257.0" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="400.0" prefWidth="257.0"
+                  BorderPane.alignment="CENTER">
          <children>
-            <ImageView fitHeight="405.0" fitWidth="415.0" layoutX="-13.0" layoutY="1.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="377.0" fitWidth="376.0"
+                       layoutX="-13.0" layoutY="1.0"
+                       pickOnBounds="true" preserveRatio="true">
                <image>
                   <Image url="@images/Scene.png" />
                </image>
             </ImageView>
-            <Text fill="#3e127c" layoutX="93.0" layoutY="343.0" strokeType="OUTSIDE" strokeWidth="0.0" text="AUCTION PRO">
+            <Text fill="#3e127c" layoutX="93.0" layoutY="343.0"
+                  strokeType="OUTSIDE" strokeWidth="0.0"
+                  text="AUCTION PRO">
                <font><Font name="System Bold" size="27.0" /></font>
             </Text>
          </children>
@@ -40,67 +41,96 @@
    </left>
 
    <right>
-      <AnchorPane prefHeight="405.0" prefWidth="340.0" style="-fx-background-color: #fffacd;" BorderPane.alignment="CENTER">
+      <AnchorPane prefHeight="377.0" prefWidth="311.0"
+                  style="-fx-background-color: #fffacd;"
+                  BorderPane.alignment="CENTER">
          <children>
 
             <!-- Logo -->
-            <ImageView fitHeight="80.0" fitWidth="106.0" layoutX="23.0" layoutY="14.0" pickOnBounds="true" preserveRatio="true">
+            <ImageView fitHeight="80.0" fitWidth="106.0"
+                       layoutX="23.0" layoutY="14.0"
+                       pickOnBounds="true" preserveRatio="true">
                <image><Image url="@images/logo.png" /></image>
             </ImageView>
 
             <!-- Tieu de -->
-            <Text fill="#4449a1de" layoutX="31.0" layoutY="128.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome Back," textAlignment="CENTER">
-               <font><Font name="Algerian" size="26.0" /></font>
+            <Text fill="#4449a1de" layoutX="31.0" layoutY="128.0"
+                  strokeType="OUTSIDE" strokeWidth="0.0"
+                  text="Welcome Back," textAlignment="CENTER">
+               <font><Font name="Algerian" size="25.0" /></font>
             </Text>
-            <Text fill="#a43737" layoutX="42.0" layoutY="158.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign in to continue">
-               <font><Font name="Californian FB Bold" size="18.0" /></font>
+            <Text fill="#a43737" layoutX="42.0" layoutY="158.0"
+                  strokeType="OUTSIDE" strokeWidth="0.0"
+                  text="Sign in to continue">
+               <font><Font name="Californian FB Bold" size="17.0" /></font>
             </Text>
 
             <!-- Username -->
-            <Label layoutX="6.0" layoutY="194.0" text="Username/Email">
-               <font><Font name="System Bold" size="15.0" /></font>
+            <Label layoutX="11.0" layoutY="185.0" text="Username">
+               <font><Font name="System Bold" size="13.0" /></font>
             </Label>
+
             <!--
-                SUA LOI 2: them fx:id="tname" de LoginController doc duoc
-                Controller: @FXML private TextField tname;
+             fx:id="tname" 
             -->
-            <TextField fx:id="tname" layoutX="123.0" layoutY="189.0" prefHeight="31.0" prefWidth="200.0" promptText="Username/Email" style="-fx-background-radius: 50;">
+             
+            <TextField fx:id="tname"
+                       layoutX="76.0" layoutY="182.0"
+                       prefHeight="25.0" prefWidth="187.0"
+                       promptText="Username"
+                       style="-fx-background-radius: 50;">
                <font><Font name="System Italic" size="12.0" /></font>
             </TextField>
 
             <!-- Password -->
-            <Label layoutX="35.0" layoutY="238.0" text="Password">
-               <font><Font name="System Bold" size="15.0" /></font>
+            <Label layoutX="13.0" layoutY="228.0" text="Password">
+               <font><Font name="System Bold" size="13.0" /></font>
             </Label>
             <!--
-                SUA LOI 3: doi TextField -> PasswordField + them fx:id="tpass"
-                TextField hien mat khau ro -> bao mat kem
-                Controller: @FXML private PasswordField tpass;
+                PasswordField + them fx:id="tpass"
             -->
-            <PasswordField fx:id="tpass" layoutX="121.0" layoutY="235.0" prefHeight="31.0" prefWidth="199.0" promptText="Password" style="-fx-background-radius: 50;">
+            <PasswordField fx:id="tpass"
+                           layoutX="81.0" layoutY="225.0"
+                           prefHeight="25.0" prefWidth="180.0"
+                           promptText="Password"
+                           style="-fx-background-radius: 50;">
                <font><Font name="System Italic" size="12.0" /></font>
             </PasswordField>
 
             <!-- Forgot password -->
-            <Label layoutX="236.0" layoutY="275.0" prefHeight="25.0" prefWidth="79.0" style="-fx-cursor: hand;" text="Forgot pass?" textFill="#2c49ae">
-               <font><Font name="System Italic" size="14.0" /></font>
+            <Label layoutX="138.0" layoutY="260.0"
+                   text="Forgot pass?"
+                   textFill="#2c49ae"
+                   style="-fx-cursor: hand;">
+               <font><Font name="System Italic" size="12.0" /></font>
             </Label>
 
             <!--
-                SUA LOI 4: them fx:id="btnCon" + onAction="#handleLogin"
-                Truoc: Button khong co fx:id va onAction -> bam khong phan hoi
-                Sau: bam -> goi LoginController.handleLogin()
+               fx:id="btnCon" + onAction="#handleLogin"
+                  goi LoginController.handleLogin()
             -->
-            <Button fx:id="btnCon" layoutX="127.0" layoutY="317.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="27.0" prefWidth="81.0" style="-fx-background-radius: 50; -fx-background-color: #cd5c5c;" text="Login" textFill="#fdfeff">
-               <font><Font name="System Bold" size="15.0" /></font>
+            <Button fx:id="btnCon"
+                    layoutX="103.0" layoutY="285.0"
+                    mnemonicParsing="false"
+                    onAction="#handleLogin"
+                    style="-fx-background-radius: 50; -fx-background-color: #4682b4;"
+                    text="Login"
+                    textFill="#fdfeff">
+               <font><Font name="System Bold" size="13.0" /></font>
             </Button>
 
             <!--
-                SUA LOI 5: them Label lblError de hien thong bao loi dang nhap
+                Label lblError de hien thong bao loi dang nhap
                 Vi tri: duoi nut Login
                 Controller goi: showError("Sai mat khau") -> hien thi o day
             -->
-            <Label fx:id="lblError" layoutX="40.0" layoutY="315.0" prefWidth="235.0" style="-fx-font-size: 12;" text="" textFill="#C62828" wrapText="true">
+            <Label fx:id="lblError"
+                   layoutX="40.0" layoutY="315.0"
+                   text=""
+                   textFill="#C62828"
+                   prefWidth="235.0"
+                   wrapText="true"
+                   style="-fx-font-size: 12;">
             </Label>
 
          </children>

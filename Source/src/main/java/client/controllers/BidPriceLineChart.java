@@ -47,7 +47,7 @@ public class BidPriceLineChart {
     private static final DateTimeFormatter TIME_FMT =
         DateTimeFormatter.ofPattern("HH:mm:ss");
     private static final NumberFormat      MONEY_FMT =
-        NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+        NumberFormat.getNumberInstance(Locale.of("vi", "VN"));
 
     // ═════════════════════════════════════════════════════════
     // CONSTRUCTOR
