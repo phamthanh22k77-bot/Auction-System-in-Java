@@ -10,59 +10,60 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import server.dao.UserDAO;
+import server.models.user.User;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * LoginController
- * FXML: Login.fxml
  *
- * Xu ly dang nhap va dieu huong theo vai tro:
- *   Bidder  -> BidderDashboard.fxml
- *   Seller  -> SellerDashboard.fxml
- *   Admin   -> AdminDashboard.fxml
+ * Logic dang nhap:
+ *   1. Thu xac thuc bang UserDAO (doc users.json)
+ *      - 2 tk mẫu trong users.json mới có vai trò bidder nên tạo thêm tk admin/seller mock giả ở đây, ko ảnh hưởng code phần khác
+ *      - User.login() chi check username -> kiem tra email rieng
+ *   2. Neu khong doc duoc file -> fallback mock de test
+ *   3. Dieu huong theo role: BIDDER / SELLER / ADMIN
  *
- * fx:id giu nguyen theo Login.fxml cu:
- *   tname   -> TextField username
- *   tpass   -> PasswordField password
- *   btnCon  -> Button dang nhap
- * Them 1 Label lblError de hien thong bao loi
- * (them fx:id="lblError" vao Login.fxml neu chua co)
+ * Tai khoan that (users.json):
+ *   ThanhBot   / VNU123@      -> BIDDER
+ *   ThanhTop   / DECKQUANTAM  -> BIDDER (email: thanhtop@thanhtopgmai.com)
+ *
+ * Tai khoan mock (test khi chua co SELLER/ADMIN trong file):
+ *   seller / 123 -> SELLER
+ *   admin  / 123 -> ADMIN
  */
 public class LoginController implements Initializable {
 
     @FXML private TextField     tname;
     @FXML private PasswordField tpass;
     @FXML private Button        btnCon;
-
-    // Them dong nay vao Login.fxml:
-    // <Label fx:id="lblError" text="" style="-fx-text-fill: #C62828; -fx-font-size: 12;"/>
-    @FXML private Label lblError;
+    @FXML private Label         lblError;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Cho phep bam Enter tren o mat khau de dang nhap
+        // Bam Enter tren o password -> tu dong dang nhap
         tpass.setOnAction(e -> handleLogin());
 
-        // Xoa thong bao loi khi nguoi dung bat dau go lai
+        // Xoa thong bao loi khi bat dau go lai
         tname.textProperty().addListener((o, old, nw) -> clearError());
         tpass.textProperty().addListener((o, old, nw) -> clearError());
     }
 
     // ═════════════════════════════════════════════════════════
-    // DANG NHAP
+    // HANDLER CHINH
     // ═════════════════════════════════════════════════════════
 
     @FXML
     private void handleLogin() {
-        String username = tname.getText().trim();
+        String input    = tname.getText().trim(); // username hoac email
         String password = tpass.getText();
 
         // Validate trong
-        if (username.isEmpty()) {
-            showError("Vui long nhap ten dang nhap.");
+        if (input.isEmpty()) {
+            showError("Vui long nhap username hoac email.");
             tname.requestFocus();
             return;
         }
@@ -72,42 +73,80 @@ public class LoginController implements Initializable {
             return;
         }
 
-        // Xac thuc & lay vai tro
-        // TODO: thay bang goi server thuc te:
-        //   String role = networkClient.login(username, password);
-        //   if (role == null) { showError("Sai tai khoan hoac mat khau."); return; }
-        String role = mockAuthenticate(username, password);
+        // Thu DAO truoc, neu loi file thi dung mock
+        String role = authenticateWithDAO(input, password);
+        if (role == null) {
+            role = mockAuthenticate(input, password);
+        }
 
         if (role == null) {
-            showError("Sai ten dang nhap hoac mat khau.");
+            showError("Sai tai khoan hoac mat khau.");
             tpass.clear();
             tpass.requestFocus();
             return;
         }
 
-        // Dieu huong theo vai tro
         navigateByRole(role);
     }
 
     // ═════════════════════════════════════════════════════════
-    // XAC THUC (MOCK — thay bang server thuc)
+    // XAC THUC BANG UserDAO
     // ═════════════════════════════════════════════════════════
 
     /**
-     * Gia lap xac thuc.
-     * Tai khoan test:
-     *   bidder  / 123  -> Bidder
-     *   seller  / 123  -> Seller
-     *   admin   / 123  -> Admin
+     * Doc users.json, tim user khop voi input (username HOAC email) + password.
      *
-     * Khi ket noi server: xoa ham nay, goi network.login() thay the.
+     * User.login() chi check username -> xu ly email rieng.
+     *
+     * @return role "BIDDER"/"SELLER"/"ADMIN" neu thanh cong, null neu that bai
      */
-    private String mockAuthenticate(String username, String password) {
+    private String authenticateWithDAO(String input, String password) {
+        try {
+            UserDAO userDAO = new UserDAO();
+            List<User> users = userDAO.loadAll();
+
+            for (User u : users) {
+                boolean matched = false;
+
+                // Thu 1: khop username (dung phuong thuc User.login() co san)
+                if (u.login(input, password)) {
+                    matched = true;
+                }
+
+                // Thu 2: khop email (User.login() khong ho tro -> tu kiem tra)
+                if (!matched
+                        && u.getEmail() != null
+                        && u.getEmail().trim().equalsIgnoreCase(input)
+                        && u.getPassword().equals(password)) {
+                    matched = true;
+                }
+
+                if (matched) {
+                    SessionManager.getInstance().setCurrentUser(u);
+                    return u.getRole(); // "BIDDER" / "SELLER" / "ADMIN"
+                }
+            }
+        } catch (Exception e) {
+            // File khong ton tai hoac loi doc -> se dung mock
+            System.out.println("[Login] Khong doc duoc users.json: " + e.getMessage());
+        }
+        return null;
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // MOCK — fallback khi file chua co du tai khoan
+    // ═════════════════════════════════════════════════════════
+
+    /**
+     * XOA 2 dong mock nay khi them SELLER/ADMIN vao users.json:
+     *   case "seller" -> "SELLER";
+     *   case "admin"  -> "ADMIN";
+     */
+    private String mockAuthenticate(String input, String password) {
         if (!password.equals("123")) return null;
-        return switch (username.toLowerCase()) {
-            case "bidder" -> "Bidder";
-            case "seller" -> "Seller";
-            case "admin"  -> "Admin";
+        return switch (input.toLowerCase()) {
+            case "seller" -> "SELLER";
+            case "admin"  -> "ADMIN";
             default       -> null;
         };
     }
@@ -118,14 +157,14 @@ public class LoginController implements Initializable {
 
     private void navigateByRole(String role) {
         String fxmlPath = switch (role) {
-            case "Bidder" -> "/client/views/BidderDashboard.fxml";
-            case "Seller" -> "/client/views/SellerDashboard.fxml";
-            case "Admin"  -> "/client/views/AdminDashboard.fxml";
+            case "BIDDER" -> "/client/views/BidderDashboard.fxml";
+            case "SELLER" -> "/client/views/SellerDashboard.fxml";
+            case "ADMIN"  -> "/client/views/AdminDashboard.fxml";
             default       -> null;
         };
 
         if (fxmlPath == null) {
-            showError("Vai tro khong xac dinh.");
+            showError("Vai tro khong xac dinh: " + role);
             return;
         }
 
@@ -133,22 +172,13 @@ public class LoginController implements Initializable {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            // Truyen thong tin user sang controller tiep theo (neu can)
-            // Vi du voi BidderDashboard:
-            // BidderDashboardController ctrl = loader.getController();
-            // ctrl.setCurrentUser(username, role);
-
             Stage stage = (Stage) btnCon.getScene().getWindow();
-            Scene scene = new Scene(root);
-
-            // Dat kich thuoc phu hop voi tung vai tro
             switch (role) {
-                case "Bidder" -> { stage.setWidth(1200); stage.setHeight(750); }
-                case "Seller" -> { stage.setWidth(1100); stage.setHeight(700); }
-                case "Admin"  -> { stage.setWidth(1200); stage.setHeight(750); }
+                case "BIDDER" -> { stage.setWidth(1280); stage.setHeight(800); }
+                case "SELLER" -> { stage.setWidth(1100); stage.setHeight(700); }
+                case "ADMIN"  -> { stage.setWidth(1200); stage.setHeight(750); }
             }
-
-            stage.setScene(scene);
+            stage.setScene(new Scene(root));
             stage.centerOnScreen();
 
         } catch (IOException e) {
@@ -162,14 +192,10 @@ public class LoginController implements Initializable {
     // ═════════════════════════════════════════════════════════
 
     private void showError(String msg) {
-        if (lblError != null) {
-            lblError.setText(msg);
-        }
+        if (lblError != null) lblError.setText(msg);
     }
 
     private void clearError() {
-        if (lblError != null) {
-            lblError.setText("");
-        }
+        if (lblError != null) lblError.setText("");
     }
 }
