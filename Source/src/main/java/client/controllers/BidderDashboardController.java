@@ -344,7 +344,6 @@ public class BidderDashboardController implements Initializable {
             Parent root = loader.load();
 
             UserProfilePopupController ctrl = loader.getController();
-            ctrl.setUserInfo("Nguyen Van A", "vana@email.com", 25, 5_000_000);
             ctrl.setOwnerStage((Stage) profileButton.getScene().getWindow());
 
             Stage popup = new Stage();

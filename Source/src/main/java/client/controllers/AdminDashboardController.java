@@ -21,8 +21,6 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 /**
- * AdminDashboardController
- * FXML: AdminDashboard.fxml
  *
  * Quan ly toan he thong:
  *   - Sidebar navigation: Overview / Users / Auctions / Items / Bids
@@ -135,7 +133,7 @@ public class AdminDashboardController implements Initializable {
     // ═════════════════════════════════════════════════════════
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        lblAdminName.setText("Admin");
+        lblAdminName.setText(SessionManager.getInstance().getUsername());
         lblServerStatus.setText("● Server: Online");
         lblConnections.setText("Ket noi: 3 clients");
 
