@@ -1,6 +1,7 @@
 package server.payload;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -27,7 +28,7 @@ public class AuctionUpdatePayload implements Serializable {
     // 👉 Controller có thể dùng để hiển thị mô tả item
 
     //Constructors
-    public AuctionUpdatePayload(String auctionID, Date bidCreationDate, float highestBid, String itemName, String highestBidderIP, String itemDescription) {
+    public AuctionUpdatePayload(String auctionID, LocalDateTime bidCreationDate, double highestBid, String itemName, String highestBidderIP, String itemDescription) {
         this.auctionID = auctionID;
         this.bidCreationDate = bidCreationDate;
         this.highestBid = highestBid;

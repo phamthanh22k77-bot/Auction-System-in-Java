@@ -98,4 +98,46 @@ public class AuctionServer {
     public static boolean isAcceptingAuctions() {
         return isAcceptingAuctions;
     }
+
+    /*
+    Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client và một đối tượng PacketMessage.
+
+    Điều kiện sau: Phương thức gửi packet PacketMessage được cung cấp tới client phù hợp
+    dựa trên đối tượng Client. Packet sẽ được gửi thông qua instance ClientHandler tương ứng
+    với đối tượng Client được dùng làm khóa trong cấu trúc dữ liệu clientHandlers.
+
+    Phương thức không trả về giá trị nào.
+
+    LƯU Ý:
+    Nếu packet không thể được gửi qua socket thì sẽ ném ra ngoại lệ IOException.
+*/
+    public void sendPacket(AuctionClient client, PacketMessage packet)
+            throws IOException {
+        //Check if the client connection exists
+        if (clientHandlers.containsKey(client.getSocket().getInetAddress().getHostAddress())) {
+            clientHandlers.get(client.getSocketAddress().getAddress().getHostAddress()).sendPacket(packet);
+        }
+    }
+
+    /*
+    Điều kiện trước: Phương thức yêu cầu nhận một LinkedList kiểu Client
+    và một đối tượng PacketMessage.
+
+    Điều kiện sau: Phương thức gửi packet PacketMessage được cung cấp tới
+    tất cả các đối tượng Client có trong tham số LinkedList clients.
+    Packet sẽ được gửi tới từng Client bằng cách gọi phương thức sendPackets.
+
+    Phương thức không trả về giá trị nào.
+*/
+    public void sendPackets(LinkedList<AuctionClient> clients, PacketMessage packet) {
+        //Loop through all clients
+        for (AuctionClient client : clients) {
+            try {
+                //Send client the provided packet parameter
+                sendPacket(client, packet);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }
