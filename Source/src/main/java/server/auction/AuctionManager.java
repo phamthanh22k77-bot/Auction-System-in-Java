@@ -106,20 +106,33 @@ public class AuctionManager {
     public synchronized boolean datGia(BidTransaction transaction, List<AutoBid> autoBids)
             throws IOException {
 
+        // Cập nhật trạng thái mới nhất trước khi check
+        updateAllAuctionStatuses();
+
         Auction auction = timTheoId(transaction.getAuctionId());
 
         // GỌI VALIDATE TỪ TRANSACTION
-        if (!transaction.validate(auction)) {
+        boolean isValid = transaction.validate(auction);
+
+        // Lưu vết giao dịch vào lịch sử phiên đấu giá (dù thành công hay thất bại)
+        auction.addBidToHistory(transaction);
+
+        if (!isValid) {
             System.out.println("[AuctionManager] Giao dịch không hợp lệ: " + transaction);
             return false;
         }
 
-        // Cập nhật giá vào Auction object
-        auction.setCurrentHighestBid(transaction.getBidAmount());
-        auction.setHighestBidderId(transaction.getBidderId());
+        // THỰC HIỆN ĐẶT GIÁ (Sử dụng logic đóng gói trong Auction)
+        // Lưu ý: Vì transaction đã được tạo từ trước (Client gửi lên),
+        // ta có thể coi đây là việc "Xác nhận" giao dịch vào phiên.
+        if (isValid) {
+            auction.setCurrentHighestBid(transaction.getBidAmount());
+            auction.setHighestBidderId(transaction.getBidderId());
+        }
 
-        System.out.printf("[AuctionManager] %s đặt giá $%.2f cho phiên [%s].%n",
-                transaction.getBidderId(), transaction.getBidAmount(), transaction.getAuctionId());
+        System.out.printf("[AuctionManager] %s đặt giá $%.2f cho phiên [%s]. Kết quả: %s%n",
+                transaction.getBidderId(), transaction.getBidAmount(), transaction.getAuctionId(),
+                transaction.getStatus());
 
         notifyObservers(auction, transaction.getBidderId(), transaction.getBidAmount());
 
@@ -202,6 +215,21 @@ public class AuctionManager {
         dao.capNhat(auction);
         System.out.printf("[AuctionManager] Phiên [%s] đã PAID.%n", auctionId);
         return true;
+    }
+
+    // Tự động cập nhật trạng thái của tất cả các phiên dựa trên thời gian thực
+    public synchronized void updateAllAuctionStatuses() {
+        LocalDateTime now = LocalDateTime.now();
+        for (Auction auction : auctions) {
+            if (now.isBefore(auction.getStartTime())) {
+                auction.setStatus(Auction.AuctionStatus.OPEN);
+            } else if (now.isAfter(auction.getEndTime())) {
+                auction.setStatus(Auction.AuctionStatus.FINISHED);
+            } else {
+                // Trong khoảng thời gian từ Start đến End
+                auction.setStatus(Auction.AuctionStatus.RUNNING);
+            }
+        }
     }
 
     // Tìm phiên theo ID. Tìm trong cache in-memory (không đọc file).

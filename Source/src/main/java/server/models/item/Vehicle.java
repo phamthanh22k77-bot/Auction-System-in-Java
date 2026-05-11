@@ -1,6 +1,5 @@
 package server.models.item;
 
-import java.time.LocalDateTime;
 
 public class Vehicle extends Item {
     private String engineType;
@@ -9,9 +8,8 @@ public class Vehicle extends Item {
     private String licensePlate;
 
     public Vehicle(String name, String description, double startingPrice,
-            LocalDateTime startTime, LocalDateTime endTime, String sellerId,
             String engineType, int modelYear, double mileage, String licensePlate) {
-        super(name, description, startingPrice, startTime, endTime, sellerId);
+        super(name, description, startingPrice);
         this.engineType = engineType;
         this.modelYear = modelYear;
         this.mileage = mileage;
@@ -19,10 +17,9 @@ public class Vehicle extends Item {
     }
 
     public Vehicle(String id, String name, String description, double startingPrice,
-            double currentPrice, LocalDateTime startTime, LocalDateTime endTime,
-            String sellerId, String status, String engineType, int modelYear,
+            double currentPrice, String engineType, int modelYear,
             double mileage, String licensePlate) {
-        super(id, name, description, startingPrice, currentPrice, startTime, endTime, sellerId, status);
+        super(id, name, description, startingPrice, currentPrice);
         this.engineType = engineType;
         this.modelYear = modelYear;
         this.mileage = mileage;

@@ -1,6 +1,5 @@
 package server.models.item;
 
-import java.time.LocalDateTime;
 
 public class Electronics extends Item {
     private String brand;
@@ -9,9 +8,8 @@ public class Electronics extends Item {
 
     // 1. Constructor cho việc tạo mới vật phẩm
     public Electronics(String name, String description, double startingPrice,
-            LocalDateTime startTime, LocalDateTime endTime, String sellerId,
             String brand, String model, int warranty) {
-        super(name, description, startingPrice, startTime, endTime, sellerId);
+        super(name, description, startingPrice);
         this.brand = brand;
         this.model = model;
         this.warranty = warranty;
@@ -19,9 +17,8 @@ public class Electronics extends Item {
 
     // 2. Constructor cho việc nạp dữ liệu từ Database
     public Electronics(String id, String name, String description, double startingPrice,
-            double currentPrice, LocalDateTime startTime, LocalDateTime endTime,
-            String sellerId, String status, String brand, String model, int warranty) {
-        super(id, name, description, startingPrice, currentPrice, startTime, endTime, sellerId, status);
+            double currentPrice, String brand, String model, int warranty) {
+        super(id, name, description, startingPrice, currentPrice);
         this.brand = brand;
         this.model = model;
         this.warranty = warranty;
@@ -39,7 +36,6 @@ public class Electronics extends Item {
         System.out.println("Brand: " + brand + " | Model: " + model);
         System.out.println("Warranty: " + warranty + " months");
         System.out.println("Current Bid: $" + getCurrentPrice());
-        System.out.println("End Time: " + getEndTime());
     }
 
     public String getBrand() {
