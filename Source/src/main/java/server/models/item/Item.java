@@ -13,6 +13,9 @@ public abstract class Item extends Entity {
     private String sellerId;
     private String status; // PENDING, ACTIVE, CLOSED, SOLD
 
+    // Thêm biến static để lưu item hiện tại
+    private static Item currentItem;
+
     // 1. Constructor cho việc tạo mới vật phẩm (ID tự sinh)
     public Item(String name, String description, double startingPrice, LocalDateTime startTime, LocalDateTime endTime,
             String sellerId) {
@@ -25,6 +28,8 @@ public abstract class Item extends Entity {
         this.endTime = endTime;
         this.sellerId = sellerId;
         this.status = "PENDING";
+        // Gán item hiện tại
+        currentItem = this;
     }
 
     // 2. Constructor cho việc nạp dữ liệu từ Database/Network (ID có sẵn)
@@ -39,11 +44,18 @@ public abstract class Item extends Entity {
         this.endTime = endTime;
         this.sellerId = sellerId;
         this.status = status;
+        // Gán item hiện tại
+        currentItem = this;
     }
 
     public abstract ItemCategory getCategory();
 
     public abstract void printInfo();
+
+    // Thêm static getter
+    public static Item getCurrentItem() {
+        return currentItem;
+    }
 
     // Kiểm tra và cập nhật giá khi có người đặt giá mới.
     public boolean placeBid(double amount, double minIncrease) {
