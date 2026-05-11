@@ -26,4 +26,41 @@ class BidTransactionTest {
 
         assertEquals(BidTransaction.BidStatus.WINNING, bid.getStatus(), "Phải đổi được trạng thái sang WINNING");
     }
+
+    @Test
+    void testValidate_GiaThapHonHienTai_TraVeFalse() {
+        Auction auction = new Auction("item", "seller", java.time.LocalDateTime.now().minusHours(1), java.time.LocalDateTime.now().plusHours(1), 100.0, 10.0);
+        auction.setStatus(Auction.AuctionStatus.RUNNING);
+        auction.setCurrentHighestBid(150.0);
+
+        BidTransaction bid = new BidTransaction(auction.getId(), "bidder", 120.0); // Giá thấp hơn hiện tại
+        boolean isValid = bid.validate(auction);
+
+        assertFalse(isValid, "Đặt giá thấp hơn phải bị từ chối");
+        assertEquals(BidTransaction.BidStatus.REJECTED, bid.getStatus());
+    }
+
+    @Test
+    void testValidate_PhienKhongHoatDong_TraVeFalse() {
+        Auction auction = new Auction("item", "seller", java.time.LocalDateTime.now().minusHours(2), java.time.LocalDateTime.now().minusHours(1), 100.0, 10.0);
+        auction.setStatus(Auction.AuctionStatus.FINISHED);
+
+        BidTransaction bid = new BidTransaction(auction.getId(), "bidder", 120.0);
+        boolean isValid = bid.validate(auction);
+
+        assertFalse(isValid, "Phiên không hoạt động phải từ chối bid");
+        assertEquals(BidTransaction.BidStatus.REJECTED, bid.getStatus());
+    }
+
+    @Test
+    void testValidate_HopLe_TraVeTrue() {
+        Auction auction = new Auction("item", "seller", java.time.LocalDateTime.now().minusHours(1), java.time.LocalDateTime.now().plusHours(1), 100.0, 10.0);
+        auction.setStatus(Auction.AuctionStatus.RUNNING);
+
+        BidTransaction bid = new BidTransaction(auction.getId(), "bidder", 150.0);
+        boolean isValid = bid.validate(auction);
+
+        assertTrue(isValid, "Bid hợp lệ phải trả về true");
+        assertEquals(BidTransaction.BidStatus.ACCEPTED, bid.getStatus());
+    }
 }

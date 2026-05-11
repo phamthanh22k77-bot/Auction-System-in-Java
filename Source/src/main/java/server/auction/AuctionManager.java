@@ -32,7 +32,7 @@ public class AuctionManager {
     }
 
     // Danh sách lưu trữ trong bộ nhớ in-memory
-    private final List<Auction> auctions = new ArrayList<>();
+    private final List<Auction> auctions = new java.util.concurrent.CopyOnWriteArrayList<>();
 
     // DAO để persist/load dữ liệu từ file JSON (data/auctions.json).
 
@@ -65,10 +65,10 @@ public class AuctionManager {
     }
 
     // Thời gian (giây) kích hoạt Anti-Sniping.
-    private static final long ANTI_SNIPE_THRESHOLD_SECONDS = 120; // 2 phút
+    private static final long ANTI_SNIPE_THRESHOLD_SECONDS = 30; // Dưới 30s
 
-    // Thời gian gia hạn thêm (giây) khi Anti-Sniping kích hoạt.
-    private static final long ANTI_SNIPE_EXTENSION_SECONDS = 120; // +2 phút
+    // Thời gian đặt lại (giây) khi Anti-Sniping kích hoạt.
+    private static final long ANTI_SNIPE_EXTENSION_SECONDS = 30; // Reset về 30s
 
     // Nạp toàn bộ dữ liệu từ file JSON vào bộ nhớ. Gọi 1 lần khi server khởi động
     // (trước khi nhận request từ client).
@@ -85,7 +85,7 @@ public class AuctionManager {
                 + " phiên đấu giá. Sẵn sàng nhận kết nối.");
     }
 
-    public synchronized Auction taoPhien(String itemId, String sellerId,
+    public Auction taoPhien(String itemId, String sellerId,
             LocalDateTime startTime, LocalDateTime endTime,
             double startingPrice, double minimumBidIncrement)
             throws IOException {
@@ -103,50 +103,50 @@ public class AuctionManager {
     }
 
     // Xử lý lượt Bid thủ công từ người dùng, kích hoạt phản ứng dây chuyền.
-    public synchronized boolean datGia(BidTransaction transaction, List<AutoBid> autoBids)
+    public boolean datGia(BidTransaction transaction, List<AutoBid> autoBids)
             throws IOException {
 
-        // Cập nhật trạng thái mới nhất trước khi check
-        updateAllAuctionStatuses();
-
         Auction auction = timTheoId(transaction.getAuctionId());
-
-        // GỌI VALIDATE TỪ TRANSACTION
-        boolean isValid = transaction.validate(auction);
-
-        // Lưu vết giao dịch vào lịch sử phiên đấu giá (dù thành công hay thất bại)
-        auction.addBidToHistory(transaction);
-
-        if (!isValid) {
-            System.out.println("[AuctionManager] Giao dịch không hợp lệ: " + transaction);
+        if (auction == null) {
             return false;
         }
 
-        // THỰC HIỆN ĐẶT GIÁ (Sử dụng logic đóng gói trong Auction)
-        // Lưu ý: Vì transaction đã được tạo từ trước (Client gửi lên),
-        // ta có thể coi đây là việc "Xác nhận" giao dịch vào phiên.
-        if (isValid) {
+        synchronized (auction) {
+            auction.updateStatus(); // Chỉ cập nhật trạng thái của riêng phiên này
+            
+            // GỌI VALIDATE TỪ TRANSACTION
+            boolean isValid = transaction.validate(auction);
+
+            // Lưu vết giao dịch vào lịch sử phiên đấu giá (dù thành công hay thất bại)
+            auction.addBidToHistory(transaction);
+
+            if (!isValid) {
+                System.out.println("[AuctionManager] Giao dịch không hợp lệ: " + transaction);
+                return false;
+            }
+
+            // THỰC HIỆN ĐẶT GIÁ (Sử dụng logic đóng gói trong Auction)
             auction.setCurrentHighestBid(transaction.getBidAmount());
             auction.setHighestBidderId(transaction.getBidderId());
+
+            System.out.printf("[AuctionManager] %s đặt giá $%.2f cho phiên [%s]. Kết quả: %s%n",
+                    transaction.getBidderId(), transaction.getBidAmount(), transaction.getAuctionId(),
+                    transaction.getStatus());
+
+            notifyObservers(auction, transaction.getBidderId(), transaction.getBidAmount());
+
+            // Kích hoạt phản ứng dây chuyền Auto-Bid (nếu có đăng ký)
+            if (autoBids != null && !autoBids.isEmpty()) {
+                AutoBid.handleManualBid(transaction.getBidAmount(), transaction.getBidderId(), auction, autoBids);
+            }
+
+            // Anti-Sniping: luôn chạy sau mọi bid (dù có hay không có auto-bid)
+            applyAntiSniping(auction);
+
+            // Persist trạng thái mới (bao gồm cả endTime nếu bị gia hạn)
+            dao.capNhat(auction);
+            return true;
         }
-
-        System.out.printf("[AuctionManager] %s đặt giá $%.2f cho phiên [%s]. Kết quả: %s%n",
-                transaction.getBidderId(), transaction.getBidAmount(), transaction.getAuctionId(),
-                transaction.getStatus());
-
-        notifyObservers(auction, transaction.getBidderId(), transaction.getBidAmount());
-
-        // Kích hoạt phản ứng dây chuyền Auto-Bid (nếu có đăng ký)
-        if (autoBids != null && !autoBids.isEmpty()) {
-            AutoBid.handleManualBid(transaction.getBidAmount(), transaction.getBidderId(), auction, autoBids);
-        }
-
-        // Anti-Sniping: luôn chạy sau mọi bid (dù có hay không có auto-bid)
-        applyAntiSniping(auction);
-
-        // Persist trạng thái mới (bao gồm cả endTime nếu bị gia hạn)
-        dao.capNhat(auction);
-        return true;
     }
 
     // Cơ chế Anti-Sniping: Nếu người chơi đặt giá sát giờ kết thúc tự động cộng dồn
@@ -158,28 +158,32 @@ public class AuctionManager {
         long secondsLeft = ChronoUnit.SECONDS.between(now, endTime);
 
         if (secondsLeft >= 0 && secondsLeft < ANTI_SNIPE_THRESHOLD_SECONDS) {
-            LocalDateTime newEndTime = endTime.plusSeconds(ANTI_SNIPE_EXTENSION_SECONDS);
-            auction.setEndTime(newEndTime);
-
-            System.out.printf(
-                    "[Anti-Snipe] Phiên [%s]: còn %ds < ngưỡng %ds → gia hạn +%ds. EndTime mới: %s%n",
-                    auction.getId(), secondsLeft,
-                    ANTI_SNIPE_THRESHOLD_SECONDS,
-                    ANTI_SNIPE_EXTENSION_SECONDS,
-                    newEndTime);
+            LocalDateTime newEndTime = now.plusSeconds(ANTI_SNIPE_EXTENSION_SECONDS); // Đặt lại về 30s từ thời điểm hiện tại
+            
+            if (newEndTime.isAfter(endTime)) {
+                auction.setEndTime(newEndTime);
+                System.out.printf(
+                        "[Anti-Snipe] Phiên [%s]: còn %ds < ngưỡng %ds → Đặt lại thời gian về %ds. EndTime mới: %s%n",
+                        auction.getId(), secondsLeft,
+                        ANTI_SNIPE_THRESHOLD_SECONDS,
+                        ANTI_SNIPE_EXTENSION_SECONDS,
+                        newEndTime);
+            }
         }
     }
 
-    public synchronized void capNhatTrangThai() throws IOException {
+    public void capNhatTrangThai() throws IOException {
         int updated = 0;
         for (Auction a : auctions) {
-            AuctionStatus truoc = a.getStatus();
-            a.updateStatus();
-            if (a.getStatus() != truoc) {
-                dao.capNhat(a); // Chỉ persist khi trạng thái thực sự thay đổi
-                updated++;
-                System.out.printf("[AuctionManager] Phiên [%s]: %s → %s%n",
-                        a.getId(), truoc, a.getStatus());
+            synchronized (a) {
+                AuctionStatus truoc = a.getStatus();
+                a.updateStatus();
+                if (a.getStatus() != truoc) {
+                    dao.capNhat(a); // Chỉ persist khi trạng thái thực sự thay đổi
+                    updated++;
+                    System.out.printf("[AuctionManager] Phiên [%s]: %s → %s%n",
+                            a.getId(), truoc, a.getStatus());
+                }
             }
         }
         if (updated > 0) {
@@ -187,34 +191,39 @@ public class AuctionManager {
         }
     }
 
-    public synchronized boolean ketThucPhien(String auctionId, boolean huy)
+    public boolean ketThucPhien(String auctionId, boolean huy)
             throws IOException {
 
         Auction auction = timTheoId(auctionId);
         if (auction == null)
             return false;
 
-        AuctionStatus newStatus = huy ? AuctionStatus.CANCELED : AuctionStatus.FINISHED;
-        auction.setStatus(newStatus);
-        dao.capNhat(auction);
+        synchronized (auction) {
+            AuctionStatus newStatus = huy ? AuctionStatus.CANCELED : AuctionStatus.FINISHED;
+            auction.setStatus(newStatus);
+            dao.capNhat(auction);
 
-        System.out.printf("[AuctionManager] Phiên [%s] đã chuyển sang %s.%n",
-                auctionId, newStatus);
-        return true;
+            System.out.printf("[AuctionManager] Phiên [%s] đã chuyển sang %s.%n",
+                    auctionId, newStatus);
+            return true;
+        }
     }
 
-    public synchronized boolean xacNhanThanhToan(String auctionId) throws IOException {
+    public boolean xacNhanThanhToan(String auctionId) throws IOException {
         Auction auction = timTheoId(auctionId);
         if (auction == null)
             return false;
-        if (auction.getStatus() != AuctionStatus.FINISHED) {
-            System.out.println("[AuctionManager] Chỉ phiên FINISHED mới có thể PAID.");
-            return false;
+
+        synchronized (auction) {
+            if (auction.getStatus() != AuctionStatus.FINISHED) {
+                System.out.println("[AuctionManager] Chỉ phiên FINISHED mới có thể PAID.");
+                return false;
+            }
+            auction.setStatus(AuctionStatus.PAID);
+            dao.capNhat(auction);
+            System.out.printf("[AuctionManager] Phiên [%s] đã PAID.%n", auctionId);
+            return true;
         }
-        auction.setStatus(AuctionStatus.PAID);
-        dao.capNhat(auction);
-        System.out.printf("[AuctionManager] Phiên [%s] đã PAID.%n", auctionId);
-        return true;
     }
 
     // Tự động cập nhật trạng thái của tất cả các phiên dựa trên thời gian thực

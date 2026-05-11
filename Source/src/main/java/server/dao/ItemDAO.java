@@ -57,13 +57,13 @@ public class ItemDAO {
             .setPrettyPrinting()
             .create();
 
-    public void saveAll(List<Item> items) throws IOException {
+    public synchronized void saveAll(List<Item> items) throws IOException {
         String json = gson.toJson(items);
         Files.writeString(Path.of(FILE_PATH), json);
         System.out.println("Đã lưu " + items.size() + " item vào " + FILE_PATH);
     }
 
-    public List<Item> loadAll() throws IOException {
+    public synchronized List<Item> loadAll() throws IOException {
         if (!Files.exists(Path.of(FILE_PATH))) {
             System.out.println("File " + FILE_PATH + " chưa có. Trả về danh sách rỗng.");
             return new ArrayList<>();
@@ -82,13 +82,13 @@ public class ItemDAO {
         return items;
     }
 
-    public void them(Item item) throws IOException {
+    public synchronized void them(Item item) throws IOException {
         List<Item> ds = loadAll();
         ds.add(item);
         saveAll(ds);
     }
 
-    public void xoaTheoId(String id) throws IOException {
+    public synchronized void xoaTheoId(String id) throws IOException {
         List<Item> ds = loadAll();
         boolean removed = ds.removeIf(i -> i.getId().equals(id));
         if (removed) {
@@ -96,7 +96,7 @@ public class ItemDAO {
         }
     }
 
-    public Item timTheoId(String id) throws IOException {
+    public synchronized Item timTheoId(String id) throws IOException {
         List<Item> danhSach = loadAll();
         for (Item i : danhSach) {
             if (i.getId().equals(id)) {

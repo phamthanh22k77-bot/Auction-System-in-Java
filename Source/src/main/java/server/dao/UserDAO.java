@@ -49,13 +49,13 @@ public class UserDAO {
             .setPrettyPrinting()
             .create();
 
-    public void saveAll(List<User> users) throws IOException {
+    public synchronized void saveAll(List<User> users) throws IOException {
         String json = gson.toJson(users);
         Files.writeString(Path.of(FILE_PATH), json);
         System.out.println("Đã lưu " + users.size() + " user vào " + FILE_PATH);
     }
 
-    public List<User> loadAll() throws IOException {
+    public synchronized List<User> loadAll() throws IOException {
         if (!Files.exists(Path.of(FILE_PATH))) {
             System.out.println("File " + FILE_PATH + " chưa có. Trả về danh sách rỗng.");
             return new ArrayList<>();
@@ -73,13 +73,13 @@ public class UserDAO {
         return users;
     }
 
-    public void them(User user) throws IOException {
+    public synchronized void them(User user) throws IOException {
         List<User> ds = loadAll();
         ds.add(user);
         saveAll(ds);
     }
 
-    public void xoaTheoId(String id) throws IOException {
+    public synchronized void xoaTheoId(String id) throws IOException {
         List<User> ds = loadAll();
         boolean removed = ds.removeIf(u -> u.getId().equals(id));
         if (removed) {
@@ -87,7 +87,7 @@ public class UserDAO {
         }
     }
 
-    public User timTheoId(String id) throws IOException {
+    public synchronized User timTheoId(String id) throws IOException {
         List<User> danhSach = loadAll();
         for (User u : danhSach) {
             if (u.getId().equals(id)) {

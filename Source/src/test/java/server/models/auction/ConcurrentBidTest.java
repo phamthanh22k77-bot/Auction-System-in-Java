@@ -1,6 +1,7 @@
 package server.models.auction;
 
 import org.junit.jupiter.api.Test;
+import server.auction.AuctionManager;
 import server.auction.AutoBid;
 
 import java.time.LocalDateTime;
@@ -15,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 class ConcurrentBidTest {
     @Test
     void testNhieuLuongCungGoiHamDatGia_KhongBiLoiRaceCondition() throws InterruptedException {
-        Auction auction = new Auction("item", "seller", LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), 100.0, 10.0);
+        Auction auction = new Auction("item", "seller", LocalDateTime.now().minusHours(1),
+                LocalDateTime.now().plusHours(1), 100.0, 10.0);
         auction.setStatus(Auction.AuctionStatus.RUNNING);
 
         // Tạo 10 Auto-Bid (trả tới 5000$)
@@ -29,16 +31,29 @@ class ConcurrentBidTest {
         CountDownLatch sungLenhXuatPhat = new CountDownLatch(1);
         CountDownLatch choKetThuc = new CountDownLatch(100);
 
+        // Đăng ký Auction vào Manager để test
+        try {
+            AuctionManager.getInstance().taoPhien(auction.getItemId(), auction.getSellerId(), auction.getStartTime(),
+                    auction.getEndTime(), auction.getStartingPrice(), auction.getMinimumBidIncrement());
+        } catch (Exception e) {
+        }
+
+        Auction managedAuction = AuctionManager.getInstance().timTheoId(auction.getId());
+        managedAuction.setStatus(Auction.AuctionStatus.RUNNING);
+
         for (int i = 0; i < 100; i++) { // Nạp 100 luồng
+            final int index = i;
             executor.submit(() -> {
                 try {
                     // Tất cả các luồng vào đây sẽ bị chặn lại
                     sungLenhXuatPhat.await();
 
-                    // GỌI HÀM CỐT LÕI (Nơi xảy ra xung đột tranh giành bộ nhớ)
-                    AutoBid.processAutoBids(auction, autoBids);
+                    // GỌI HÀM CỐT LÕI QUA AUCTION MANAGER ĐỂ TEST LOCAL LOCK
+                    BidTransaction tx = new BidTransaction(managedAuction.getId(), "ManualBidder" + index,
+                            110.0 + index);
+                    AuctionManager.getInstance().datGia(tx, autoBids);
 
-                } catch (InterruptedException e) {
+                } catch (Exception e) {
                     Thread.currentThread().interrupt();
                 } finally {
                     choKetThuc.countDown();

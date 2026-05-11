@@ -69,7 +69,7 @@ public class AutoBid extends Entity {
         this.active = false;
     }
 
-    public static synchronized String processAutoBids(Auction auction, List<AutoBid> autoBids) {
+    public static String processAutoBids(Auction auction, List<AutoBid> autoBids) {
         if (auction.getStatus() != Auction.AuctionStatus.RUNNING) {
             System.out.println("[AutoBid] Phiên không ở trạng thái RUNNING. Bỏ qua.");
             return null;
@@ -142,7 +142,7 @@ public class AutoBid extends Entity {
 
     // Xử lý khi một bid THỦ CÔNG được đặt (kích hoạt phản ứng dây chuyền).
 
-    public static synchronized void handleManualBid(double manualBidAmount,
+    public static void handleManualBid(double manualBidAmount,
             String manualBidderId,
             Auction auction,
             List<AutoBid> autoBids) {

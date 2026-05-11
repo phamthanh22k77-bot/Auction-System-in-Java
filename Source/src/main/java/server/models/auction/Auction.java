@@ -6,7 +6,8 @@ import server.models.user.Bidder;
 import server.auction.*;
 
 import java.time.LocalDateTime;
-import java.util.LinkedList;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 import java.util.List;
 import java.util.ArrayList;
 
@@ -20,7 +21,8 @@ public class Auction extends Entity {
     private String highestBidderId; // ID người đang trả giá cao nhất (Leader)
     private AuctionStatus status; // Trạng thái phiên đấu giá
     private List<BidTransaction> bidHistory = new ArrayList<>(); // Lịch sử đặt giá
-    private LinkedList<AuctionClient> clientList; // Tạo danh sách các client có trong một phiên đấu giá
+    private List<AuctionClient> clientList = new CopyOnWriteArrayList<>();; // Tạo danh sách các client có trong một
+                                                                            // phiên đấu giá
 
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
     private double minimumBidIncrement;
@@ -187,11 +189,11 @@ public class Auction extends Entity {
         return transaction;
     }
 
-    public LinkedList<AuctionClient> getClientList() {
+    public List<AuctionClient> getClientList() {
         return clientList;
     }
 
-    public void setClientList(LinkedList<AuctionClient> clientList) {
+    public void setClientList(List<AuctionClient> clientList) {
         this.clientList = clientList;
     }
 

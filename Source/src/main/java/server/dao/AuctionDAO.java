@@ -32,7 +32,7 @@ public class AuctionDAO {
             .setPrettyPrinting()
             .create();
 
-    public void saveAll(List<Auction> auctions) throws IOException {
+    public synchronized void saveAll(List<Auction> auctions) throws IOException {
         Path path = Path.of(FILE_PATH);
         if (path.getParent() != null && !Files.exists(path.getParent())) {
             Files.createDirectories(path.getParent());
@@ -41,7 +41,7 @@ public class AuctionDAO {
         Files.writeString(path, json);
     }
 
-    public List<Auction> loadAll() throws IOException {
+    public synchronized List<Auction> loadAll() throws IOException {
         if (!Files.exists(Path.of(FILE_PATH)))
             return new ArrayList<>();
         String content = Files.readString(Path.of(FILE_PATH)).strip();
@@ -53,13 +53,13 @@ public class AuctionDAO {
         return gson.fromJson(content, listType);
     }
 
-    public void them(Auction auction) throws IOException {
+    public synchronized void them(Auction auction) throws IOException {
         List<Auction> ds = loadAll();
         ds.add(auction);
         saveAll(ds);
     }
 
-    public void capNhat(Auction auction) throws IOException {
+    public synchronized void capNhat(Auction auction) throws IOException {
         List<Auction> ds = loadAll();
         for (int i = 0; i < ds.size(); i++) {
             if (ds.get(i).getId().equals(auction.getId())) {
@@ -70,14 +70,14 @@ public class AuctionDAO {
         saveAll(ds);
     }
 
-    public void xoaTheoId(String id) throws IOException {
+    public synchronized void xoaTheoId(String id) throws IOException {
         List<Auction> ds = loadAll();
         if (ds.removeIf(a -> a.getId().equals(id))) {
             saveAll(ds);
         }
     }
 
-    public Auction timTheoId(String id) throws IOException {
+    public synchronized Auction timTheoId(String id) throws IOException {
         for (Auction a : loadAll()) {
             if (a.getId().equals(id))
                 return a;

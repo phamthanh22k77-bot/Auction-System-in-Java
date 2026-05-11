@@ -1,10 +1,35 @@
 [
   {
-    "id": "...",
+    "balance": 1.0E7,
     "role": "BIDDER",
+    "id": "U001",
     "username": "ThanhBot",
-    "email": "...",
-    "password": "VNU123@",
-    "balance": 1000.0
+    "email": "thanhbot@example.com",
+    "password": "123"
+  },
+  {
+    "balance": 5000000.0,
+    "role": "BIDDER",
+    "id": "U002",
+    "username": "ThanhTop",
+    "email": "thanhtop@example.com",
+    "password": "123"
+  },
+  {
+    "companyName": "Công ty TNHH Đấu Giá",
+    "rating": 4.8,
+    "role": "SELLER",
+    "id": "U003",
+    "username": "seller",
+    "email": "seller@example.com",
+    "password": "123"
+  },
+  {
+    "department": "Hệ Thống",
+    "role": "ADMIN",
+    "id": "U004",
+    "username": "admin",
+    "email": "admin@example.com",
+    "password": "123"
   }
 ]
