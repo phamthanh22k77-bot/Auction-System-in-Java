@@ -17,6 +17,7 @@ import java.net.Socket;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -129,7 +130,7 @@ public class AuctionServer {
 
     Phương thức không trả về giá trị nào.
 */
-    public void sendPackets(LinkedList<AuctionClient> clients, PacketMessage packet) {
+    public void sendPackets(List<AuctionClient> clients, PacketMessage packet) {
         //Loop through all clients
         for (AuctionClient client : clients) {
             try {
