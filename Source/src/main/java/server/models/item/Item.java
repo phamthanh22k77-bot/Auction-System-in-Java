@@ -8,6 +8,10 @@ public abstract class Item extends Entity {
     private double startingPrice;
     private double currentPrice;
 
+    // Thêm biến static để lưu item hiện tại
+    private static Item currentItem;
+
+
     // 1. Constructor cho việc tạo mới vật phẩm (ID tự sinh)
     public Item(String name, String description, double startingPrice) {
         super();
@@ -15,6 +19,9 @@ public abstract class Item extends Entity {
         this.description = description;
         this.startingPrice = startingPrice;
         this.currentPrice = startingPrice;
+
+        // Gán item hiện tại
+        currentItem = this;
     }
 
     // 2. Constructor cho việc nạp dữ liệu từ Database/Network (ID có sẵn)
@@ -24,11 +31,19 @@ public abstract class Item extends Entity {
         this.description = description;
         this.startingPrice = startingPrice;
         this.currentPrice = currentPrice;
+
+        // Gán item hiện tại
+        currentItem = this;
     }
 
     public abstract ItemCategory getCategory();
 
     public abstract void printInfo();
+
+    // Thêm static getter
+    public static Item getCurrentItem() {
+        return currentItem;
+    }
 
     public String getName() {
         return name;
