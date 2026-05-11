@@ -2,10 +2,13 @@ package server.models.auction;
 
 import server.models.Entity;
 import server.models.network.AuctionClient;
+import server.models.user.Bidder;
 import server.auction.*;
 
 import java.time.LocalDateTime;
 import java.util.LinkedList;
+import java.util.List;
+import java.util.ArrayList;
 
 public class Auction extends Entity {
     private String itemId; // ID của vật phẩm được đưa ra đấu giá
@@ -16,6 +19,7 @@ public class Auction extends Entity {
     private double currentHighestBid; // Giá cao nhất hiện tại
     private String highestBidderId; // ID người đang trả giá cao nhất (Leader)
     private AuctionStatus status; // Trạng thái phiên đấu giá
+    private List<BidTransaction> bidHistory = new ArrayList<>(); // Lịch sử đặt giá
     private LinkedList<AuctionClient> clientList; // Tạo danh sách các client có trong một phiên đấu giá
 
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
@@ -150,6 +154,37 @@ public class Auction extends Entity {
 
     public void setStatus(AuctionStatus status) {
         this.status = status;
+    }
+
+    public List<BidTransaction> getBidHistory() {
+        return bidHistory;
+    }
+
+    public void addBidToHistory(BidTransaction transaction) {
+        this.bidHistory.add(transaction);
+    }
+
+    /**
+     * 
+     * @param bidder    Người đặt giá
+     * @param bidAmount Số tiền đặt
+     * @return BidTransaction chứa kết quả (ACCEPTED hoặc REJECTED)
+     */
+    public BidTransaction placeBid(Bidder bidder, double bidAmount) {
+        // 1. Khởi tạo một giao dịch mới
+        BidTransaction transaction = new BidTransaction(this.getId(), bidder.getId(), bidAmount);
+
+        // 2. Tự kiểm tra tính hợp lệ
+        if (transaction.validate(this)) {
+            // 3. Nếu hợp lệ, cập nhật ngay các thông số của phiên
+            this.currentHighestBid = bidAmount;
+            this.highestBidderId = bidder.getId();
+        }
+
+        // 4. Luôn ghi nhận vào lịch sử (dù thành hay bại)
+        this.addBidToHistory(transaction);
+
+        return transaction;
     }
 
     public LinkedList<AuctionClient> getClientList() {
