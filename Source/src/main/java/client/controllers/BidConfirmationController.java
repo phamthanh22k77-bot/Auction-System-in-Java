@@ -59,7 +59,7 @@ public class BidConfirmationController implements Initializable {
 
     // ── Du lieu phien ─────────────────────────────────────────
     private String auctionId          = "";
-    private String itemName           = "San pham";
+    private String itemName           = "";
     private double currentHighestBid  = 0;
     private double userBalance        = 0;
     private double bidStep            = DEFAULT_STEP;

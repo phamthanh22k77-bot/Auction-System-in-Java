@@ -118,7 +118,7 @@ public class UserProfilePopupController implements Initializable {
 
     // Format tien VND
     private static final NumberFormat VND =
-        NumberFormat.getNumberInstance(new Locale("vi", "VN"));
+        NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));
 
     // ═════════════════════════════════════════════════════════
     // INITIALIZE

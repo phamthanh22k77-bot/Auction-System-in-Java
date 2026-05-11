@@ -344,7 +344,6 @@ public class BidderDashboardController implements Initializable {
             Parent root = loader.load();
 
             UserProfilePopupController ctrl = loader.getController();
-            ctrl.setUserInfo("Nguyen Van A", "vana@email.com", 25, 5_000_000);
             ctrl.setOwnerStage((Stage) profileButton.getScene().getWindow());
 
             Stage popup = new Stage();
@@ -415,7 +414,7 @@ public class BidderDashboardController implements Initializable {
     }
 
     // ═════════════════════════════════════════════════════════
-    // HELPER
+    // HELPER: chuyển số thành chuỗi tiền đẹp hơn (vd: 15000000 -> "15,000,000")
     // ═════════════════════════════════════════════════════════
 
     private String formatMoney(double amount) {
