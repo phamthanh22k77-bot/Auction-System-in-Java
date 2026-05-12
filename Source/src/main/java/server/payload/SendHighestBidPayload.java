@@ -2,7 +2,6 @@ package server.payload;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Objects;
 
 // Payload dùng để gửi thông tin giá bid cao nhất từ server → client
@@ -43,7 +42,7 @@ public class SendHighestBidPayload implements Serializable {
 
     // ===== Getter & Setter =====
 
-    public Date getBidCreationTime() {
+    public LocalDateTime getBidCreationTime() {
         return bidCreationTime;
     }
 
