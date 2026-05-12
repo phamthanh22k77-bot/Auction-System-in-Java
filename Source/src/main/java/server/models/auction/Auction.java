@@ -28,7 +28,7 @@ public class Auction extends Entity {
     private String highestBidderId; // ID người đang trả giá cao nhất (Leader)
     private AuctionStatus status; // Trạng thái phiên đấu giá
     private List<BidTransaction> bidHistory = new ArrayList<>(); // Lịch sử đặt giá
-    private List<AuctionClient> clientList = new CopyOnWriteArrayList<>(); // Tạo danh sách các client có trong một
+    private transient List<AuctionClient> clientList = new CopyOnWriteArrayList<>(); // Tạo danh sách các client có trong một
                                                                            // phiên đấu giá
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
     private double minimumBidIncrement;
