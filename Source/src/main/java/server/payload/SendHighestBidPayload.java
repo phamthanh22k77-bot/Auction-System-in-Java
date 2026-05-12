@@ -1,6 +1,7 @@
 package server.payload;
 
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Objects;
 
@@ -32,7 +33,7 @@ public class SendHighestBidPayload implements Serializable {
     // ===== Constructor =====
 
     // Khởi tạo payload với thông tin bid mới nhất
-    public SendHighestBidPayload(Date bidCreationDate, float highestBid,
+    public SendHighestBidPayload(LocalDateTime bidCreationDate, double highestBid,
                                  String highestBidderIP, String auctionID) {
         this.bidCreationDate = bidCreationDate;
         this.highestBid = highestBid;

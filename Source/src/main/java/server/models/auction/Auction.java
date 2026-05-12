@@ -10,6 +10,7 @@ import server.network.AuctionServer;
 import server.payload.*;
 import client.message.PacketMessage;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -172,8 +173,10 @@ public class Auction extends Entity {
         this.bidHistory.add(transaction);
     }
 
+    public Item getItem() {return Item.getCurrentItem();}
+
     /**
-     * 
+     *
      * @param bidder    Người đặt giá
      * @param bidAmount Số tiền đặt
      * @return BidTransaction chứa kết quả (ACCEPTED hoặc REJECTED)
@@ -353,7 +356,7 @@ public class Auction extends Entity {
     Nếu Client được cung cấp là chủ sở hữu của phiên đấu giá thì sẽ ném ra ngoại lệ
     AuctionClientIsOwnerException.
 */
-    
+
     public BidTransaction findHighestBid() {
         //Check if there are any bids in the auction
         if (!bidHistory.isEmpty()) {
@@ -361,5 +364,23 @@ public class Auction extends Entity {
         } else {
             return new BidTransaction(null, null, 0);
         }
+    }
+    /*
+    Điều kiện trước: Không có.
+
+    Điều kiện sau:
+    - Phương thức trả về một giá trị double.
+    - Nếu danh sách bidHistory có phần tử, giá trị trả về là mức giá đấu cao nhất hiện tại.
+    - Nếu bidHistory rỗng, giá trị trả về là 0.
+*/
+    public double findHighestItemPrice() {
+
+        double highestBid = 0;
+
+        if (!bidHistory.isEmpty()) {
+            highestBid = bidHistory.getFirst().getBidAmount();
+        }
+
+        return highestBid;
     }
 }
