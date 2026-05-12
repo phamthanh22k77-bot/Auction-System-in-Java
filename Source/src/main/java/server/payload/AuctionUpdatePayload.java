@@ -2,7 +2,6 @@ package server.payload;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.Objects;
 
 //Class này dùng để đóng gói dữ liệu khi phiên đấu giá update thêm lượt đấu giá
@@ -12,10 +11,10 @@ public class AuctionUpdatePayload implements Serializable {
     private String auctionID;
     // 👉 Controller dùng để xác định auction nào cần update UI
 
-    private Date bidCreationDate;
+    private LocalDateTime bidCreationDate;
     // 👉 Controller dùng để hiển thị thời điểm đặt giá mới nhất
 
-    private float highestBid;
+    private double highestBid;
     // 👉 Controller dùng để hiển thị giá cao nhất hiện tại
 
     private String itemName;
@@ -47,16 +46,16 @@ public class AuctionUpdatePayload implements Serializable {
         this.auctionID = auctionID;
     }
 
-    public Date getBidCreationDate() {
+    public LocalDateTime getBidCreationDate() {
         return bidCreationDate;
         // 👉 Controller dùng để hiển thị thời gian bid mới nhất
     }
 
-    public void setBidCreationDate(Date bidCreationDate) {
+    public void setBidCreationDate(LocalDateTime bidCreationDate) {
         this.bidCreationDate = bidCreationDate;
     }
 
-    public float getHighestBid() {
+    public double getHighestBid() {
         return highestBid;
         // 👉 Controller dùng để cập nhật giá cao nhất trên UI
     }
@@ -99,7 +98,7 @@ public class AuctionUpdatePayload implements Serializable {
         if (o == null || getClass() != o.getClass()) return false;
         AuctionUpdatePayload that = (AuctionUpdatePayload) o;
         return Objects.equals(auctionID, that.auctionID) &&
-                Float.compare(that.highestBid, highestBid) == 0 &&
+                Double.compare(that.highestBid, highestBid) == 0 &&
                 Objects.equals(bidCreationDate, that.bidCreationDate) &&
                 Objects.equals(itemName, that.itemName) &&
                 Objects.equals(highestBidderIP, that.highestBidderIP) &&

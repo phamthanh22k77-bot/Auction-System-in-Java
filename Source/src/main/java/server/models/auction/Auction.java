@@ -1,15 +1,22 @@
 package server.models.auction;
 
 import server.models.Entity;
+import server.models.item.Item;
+import server.models.item.ItemCategory;
 import server.models.network.AuctionClient;
 import server.models.user.Bidder;
 import server.auction.*;
+import server.network.AuctionServer;
+import server.payload.*;
+import client.message.PacketMessage;
 
 import java.time.LocalDateTime;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import java.util.List;
 import java.util.ArrayList;
+
+import static client.message.MessageType.*;
 
 public class Auction extends Entity {
     private String itemId; // ID của vật phẩm được đưa ra đấu giá
@@ -21,9 +28,8 @@ public class Auction extends Entity {
     private String highestBidderId; // ID người đang trả giá cao nhất (Leader)
     private AuctionStatus status; // Trạng thái phiên đấu giá
     private List<BidTransaction> bidHistory = new ArrayList<>(); // Lịch sử đặt giá
-    private List<AuctionClient> clientList = new CopyOnWriteArrayList<>();; // Tạo danh sách các client có trong một
-                                                                            // phiên đấu giá
-
+    private List<AuctionClient> clientList = new CopyOnWriteArrayList<>(); // Tạo danh sách các client có trong một
+                                                                           // phiên đấu giá
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
     private double minimumBidIncrement;
 
@@ -244,6 +250,116 @@ public class Auction extends Entity {
         } else {
             throw new AuctionClientIsOwnerException("Chủ sở hữu của phiên" +
                     " không thể đăng ký vào chính auction của mình");
+        }
+    }
+
+    /*
+    Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client đã được đăng ký trong phiên đấu giá.
+    Điều kiện sau: Phương thức xóa đối tượng Client được cung cấp khỏi danh sách các client đã đăng ký trong biến clientList.
+    Đồng thời, phiên đấu giá này cũng sẽ được xóa khỏi danh sách các phiên đấu giá đã đăng ký của client.
+    Những thao tác này chỉ được thực hiện nếu Client đã được đăng ký và không sở hữu giá thầu cao nhất trong phiên đấu giá.
+    Phương thức không trả về giá trị nào.
+    LƯU Ý:
+    Nếu Client được cung cấp đang sở hữu giá thầu cao nhất thì sẽ ném ra ngoại lệ AuctionHighBidException.
+    Nếu Client được cung cấp chưa được đăng ký trong phiên đấu giá thì sẽ ném ra ngoại lệ AuctionNotRegisteredException.
+*/
+    public void removeClient(AuctionClient client)
+            throws AuctionHighBidException, AuctionNotRegisteredException {
+
+        // Kiểm tra xem client đã được đăng ký trong phiên đấu giá chưa
+        if (clientList.contains(client)) {
+
+            // Kiểm tra xem client có giá thầu cao nhất hay không
+            if (!bidHistory.isEmpty() && bidHistory.getFirst().getBidderId()
+                    .equals(client.getSocketAddress().getAddress().getHostAddress())) {
+                throw new AuctionHighBidException("Người dùng đang sở hữu giá thầu cao nhất");
+            }
+
+            // Xóa phiên đấu giá này khỏi danh sách các phiên đấu giá đã đăng ký của client
+            int auctionIndex = client.getRegisteredAuctions().indexOf(this.getId());
+            if (auctionIndex != -1) {
+                client.getRegisteredAuctions().remove(auctionIndex);
+            }
+
+            // Hủy đăng ký client khỏi phiên đấu giá
+            clientList.remove(client);
+        } else {
+            throw new AuctionNotRegisteredException("Client chưa được đăng ký trong phiên đấu giá");
+        }
+    }
+    /*
+    Điều kiện trước: Phương thức này yêu cầu nhận một đối tượng Client đã được đăng ký trong phiên đấu giá.
+    Điều kiện sau: Phương thức sẽ xóa đối tượng Client được cung cấp khỏi biến clientList của phiên đấu giá.
+    Việc này được thực hiện bất kể client có sở hữu giá thầu lớn nhất hay không. Phương thức sẽ xử lý cập nhật
+    giá thầu cao nhất bằng giá trị lớn tiếp theo nếu giá thầu cao nhất hiện tại thuộc về client bị xóa.
+    Trong trường hợp này, tất cả người tham gia sẽ được gửi một packet message để cập nhật về chủ sở hữu
+    giá thầu cao nhất mới.
+    Phương thức không trả về giá trị nào.
+    LƯU Ý:
+    Nếu client chưa được đăng ký trong phiên đấu giá thì sẽ ném ra ngoại lệ AuctionNotRegisteredException.
+*/
+
+    public void forcefullyRemoveClient(AuctionClient client) throws AuctionNotRegisteredException {
+
+        AuctionServer server = AuctionServer.getInstance();
+
+        // Kiểm tra xem client đã được đăng ký trong phiên đấu giá chưa
+        if (clientList.contains(client)) {
+
+            // Kiểm tra xem client có giá thầu cao nhất hay không
+            if (bidHistory.getFirst().getBidderId().equals
+                    (client.getSocket().getInetAddress().getHostAddress()) && !bidHistory.isEmpty()) {
+                bidHistory.remove(0);
+
+                double highestBid = Item.getCurrentItem().getStartingPrice();
+
+                if (!bidHistory.isEmpty()) {
+                    highestBid = bidHistory.getFirst().getBidAmount();
+                }
+
+                // Cập nhật cho những người tham gia về giá thầu cao nhất và chủ sở hữu mới
+                AuctionUpdatePayload auctionUpdate = new AuctionUpdatePayload(this.getId(), getStartTime(), highestBid,
+                        Item.getCurrentItem().getName(), client.getSocketAddress().getAddress().getHostAddress(),
+                        Item.getCurrentItem().getDescription());
+                server.sendPackets(clientList, new PacketMessage(HIGHEST_BID_OWNER_LOST, auctionUpdate));
+            }
+
+            // Hủy đăng ký client khỏi phiên đấu giá
+            clientList.remove(client);
+
+        } else {
+            throw new AuctionNotRegisteredException("Chưa được đăng ký trong phiên đấu giá");
+        }
+    }
+    /*
+    Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client đã được đăng ký trong phiên đấu giá
+    và một đối tượng Bid đại diện cho giá thầu được thực hiện bởi đối tượng Client đó.
+
+    Điều kiện sau: Phương thức thêm đối tượng Bid được cung cấp như một giá thầu hợp lệ
+    vào biến bidList. Đồng thời, biến numberOfHighBids của Client được cung cấp
+    cũng sẽ được tăng thêm 1 nếu thao tác thành công.
+
+    Những thao tác này chỉ có thể xảy ra nếu đối tượng Bid có giá trị lớn hơn
+    giá thầu cao nhất hiện tại (hoặc giá khởi điểm) và đối tượng Client đã được đăng ký
+    trong phiên đấu giá và không phải là chủ sở hữu của phiên đấu giá.
+
+    Phương thức không trả về giá trị nào.
+
+    LƯU Ý:
+    Nếu Client được cung cấp chưa được đăng ký thì sẽ ném ra ngoại lệ AuctionNotRegisteredException.
+
+    Nếu Bid được cung cấp thấp hơn giá thầu hiện tại thì sẽ ném ra ngoại lệ AuctionLowBidException.
+
+    Nếu Client được cung cấp là chủ sở hữu của phiên đấu giá thì sẽ ném ra ngoại lệ
+    AuctionClientIsOwnerException.
+*/
+    
+    public BidTransaction findHighestBid() {
+        //Check if there are any bids in the auction
+        if (!bidHistory.isEmpty()) {
+            return this.getBidHistory().getFirst();
+        } else {
+            return new BidTransaction(null, null, 0);
         }
     }
 }
