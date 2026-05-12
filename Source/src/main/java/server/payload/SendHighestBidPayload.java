@@ -14,11 +14,11 @@ public class SendHighestBidPayload implements Serializable {
 
     // Thời điểm bid mới nhất được tạo
     // 👉 Dùng để hiển thị thời gian cập nhật gần nhất
-    private Date bidCreationDate;
+    private LocalDateTime bidCreationTime;
 
     // Giá cao nhất hiện tại
     // 👉 Hiển thị cho user biết mức giá đang dẫn đầu
-    private float highestBid;
+    private double highestBid;
 
     // IP của người đang giữ giá cao nhất
     // 👉 Có thể dùng để:
@@ -33,9 +33,9 @@ public class SendHighestBidPayload implements Serializable {
     // ===== Constructor =====
 
     // Khởi tạo payload với thông tin bid mới nhất
-    public SendHighestBidPayload(LocalDateTime bidCreationDate, double highestBid,
+    public SendHighestBidPayload(LocalDateTime bidCreationTime, double highestBid,
                                  String highestBidderIP, String auctionID) {
-        this.bidCreationDate = bidCreationDate;
+        this.bidCreationTime = bidCreationTime;
         this.highestBid = highestBid;
         this.highestBidderIP = highestBidderIP;
         this.auctionID = auctionID;
@@ -43,19 +43,19 @@ public class SendHighestBidPayload implements Serializable {
 
     // ===== Getter & Setter =====
 
-    public Date getBidCreationDate() {
-        return bidCreationDate;
+    public Date getBidCreationTime() {
+        return bidCreationTime;
     }
 
-    public void setBidCreationDate(Date bidCreationDate) {
-        this.bidCreationDate = bidCreationDate;
+    public void setBidCreationTime(LocalDateTime bidCreationTime) {
+        this.bidCreationTime = bidCreationTime;
     }
 
-    public float getHighestBid() {
+    public double getHighestBid() {
         return highestBid;
     }
 
-    public void setHighestBid(float highestBid) {
+    public void setHighestBid(double highestBid) {
         this.highestBid = highestBid;
     }
 
@@ -85,16 +85,16 @@ public class SendHighestBidPayload implements Serializable {
         SendHighestBidPayload that = (SendHighestBidPayload) o;
 
         // So sánh toàn bộ thông tin bid
-        return Float.compare(that.highestBid, highestBid) == 0 &&
+        return Double.compare(that.highestBid, highestBid) == 0 &&
                 Objects.equals(auctionID, that.auctionID) &&
-                Objects.equals(bidCreationDate, that.bidCreationDate) &&
+                Objects.equals(bidCreationTime, that.bidCreationTime) &&
                 Objects.equals(highestBidderIP, that.highestBidderIP);
     }
 
     @Override
     public int hashCode() {
         // Hash dựa trên các field
-        return Objects.hash(bidCreationDate, highestBid, highestBidderIP, auctionID);
+        return Objects.hash(bidCreationTime, highestBid, highestBidderIP, auctionID);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class SendHighestBidPayload implements Serializable {
         // System.out.println(payload);
         // → sẽ in thông tin bid cao nhất hiện tại
         return "SendHighestBidPayload{" +
-                "bidCreationDate=" + bidCreationDate +
+                "bidCreationDate=" + bidCreationTime +
                 ", bid=" + highestBid +
                 ", bidderIP='" + highestBidderIP + '\'' +
                 ", auctionID=" + auctionID +
