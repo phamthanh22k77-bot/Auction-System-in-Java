@@ -149,25 +149,32 @@ public class AutoBid extends Entity {
         System.out.printf("%n[AutoBid] Phát hiện bid thủ công từ %s: $%.2f. Kích hoạt auto-bid...%n",
                 manualBidderId, manualBidAmount);
 
-        int maxRounds = 20; // Chặn vòng lặp vô tận
+        int maxRounds = 20;
         int round = 0;
 
         while (round < maxRounds) {
             round++;
             String prevWinner = auction.getHighestBidderId();
+            
+            // NẾU người đang dẫn đầu đã là một Bot (Auto-Bid), 
+            // chúng ta không cần kích hoạt processAutoBids nữa trừ khi có người mới nhảy vào.
+            // Điều này ngăn Bot tự nâng giá của chính mình (170 -> 190).
+            if (prevWinner != null && !prevWinner.equals(manualBidderId)) {
+                // Kiểm tra xem prevWinner có nằm trong danh sách AutoBid không
+                boolean alreadyAutoWinning = false;
+                for(AutoBid ab : autoBids) {
+                    if(ab.getBidderId().equals(prevWinner)) {
+                        alreadyAutoWinning = true;
+                        break;
+                    }
+                }
+                if (alreadyAutoWinning) break; 
+            }
+
             String newWinner = processAutoBids(auction, autoBids);
 
-            // Không có auto-bid nào phản ứng → dừng
-            if (newWinner == null)
-                break;
-
-            // Người thắng là chính bidder thủ công này → không cần tự đặt thêm
-            if (newWinner.equals(manualBidderId))
-                break;
-
-            // Người thắng không đổi → ổn định, dừng vòng lặp
-            if (newWinner.equals(prevWinner))
-                break;
+            if (newWinner == null || newWinner.equals(manualBidderId)) break;
+            if (newWinner.equals(prevWinner)) break;
 
             System.out.printf("[AutoBid] Vòng %d: %s đang dẫn với $%.2f%n",
                     round, newWinner, auction.getCurrentHighestBid());

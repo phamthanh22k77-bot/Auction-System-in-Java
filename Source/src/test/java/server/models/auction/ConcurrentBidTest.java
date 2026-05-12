@@ -15,30 +15,28 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class ConcurrentBidTest {
     @Test
-    void testNhieuLuongCungGoiHamDatGia_KhongBiLoiRaceCondition() throws InterruptedException {
-        Auction auction = new Auction("item", "seller", LocalDateTime.now().minusHours(1),
-                LocalDateTime.now().plusHours(1), 100.0, 10.0);
-        auction.setStatus(Auction.AuctionStatus.RUNNING);
-
-        // Tạo 10 Auto-Bid (trả tới 5000$)
-        List<AutoBid> autoBids = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            autoBids.add(new AutoBid(auction.getId(), "bot" + i, 5000.0, 10.0));
-        }
-
+    void testNhieuLuongCungGoiHamDatGia_KhongBiLoiRaceCondition() throws Exception {
         // GIẢ LẬP ĐA LUỒNG
         ExecutorService executor = Executors.newFixedThreadPool(100);
         CountDownLatch sungLenhXuatPhat = new CountDownLatch(1);
         CountDownLatch choKetThuc = new CountDownLatch(100);
 
-        // Đăng ký Auction vào Manager để test
-        try {
-            AuctionManager.getInstance().taoPhien(auction.getItemId(), auction.getSellerId(), auction.getStartTime(),
-                    auction.getEndTime(), auction.getStartingPrice(), auction.getMinimumBidIncrement());
-        } catch (Exception e) {
+        // Đăng ký Auction vào Manager để test (Dùng taoPhien để đảm bảo ID và đăng ký khớp)
+        Auction createdAuction = AuctionManager.getInstance().taoPhien(
+                "item", "seller",
+                LocalDateTime.now().minusHours(1),
+                LocalDateTime.now().plusHours(1),
+                100.0, 10.0
+        );
+
+        // Tạo 10 Auto-Bid (trả tới 5000$)
+        List<AutoBid> autoBids = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            autoBids.add(new AutoBid(createdAuction.getId(), "bot" + i, 5000.0, 10.0));
         }
 
-        Auction managedAuction = AuctionManager.getInstance().timTheoId(auction.getId());
+        Auction managedAuction = AuctionManager.getInstance().timTheoId(createdAuction.getId());
+        assertNotNull(managedAuction, "Auction should be registered in manager");
         managedAuction.setStatus(Auction.AuctionStatus.RUNNING);
 
         for (int i = 0; i < 100; i++) { // Nạp 100 luồng
@@ -68,10 +66,10 @@ class ConcurrentBidTest {
         choKetThuc.await();
         executor.shutdown();
 
-        assertNotNull(auction.getHighestBidderId(), "Phải có người chiến thắng");
-        assertTrue(auction.getCurrentHighestBid() > 100.0, "Giá chắc chắn phải bị đẩy lên cao hơn giá gốc");
+        assertNotNull(managedAuction.getHighestBidderId(), "Phải có người chiến thắng");
+        assertTrue(managedAuction.getCurrentHighestBid() > 100.0, "Giá chắc chắn phải bị đẩy lên cao hơn giá gốc");
 
-        System.out.println("Giá cuối cùng: " + auction.getCurrentHighestBid());
-        System.out.println("Người thắng: " + auction.getHighestBidderId());
+        System.out.println("Giá cuối cùng: " + managedAuction.getCurrentHighestBid());
+        System.out.println("Người thắng: " + managedAuction.getHighestBidderId());
     }
 }
