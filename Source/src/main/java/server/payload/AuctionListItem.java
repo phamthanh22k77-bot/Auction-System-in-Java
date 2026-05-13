@@ -14,7 +14,7 @@ public class AuctionListItem implements Serializable {
     private String auctionID;
 
     // Giá khởi điểm của item
-    private float itemStartingPrice;
+    private double itemStartingPrice;
 
     // Tên item
     private String itemName;
@@ -26,13 +26,13 @@ public class AuctionListItem implements Serializable {
     private String auctionOwnerIP;
 
     // Giá bid cao nhất hiện tại
-    private float highestBid;
+    private double highestBid;
 
     // ===== Constructor =====
 
     // Khởi tạo đầy đủ thông tin của 1 auction item
-    public AuctionListItem(String auctionID, float itemStartingPrice, String itemName,
-                           String itemDescription, String auctionOwnerIP, float highestBid) {
+    public AuctionListItem(String auctionID, double itemStartingPrice, String itemName,
+                           String itemDescription, String auctionOwnerIP, double highestBid) {
         this.auctionID = auctionID;
         this.itemStartingPrice = itemStartingPrice;
         this.itemName = itemName;
@@ -51,7 +51,7 @@ public class AuctionListItem implements Serializable {
         this.auctionID = auctionID;
     }
 
-    public float getItemStartingPrice() {
+    public double getItemStartingPrice() {
         return itemStartingPrice;
     }
 
@@ -83,7 +83,7 @@ public class AuctionListItem implements Serializable {
         this.auctionOwnerIP = auctionOwnerIP;
     }
 
-    public float getHighestBid() {
+    public double getHighestBid() {
         return highestBid;
     }
 
@@ -103,8 +103,8 @@ public class AuctionListItem implements Serializable {
         AuctionListItem that = (AuctionListItem) o;
 
         return Objects.equals(auctionID, that.auctionID) && // so ID
-                Float.compare(that.itemStartingPrice, itemStartingPrice) == 0 && // so float an toàn
-                Float.compare(that.highestBid, highestBid) == 0 &&
+                Double.compare(that.itemStartingPrice, itemStartingPrice) == 0 && // so float an toàn
+                Double.compare(that.highestBid, highestBid) == 0 &&
                 Objects.equals(itemName, that.itemName) && // so String
                 Objects.equals(itemDescription, that.itemDescription) &&
                 Objects.equals(auctionOwnerIP, that.auctionOwnerIP);
