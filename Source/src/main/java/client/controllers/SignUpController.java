@@ -54,7 +54,7 @@ public class SignUpController implements Initializable {
 
         // Bước 3: Tạo User object đúng constructor
         User newUser = role.equals("Bidder")
-                ? new Bidder(user, email, pass)
+                ? new Bidder(user, email, pass, 0.0)
                 : new Seller(user, email, pass, "");
 
         // Luu vao users.json
