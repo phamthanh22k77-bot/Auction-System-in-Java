@@ -179,12 +179,12 @@ mvn clean install
 
 ### Chạy Server (Mảng của Kiệt & Hoàng)
 ```bash
-mvn exec:java -Dexec.mainClass="server.network.AuctionServer" -Dexec.args="9999"
+mvn exec:java -Dexec.mainClass="server.network.AuctionServerApp" -Dexec.args="9090"
 ```
 
 ### Chạy Client UI (Mảng của Thảo)
 ```bash
-mvn exec:java -Dexec.mainClass="client.MainApp" -Dexec.args="127.0.0.1 9999"
+mvn exec:java -Dexec.mainClass="client.controllers.App"
 ```
 
 ---
