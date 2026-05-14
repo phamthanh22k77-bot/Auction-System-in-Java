@@ -18,6 +18,9 @@ import javafx.scene.control.ListView;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import java.util.List;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.io.IOException;
 import java.net.URL;
@@ -213,12 +216,87 @@ public class BiddingController implements Initializable {
         // Bat dau dem nguoc
         startCountdown(totalSeconds);
 
-        // TODO: Load lich su bid tu server
-        // List<BidTransaction> history = server.getBidHistory(auctionId);
-        // loadBidHistory(history);
+        // Load lich su bid thuc tu AuctionDAO
+        loadBidHistoryFromDAO();
 
-        // TODO: Dang ky BidObserver
+        // TODO: Dang ky BidObserver — cho Nguoi 3 hoan thien network layer
         // server.subscribe(auctionId, this);
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // LOAD DU LIEU THUC TU DAO
+    // ═════════════════════════════════════════════════════════
+
+    /**
+     * Load lich su bid thuc cua phien nay tu AuctionDAO.
+     *
+     * Logic:
+     * - Dung auctionId da duoc set boi setAuction() de truy van AuctionDAO
+     * - Lay danh sach BidTransaction cua phien, duyet nguoc lai (moi nhat len dau)
+     * - Hien thi len listLiveBids: format "HH:mm TenBidder +gia ₫"
+     * - Neu bidder la user hien tai, danh dau "(Bạn)"
+     * - Cap nhat lblHighestBidder neu co history
+     *
+     * Sau khi server hoan thien, ham nay van giu nguyen —
+     * server chi can goi them onBidUpdate() theo thoi gian thuc.
+     */
+    private void loadBidHistoryFromDAO() {
+        if (auctionId == null || auctionId.isEmpty())
+            return;
+
+        try {
+            server.dao.AuctionDAO auctionDAO = new server.dao.AuctionDAO();
+            server.models.auction.Auction auction = auctionDAO.timTheoId(auctionId);
+            if (auction == null)
+                return;
+
+            List<server.models.auction.BidTransaction> history = auction.getBidHistory();
+            if (history == null || history.isEmpty())
+                return;
+
+            String currentUserId = SessionManager.getInstance().getCurrentUser() != null
+                    ? SessionManager.getInstance().getCurrentUser().getId()
+                    : "";
+
+            javafx.collections.ObservableList<String> entries = javafx.collections.FXCollections.observableArrayList();
+
+            // Duyet nguoc: bid moi nhat hien tren dau
+            for (int i = history.size() - 1; i >= 0; i--) {
+                server.models.auction.BidTransaction tx = history.get(i);
+
+                // Bo qua cac bid bi tu choi
+                if (tx.getStatus() == server.models.auction.BidTransaction.BidStatus.REJECTED)
+                    continue;
+
+                // Lay gio dat gia
+                String timeStr = tx.getTimestamp() != null
+                        ? tx.getTimestamp().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"))
+                        : "--:--";
+
+                // Xac dinh ten hien thi
+                String bidderDisplay = tx.getBidderId().equals(currentUserId)
+                        ? "Bạn"
+                        : "Bidder #" + tx.getBidderId().substring(0, Math.min(4, tx.getBidderId().length()));
+
+                entries.add(timeStr + "  " + bidderDisplay + "  +" + fmt(tx.getBidAmount()) + " đ");
+            }
+
+            listLiveBids.setItems(entries);
+
+            // Cap nhat nguoi dan dau hien tai
+            if (!history.isEmpty()) {
+                server.models.auction.BidTransaction latest = history.get(history.size() - 1);
+                String leaderDisplay = latest.getBidderId().equals(currentUserId)
+                        ? "↑ Bạn đang dẫn đầu"
+                        : "↑ Bidder #" + latest.getBidderId().substring(0, Math.min(4, latest.getBidderId().length()));
+                lblHighestBidder.setText(leaderDisplay);
+                currentHighestBid = latest.getBidAmount();
+                lblCurrentPrice.setText(fmt(currentHighestBid) + " đ");
+            }
+
+        } catch (IOException e) {
+            System.err.println("[BiddingController] Loi load bid history: " + e.getMessage());
+        }
     }
 
     // ═════════════════════════════════════════════════════════

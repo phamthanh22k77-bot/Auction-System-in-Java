@@ -59,8 +59,15 @@
             <Region HBox.hgrow="ALWAYS" />
 
             <!-- Thong bao + user -->
-            <Button onAction="#handleNotify" style="-fx-background-color: #F0F3F7; -fx-background-radius: 20;                            -fx-cursor: hand; -fx-padding: 6 12; -fx-font-size: 14;" text="🔔" />
-         <Button onAction="#handleNotify" style="-fx-background-color: #F0F3F7; -fx-background-radius: 20;                            -fx-cursor: hand; -fx-padding: 6 12; -fx-font-size: 14;" text="👤" />
+            <Button fx:id="btnNotify" text="🔔" onAction="#handleNotify"
+                    style="-fx-background-color: #F0F3F7; -fx-background-radius: 20;
+                           -fx-cursor: hand; -fx-padding: 6 12; -fx-font-size: 14;"/>
+
+            <Button fx:id="btnSellerUser"
+                    text="👤"
+                    onAction="#handleLogout"
+                    style="-fx-background-color: transparent; -fx-text-fill: #2C3E50;
+                           -fx-cursor: hand; -fx-font-size: 13;"/>
         </HBox>
     </top>
 
