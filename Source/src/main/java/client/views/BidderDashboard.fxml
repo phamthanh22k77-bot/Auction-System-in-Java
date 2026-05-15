@@ -66,6 +66,9 @@
 
             <!-- Nut User -> mo UserProfilePopup -->
             <Button fx:id="profileButton" onAction="#handleProfileClick" style="-fx-background-color: #3498db; -fx-text-fill: white;                            -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 18;" text="User" />
+
+            <!-- Dang xuat -->
+            <Button onAction="#handleLogout" style="-fx-background-color: transparent; -fx-cursor: hand; -fx-text-fill: #e74c3c; -fx-padding: 6 14;" text="Dang xuat" />
         </HBox>
     </top>
 

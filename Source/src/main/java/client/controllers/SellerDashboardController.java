@@ -1151,6 +1151,12 @@ public class SellerDashboardController implements Initializable {
     }
 
     @FXML
+    private void handleProfileClick() {
+        // Seller Profile sẽ được hiển thị ở cột Shop trong trang Tổng quan
+        showPane(paneOverview, btnNavShop);
+    }
+
+    @FXML
     private void handleNotify() {
         // Tao popup hien danh sach thong bao phia duoi nut chuong
         javafx.stage.Popup popup = new javafx.stage.Popup();
@@ -1315,15 +1321,20 @@ public class SellerDashboardController implements Initializable {
     private void handleLogout() {
         // TODO: Nguoi 3 — gui DISCONNECT truoc khi dong ket noi
         try {
+            // 1.Tải lại giao diện login
             Parent root = FXMLLoader.load(
                     getClass().getResource("/client/views/Login.fxml"));
             Stage stage = (Stage) btnNavOverview.getScene().getWindow();
+            // Tráo đổi nội dung màn hình hiện tại thành login
             stage.setScene(new Scene(root));
+            // Thu nhỏ kích thước cửa sổ lại thành chuẩn của form Login (900x600)
             stage.setWidth(900);
             stage.setHeight(600);
+            // Căn giữa cửa sổ mới ra lại chính giữa màn hình máy tính
             stage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();
+
         }
     }
 

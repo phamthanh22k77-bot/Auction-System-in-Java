@@ -346,6 +346,14 @@ public class BidderDashboardController implements Initializable {
             UserProfilePopupController ctrl = loader.getController();
             ctrl.setOwnerStage((Stage) profileButton.getScene().getWindow());
 
+            // Set thong tin cho Bidder tu SessionManager
+            server.models.user.User user = SessionManager.getInstance().getCurrentUser();
+            if (user != null) {
+                ctrl.setUserInfo(user.getUsername(), user.getEmail(), 0, 0L);
+            } else {
+                ctrl.setUserInfo("Khách", "guest@example.com", 0, 0L);
+            }
+
             Stage popup = new Stage();
             popup.initStyle(StageStyle.UNDECORATED);
             popup.setScene(new Scene(root));
@@ -364,7 +372,7 @@ public class BidderDashboardController implements Initializable {
                     popup.close();
             });
             popup.show();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -405,12 +413,32 @@ public class BidderDashboardController implements Initializable {
 
     @FXML
     private void handleViewAll() {
-        System.out.println("Xem tat ca san pham");
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/client/views/AuctionList.fxml"));
+            Stage stage = (Stage) btnTabAll.getScene().getWindow();
+            stage.setScene(new Scene(root));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML
     private void handleViewAllSellers() {
         System.out.println("Xem tat ca seller");
+    }
+
+    @FXML
+    private void handleLogout() {
+        try {
+            Parent root = FXMLLoader.load(getClass().getResource("/client/views/Login.fxml"));
+            Stage stage = (Stage) btnTabAll.getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.setWidth(480);
+            stage.setHeight(520);
+            stage.centerOnScreen();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     // ═════════════════════════════════════════════════════════
