@@ -17,8 +17,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import server.dao.UserDAO;
 import server.models.user.User;
+import client.network.ClientSocketManager;
+import client.message.PacketMessage;
+import client.message.MessageType;
 
 public class LoginController implements Initializable {
 
@@ -97,14 +99,21 @@ public class LoginController implements Initializable {
      */
     private User authenticate(String username, String password) {
         try {
-            List<User> users = new UserDAO().loadAll();
-            return users.stream()
-                    .filter(u -> u.getUsername().equalsIgnoreCase(username)
-                              && u.getPassword().equals(password))
-                    .findFirst()
-                    .orElse(null);
-        } catch (IOException e) {
-            showError("Khong the doc du lieu nguoi dung.");
+            ClientSocketManager.getInstance().connect("localhost", 9090);
+            
+            String[] credentials = {username, password};
+            PacketMessage request = new PacketMessage(MessageType.LOGIN_REQUEST, credentials);
+            ClientSocketManager.getInstance().sendMessage(request);
+            
+            PacketMessage response = ClientSocketManager.getInstance().receiveMessage();
+            if (response != null && response.getType() == MessageType.AUTH_SUCCESS) {
+                return (User) response.getPayload();
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Khong the ket noi den may chu.");
             return null;
         }
     }

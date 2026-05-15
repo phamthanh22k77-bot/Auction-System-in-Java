@@ -7,7 +7,7 @@ public class AuctionServerApp {
     public static void main(String[] args) throws IOException {
 
         //Đọc port từ cmd line
-        int port = 0;
+        int port = 9090;
         if (args.length > 0) {
             try {
                 port = Integer.parseInt(args[0]);

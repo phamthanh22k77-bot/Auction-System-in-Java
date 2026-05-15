@@ -25,7 +25,10 @@ public enum MessageType {
     REQUEST_MY_AUCTIONS("Request the Clients Auctions"),
     SEND_MY_AUCTIONS("Send the Clients Auctions"),
     HIGHEST_BID_OWNER_LOST("The Bidder with the Highest Bid in an Auction was Lost in Communication"),
-    CONFIRM_AUCTION_REGISTRATION("Client is Registered to Auction");
+    CONFIRM_AUCTION_REGISTRATION("Client is Registered to Auction"),
+    LOGIN_REQUEST("Login Request"),
+    SIGNUP_REQUEST("Sign Up Request"),
+    AUTH_SUCCESS("Authentication Success");
     private String type;
 
     MessageType(String type) {

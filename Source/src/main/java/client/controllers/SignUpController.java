@@ -9,10 +9,12 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
-import server.dao.UserDAO;
 import server.models.user.Bidder;
 import server.models.user.Seller;
 import server.models.user.User;
+import client.network.ClientSocketManager;
+import client.message.PacketMessage;
+import client.message.MessageType;
 
 import java.io.IOException;
 import java.net.URL;
@@ -57,17 +59,24 @@ public class SignUpController implements Initializable {
                 ? new Bidder(user, email, pass, 0.0)
                 : new Seller(user, email, pass, "");
 
-        // Luu vao users.json
+        // Gui yeu cau tao moi qua mang
         try {
-            new UserDAO().them(newUser);
-        } catch (IOException e) {
-            lblError.setText("Khong the luu tai khoan, thu lai!");
-            return;
+            ClientSocketManager.getInstance().connect("localhost", 9090);
+            
+            PacketMessage request = new PacketMessage(MessageType.SIGNUP_REQUEST, newUser);
+            ClientSocketManager.getInstance().sendMessage(request);
+            
+            PacketMessage response = ClientSocketManager.getInstance().receiveMessage();
+            if (response != null && response.getType() == MessageType.AUTH_SUCCESS) {
+                // 🟢 Bước 4: Tự động đăng nhập và điều hướng
+                SessionManager.getInstance().setCurrentUser(newUser);
+                navigateByRole(role);
+            } else {
+                lblError.setText("Khong the tao tai khoan!");
+            }
+        } catch (Exception e) {
+            lblError.setText("Loi mang, khong the ket noi den Server!");
         }
-
-        // 🟢 Bước 4: Tự động đăng nhập và điều hướng
-        SessionManager.getInstance().setCurrentUser(newUser);
-        navigateByRole(role);
     }
 
     private void navigateByRole(String role) {

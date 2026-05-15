@@ -1,0 +1,36 @@
+[
+  {
+    "brand": "Apple",
+    "model": "MacBook Pro M2",
+    "warranty": 12,
+    "category": "ELECTRONICS",
+    "id": "I001",
+    "name": "MacBook Pro M2 2022",
+    "description": "Laptop Apple 16GB RAM",
+    "startingPrice": 3.2E7,
+    "currentPrice": 3.2E7
+  },
+  {
+    "artist": "Nguyen Van A",
+    "medium": "Sơn dầu",
+    "year": 2022,
+    "category": "ART",
+    "id": "I002",
+    "name": "Bức tranh Mùa Xuân",
+    "description": "Tranh sơn dầu phong cảnh mùa xuân",
+    "startingPrice": 1.5E7,
+    "currentPrice": 1.5E7
+  },
+  {
+    "engineType": "Electric",
+    "modelYear": 2023,
+    "mileage": 100.0,
+    "licensePlate": "30A-12345",
+    "category": "VEHICLE",
+    "id": "I003",
+    "name": "Tesla Model 3",
+    "description": "Xe điện Tesla 2023",
+    "startingPrice": 1.2E9,
+    "currentPrice": 1.2E9
+  }
+]

@@ -104,6 +104,14 @@ public class ClientHandler extends Thread {
                         }
                         break;
 
+                    case LOGIN_REQUEST:
+                        handleLogin(packetMessage);
+                        break;
+
+                    case SIGNUP_REQUEST:
+                        handleSignup(packetMessage);
+                        break;
+
                 /*case CANCEL_AUCTION:
                     try {
                         cancelAuction(packetMessage);
@@ -209,6 +217,38 @@ public class ClientHandler extends Thread {
     // Đầu ra: packet được gửi đúng chỗ
     public void sendPacket(PacketMessage packetMessage) throws IOException {
         objectOutputStream.writeObject(packetMessage);
+    }
+
+    private void handleLogin(PacketMessage packetMessage) throws IOException {
+        String[] credentials = (String[]) packetMessage.getPayload();
+        String username = credentials[0];
+        String password = credentials[1];
+        
+        try {
+            java.util.List<server.models.user.User> users = new server.dao.UserDAO().loadAll();
+            server.models.user.User matchedUser = users.stream()
+                    .filter(u -> u.getUsername().equalsIgnoreCase(username) && u.getPassword().equals(password))
+                    .findFirst()
+                    .orElse(null);
+                    
+            if (matchedUser != null) {
+                sendPacket(new PacketMessage(AUTH_SUCCESS, matchedUser));
+            } else {
+                sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Sai ten dang nhap hoac mat khau.")));
+            }
+        } catch (Exception e) {
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Loi doc du lieu.")));
+        }
+    }
+
+    private void handleSignup(PacketMessage packetMessage) throws IOException {
+        server.models.user.User newUser = (server.models.user.User) packetMessage.getPayload();
+        try {
+            new server.dao.UserDAO().them(newUser);
+            sendPacket(new PacketMessage(AUTH_SUCCESS, newUser));
+        } catch (Exception e) {
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Khong the luu tai khoan.")));
+        }
     }
 
     /*
