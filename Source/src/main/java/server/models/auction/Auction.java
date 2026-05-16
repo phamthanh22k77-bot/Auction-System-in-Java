@@ -383,4 +383,78 @@ public class Auction extends Entity {
 
         return highestBid;
     }
+
+    /**
+     * Xử lý lượt đặt giá mới (Merge DatGia + AntiSniping)
+     * 
+     * @param bid    Đối tượng giao dịch đặt giá
+     * @param client Client thực hiện đặt giá
+     * @throws AuctionLowBidException        Nếu giá đặt quá thấp
+     * @throws AuctionNotRegisteredException Nếu client chưa đăng ký tham gia
+     * @throws AuctionClientIsOwnerException Nếu chủ sở hữu tự bid
+     */
+    public synchronized void addBid(BidTransaction bid, AuctionClient client)
+            throws AuctionLowBidException, AuctionNotRegisteredException, AuctionClientIsOwnerException {
+
+        // 1. Kiểm tra đăng ký
+        if (!clientList.contains(client)) {
+            throw new AuctionNotRegisteredException("Bạn chưa đăng ký tham gia phiên đấu giá này.");
+        }
+
+        // 2. Kiểm tra chủ sở hữu
+        if (client.getSocket().getInetAddress().getHostAddress().equals(sellerId)) {
+            throw new AuctionClientIsOwnerException("Chủ sở hữu không thể tham gia đặt giá phiên của chính mình.");
+        }
+
+        // 3. Cập nhật trạng thái và kiểm tra tính hợp lệ của phiên
+        updateStatus();
+        if (status != AuctionStatus.RUNNING) {
+            bid.setStatus(BidTransaction.BidStatus.REJECTED);
+            this.addBidToHistory(bid);
+            throw new AuctionLowBidException("Phiên đấu giá hiện không trong trạng thái cho phép đặt giá (RUNNING).");
+        }
+
+        // 4. Kiểm tra mức giá (phải cao hơn giá hiện tại + bước giá tối thiểu)
+        double minRequired = (bidHistory.isEmpty()) ? startingPrice : (currentHighestBid + minimumBidIncrement);
+        if (bid.getBidAmount() < minRequired) {
+            bid.setStatus(BidTransaction.BidStatus.REJECTED);
+            this.addBidToHistory(bid);
+            throw new AuctionLowBidException("Mức giá đặt ($" + bid.getBidAmount() + ") thấp hơn mức tối thiểu yêu cầu ($" + minRequired + ").");
+        }
+
+        // 5. Chấp nhận lượt bid
+        bid.setStatus(BidTransaction.BidStatus.ACCEPTED);
+        this.currentHighestBid = bid.getBidAmount();
+        this.highestBidderId = bid.getBidderId();
+        
+        // Luôn đưa lượt bid mới lên đầu lịch sử (Sử dụng index 0 để findHighestBid dễ hơn)
+        this.bidHistory.add(0, bid);
+
+        // 6. Cập nhật thống kê cho Client
+        client.madeHighBid();
+
+        // 7. Kích hoạt Anti-Sniping
+        applyAntiSniping();
+        
+        System.out.printf("[Auction] Lượt bid thành công: User %s bid $%.2f cho phiên %s%n", 
+                bid.getBidderId(), bid.getBidAmount(), getId());
+    }
+
+    /**
+     * Cơ chế Anti-Sniping: Tự động gia hạn thời gian nếu có bid sát giờ cuối.
+     */
+    private void applyAntiSniping() {
+        LocalDateTime now = LocalDateTime.now();
+        // Lấy ngưỡng 30s từ logic AuctionManager cũ
+        long secondsLeft = java.time.Duration.between(now, endTime).toSeconds();
+
+        if (secondsLeft >= 0 && secondsLeft < 30) {
+            LocalDateTime newEndTime = now.plusSeconds(30);
+            if (newEndTime.isAfter(endTime)) {
+                this.endTime = newEndTime;
+                System.out.printf("[Anti-Snipe] Phiên [%s]: Gia hạn thời gian kết thúc đến %s (còn %ds)%n", 
+                        getId(), endTime, secondsLeft);
+            }
+        }
+    }
 }

@@ -4,6 +4,7 @@ import server.models.auction.Auction;
 import server.models.auction.BidTransaction;
 
 public class Bidder extends User {
+    private static final long serialVersionUID = 3L;
     private double balance;
 
     // Tạo Bidder mới

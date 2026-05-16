@@ -3,6 +3,7 @@ package server.models.user;
 import server.models.Entity;
 
 public abstract class User extends Entity {
+    private static final long serialVersionUID = 2L;
     private String username;
     private String email;
     private String password; // Trong thực tế nên được mã hóa

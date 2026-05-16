@@ -203,6 +203,11 @@ public class BidderDashboardController implements Initializable {
         }
     }
 
+    @FXML
+    private void handleCloseDetail() {
+        closeDetailPanel();
+    }
+
     // ═════════════════════════════════════════════════════════
     // CLICK CARD SAN PHAM -> HIEN DETAIL PANEL
     // ═════════════════════════════════════════════════════════

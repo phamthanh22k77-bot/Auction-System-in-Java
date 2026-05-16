@@ -19,7 +19,32 @@ import java.util.List;
  */
 public class UserDAO {
 
-    private static final String FILE_PATH = "data/users.json";
+    private static final java.util.logging.Logger LOGGER =
+            java.util.logging.Logger.getLogger(UserDAO.class.getName());
+
+    // Tìm đường dẫn tuyệt đối tới file users.json
+    // Ưu tiên: Source/data > cùng cấp với Source/data > working-dir/data
+    private static final String FILE_PATH = resolveFilePath();
+
+    private static String resolveFilePath() {
+        // Thử các vị trí theo thứ tự ưu tiên
+        String[] candidates = {
+            "data/users.json",
+            "../data/users.json",
+            "Source/data/users.json"
+        };
+        for (String candidate : candidates) {
+            if (java.nio.file.Files.exists(java.nio.file.Path.of(candidate))) {
+                String abs = java.nio.file.Path.of(candidate).toAbsolutePath().toString();
+                System.out.println("[UserDAO] Sẽ dùng file: " + abs);
+                return candidate;
+            }
+        }
+        // Fallback
+        System.out.println("[UserDAO] Không tìm thấy data/users.json. Working dir: "
+                + System.getProperty("user.dir") + ". Sẽ tạo mới tại data/users.json");
+        return "data/users.json";
+    }
 
     /**
      * Tùy chỉnh Gson để hỗ trợ Đa hình (Polymorphism) cho Abstract class User.

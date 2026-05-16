@@ -33,6 +33,7 @@ public class ClientSocketManager {
      * đọc và bỏ qua ở đây để các controller không phải lo.
      */
     public void connect(String ip, int port) throws IOException {
+<<<<<<< Updated upstream
         if (socket != null && !socket.isClosed())
             return; // đã kết nối
 
@@ -49,6 +50,23 @@ public class ClientSocketManager {
             System.out.println("[ClientSocketManager] " + welcome.getType()); // WELCOME_MESSAGE
         } catch (ClassNotFoundException e) {
             System.err.println("[ClientSocketManager] Không đọc được WELCOME_MESSAGE: " + e.getMessage());
+=======
+        if (socket == null || socket.isClosed()) {
+            socket = new Socket(ip, port);
+            out = new ObjectOutputStream(socket.getOutputStream());
+            out.flush(); // Gửi ngay stream header để tránh deadlock với ObjectInputStream bên server
+            in = new ObjectInputStream(socket.getInputStream());
+            
+            // Xử lý gói tin WELCOME_MESSAGE mà Server gửi ngay khi kết nối thành công
+            try {
+                PacketMessage welcomeMsg = (PacketMessage) in.readObject();
+                if (welcomeMsg != null && welcomeMsg.getType() == client.message.MessageType.WELCOME_MESSAGE) {
+                    System.out.println("Kết nối tới Server thành công. Đã nhận: " + welcomeMsg.getType());
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
+>>>>>>> Stashed changes
         }
     }
 

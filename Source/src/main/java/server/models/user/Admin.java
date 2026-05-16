@@ -1,6 +1,7 @@
 package server.models.user;
 
 public class Admin extends User {
+    private static final long serialVersionUID = 5L;
     private String department;
 
     public Admin(String username, String email, String password, String department) {

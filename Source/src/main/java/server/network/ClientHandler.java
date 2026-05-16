@@ -14,10 +14,13 @@ import client.message.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import static client.message.MessageType.*;
 
 public class ClientHandler extends Thread {
+    private static final Logger LOGGER = Logger.getLogger(ClientHandler.class.getName());
 
     // các variable cần nhận
     private AuctionClient client;
@@ -201,8 +204,11 @@ public class ClientHandler extends Thread {
                 }
 
             } catch (IOException e) {
+                LOGGER.log(Level.SEVERE, "[ClientHandler] Lỗi IO trong vòng lặp chính. Đang đóng kết nối.", e);
                 try {
-                    client.getSocket().close();
+                    if (client.getSocket() != null && !client.getSocket().isClosed()) {
+                        client.getSocket().close();
+                    }
                     isRunning = false;
                     String clientKey = client.getSocket().getInetAddress().getHostAddress()
                             + ":" +
@@ -238,6 +244,7 @@ public class ClientHandler extends Thread {
 
     private void handleLogin(PacketMessage packetMessage) throws IOException {
         String[] credentials = (String[]) packetMessage.getPayload();
+<<<<<<< Updated upstream
         String username = credentials[0];
         String password = credentials[1];
 
@@ -253,8 +260,37 @@ public class ClientHandler extends Thread {
             } else {
                 sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Sai ten dang nhap hoac mat khau.")));
             }
+=======
+        String username = credentials != null && credentials.length > 0 ? credentials[0] : "";
+        String password = credentials != null && credentials.length > 1 ? credentials[1] : "";
+
+        LOGGER.info("[ClientHandler] Nhận " + LOGIN_REQUEST + " từ client. username='" + username + "'");
+
+        LoginService loginService = new LoginService();
+        try {
+            server.models.user.User matchedUser = loginService.login(username, password);
+            LOGGER.info("[ClientHandler] Xác thực thành công cho '" + username + "'. Gửi AUTH_SUCCESS.");
+            sendPacket(new PacketMessage(AUTH_SUCCESS, matchedUser));
+
+        } catch (server.models.network.LoginEmptyCredentialsException e) {
+            LOGGER.warning("[ClientHandler] " + e.getMessage());
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
+
+        } catch (server.models.network.LoginInvalidCredentialsException e) {
+            LOGGER.warning("[ClientHandler] " + e.getMessage());
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
+
+        } catch (server.models.network.LoginDataAccessException e) {
+            LOGGER.log(Level.SEVERE, "[ClientHandler] Lỗi đọc dữ liệu khi login.", e);
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
+
+        } catch (server.models.network.LoginException e) {
+            LOGGER.warning("[ClientHandler] Lỗi login: " + e.getMessage());
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
+>>>>>>> Stashed changes
         } catch (Exception e) {
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Loi doc du lieu.")));
+            LOGGER.log(Level.SEVERE, "[ClientHandler] Lỗi hệ thống trong handleLogin", e);
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Loi he thong: " + e.getMessage())));
         }
     }
 
@@ -726,7 +762,7 @@ public class ClientHandler extends Thread {
             AuctionLowBidException,
             AuctionClientIsOwnerException,
             AuctionNotRegisteredException,
-            ServerNoAuctionException {
+            ServerNoAuctionException, IOException {
 
         // Kiểm tra payload nhận được có đúng kiểu không
         if (packetMessage.getPayload() instanceof MakeBidPayload) {

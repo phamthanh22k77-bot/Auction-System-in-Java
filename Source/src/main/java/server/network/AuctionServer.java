@@ -7,6 +7,7 @@ import server.auction.*;
 import client.message.PacketMessage;
 import server.payload.*;
 import server.models.auction.*;
+import static client.message.MessageType.*;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -369,21 +370,34 @@ public class AuctionServer {
             throws AuctionLowBidException,
             AuctionNotRegisteredException,
             AuctionClientIsOwnerException,
-            ServerNoAuctionException {
+            ServerNoAuctionException, IOException {
 
-        // Kiểm tra xem phiên đấu giá có tồn tại hay không
-        if (auctions.containsKey(auctionID)) {
+        // Lấy phiên đấu giá từ AuctionManager để đảm bảo đồng bộ
+        Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
 
-            // Yêu cầu auction xử lý bid mới
-            //auctions.get(auctionID).addBid(bid, client);
-            /* Do phần addBid có phương thức hoạt động tương tự với datGia và Antisniping
-            của Kiệt nên sẽ làm thêm sau
-             */
+        if (auction != null) {
+            // 1. Thực hiện logic đặt giá (bao gồm validation + antisniping)
+            auction.addBid(bid, client);
+
+            // 2. Thông báo cho các client khác trong phiên đấu giá về lượt bid mới
+            AuctionUpdatePayload update = new AuctionUpdatePayload(
+                    auction.getId(),
+                    auction.getEndTime(),
+                    auction.getCurrentHighestBid(),
+                    auction.getItem().getName(),
+                    bid.getBidderId(),
+                    auction.getItem().getDescription()
+            );
+
+            // Broadcast cho toàn bộ những người tham gia phiên đấu giá này
+            sendPackets(auction.getClientList(), new PacketMessage(HIGHEST_BID_OWNER_LOST, update));
+            
+            // 3. Persist dữ liệu
+            AuctionManager.getInstance().getDao().capNhat(auction);
 
         } else {
-
             throw new ServerNoAuctionException(
-                    "Auction doesn't exist. Action not permitted."
+                    "Phiên đấu giá " + auctionID + " không tồn tại."
             );
         }
     }

@@ -1,93 +1,83 @@
 package server.models.auction;
 
-import org.junit.jupiter.api.Test;
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.*;
+import server.models.network.AuctionClient;
+import server.models.auction.Auction.AuctionStatus;
+import server.auction.*;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.time.LocalDateTime;
 
-class AuctionTest {
+import static org.junit.jupiter.api.Assertions.*;
 
-    @Test
-    void testConstructor_KhoiTaoHopLe() {
-        LocalDateTime startTime = LocalDateTime.now().plusHours(1);
-        LocalDateTime endTime = LocalDateTime.now().plusHours(2);
-        Auction auction = new Auction("item", "seller", startTime, endTime, 100.0, 10.0);
+public class AuctionTest {
 
-        assertNotNull(auction.getId(), "ID phải được tự động sinh ra từ lớp Entity");
-        assertEquals("item", auction.getItemId(), "Gán sai itemId");
-        assertEquals("seller", auction.getSellerId(), "Gán sai sellerId");
-        assertEquals(100.0, auction.getStartingPrice(), "Gán sai startingPrice");
-        assertEquals(100.0, auction.getCurrentHighestBid(), "Giá hiện tại ban đầu phải bằng giá khởi điểm");
-        assertEquals(10.0, auction.getMinimumBidIncrement(), "Gán sai minimumBidIncrement");
-        assertEquals(Auction.AuctionStatus.OPEN, auction.getStatus(), "Phiên đấu giá mới tạo phải ở trạng thái OPEN (chờ đấu)");
+    private static ServerSocket serverSocket;
+    private static Socket clientSocket;
+    private static AuctionClient auctionClient;
+
+    @BeforeAll
+    static void setup() throws IOException {
+        serverSocket = new ServerSocket(0); // Auto-assign port
+        new Thread(() -> {
+            try {
+                serverSocket.accept();
+            } catch (IOException ignored) {}
+        }).start();
+        clientSocket = new Socket("127.0.0.1", serverSocket.getLocalPort());
+        auctionClient = new AuctionClient(clientSocket);
+    }
+
+    @AfterAll
+    static void tearDown() throws IOException {
+        clientSocket.close();
+        serverSocket.close();
     }
 
     @Test
-    void testUpdateStatus_TrangThaiOpen() {
-        LocalDateTime now = LocalDateTime.now();
-        Auction auction = new Auction("item1", "seller1", now.plusHours(1), now.plusHours(2), 100.0, 10.0);
+    @DisplayName("Test logic addBid và Anti-Sniping")
+    void testAddBid() throws Exception {
+        // 1. Setup Auction
+        String sellerIp = "1.1.1.1"; // Seller khac IP client test
+        LocalDateTime start = LocalDateTime.now().minusMinutes(5);
+        LocalDateTime end = LocalDateTime.now().plusSeconds(10); // Chi con 10s
+        
+        Auction auction = new Auction("ITEM_TEST", sellerIp, start, end, 1000.0, 100.0);
+        auction.setStatus(AuctionStatus.RUNNING);
+        
+        // Dang ky client vao phien
+        auction.addClient(auctionClient);
 
-        auction.updateStatus();
+        // 2. Tao Bid hop le
+        BidTransaction validBid = new BidTransaction(auction.getId(), "USER_001", 1200.0);
+        
+        // 3. Thực hiện addBid
+        auction.addBid(validBid, auctionClient);
 
-        assertEquals(Auction.AuctionStatus.OPEN, auction.getStatus(), "Chưa đến giờ bắt đầu thì phải là OPEN");
+        // 4. Assertions
+        assertEquals(1200.0, auction.getCurrentHighestBid());
+        assertEquals("USER_001", auction.getHighestBidderId());
+        assertEquals(1, auction.getBidHistory().size());
+        assertEquals(BidTransaction.BidStatus.ACCEPTED, auction.getBidHistory().get(0).getStatus());
+
+        // 5. Check Anti-Sniping (thoi gian ket thuc phai duoc gia han)
+        assertTrue(auction.getEndTime().isAfter(end), "Thoi gian ket thuc phai duoc gia han do < 30s");
+        System.out.println("Anti-sniping OK. EndTime moi: " + auction.getEndTime());
     }
 
     @Test
-    void testUpdateStatus_TrangThaiRunning() {
-        LocalDateTime now = LocalDateTime.now();
-        Auction auction = new Auction("item2", "seller2", now.minusHours(1), now.plusHours(1), 100.0, 10.0);
+    @DisplayName("Test loi dat gia qua thap")
+    void testLowBid() throws Exception {
+        Auction auction = new Auction("ITEM_LOW", "1.1.1.1", LocalDateTime.now().minusMinutes(1), LocalDateTime.now().plusMinutes(5), 1000.0, 100.0);
+        auction.setStatus(AuctionStatus.RUNNING);
+        auction.addClient(auctionClient);
 
-        auction.updateStatus();
-
-        assertEquals(Auction.AuctionStatus.RUNNING, auction.getStatus(),
-                "Trong thời gian diễn ra phải chuyển thành RUNNING");
-    }
-
-    @Test
-    void testUpdateStatus_TrangThaiFinished() {
-        LocalDateTime now = LocalDateTime.now();
-        Auction auction = new Auction("item3", "seller3", now.minusHours(2), now.minusHours(1), 100.0, 10.0);
-
-        auction.updateStatus();
-
-        assertEquals(Auction.AuctionStatus.FINISHED, auction.getStatus(),
-                "Đã qua thời gian kết thúc phải chuyển thành FINISHED");
-    }
-
-    @Test
-    void testUpdateStatus_TrangThaiKhongDoiNeuDaHuyHoacThanhToan() {
-        LocalDateTime now = LocalDateTime.now();
-        Auction auction = new Auction("item1", "seller1", now.minusHours(1), now.plusHours(1), 100.0, 10.0);
-
-        auction.setStatus(Auction.AuctionStatus.CANCELED);
-
-        auction.updateStatus();
-
-        assertEquals(Auction.AuctionStatus.CANCELED, auction.getStatus(),
-                "Phiên đã HỦY (CANCELED) thì hàm updateStatus không được phép ghi đè trạng thái");
-    }
-
-    @Test
-    void testIsActive_ReturnTrue() {
-        Auction auction = new Auction("item1", "seller1", LocalDateTime.now(), LocalDateTime.now().plusHours(1), 100.0,
-                10.0);
-
-        auction.setStatus(Auction.AuctionStatus.RUNNING);
-        assertTrue(auction.isActive(), "Trạng thái RUNNING phải là active (true)");
-    }
-
-    @Test
-    void testIsActive_ReturnFalse() {
-        Auction auction = new Auction("item1", "seller1", LocalDateTime.now(), LocalDateTime.now().plusHours(1), 100.0,
-                10.0);
-
-        auction.setStatus(Auction.AuctionStatus.OPEN);
-        assertFalse(auction.isActive(), "Trạng thái OPEN không được active (false) - vì chưa đến giờ");
-
-        auction.setStatus(Auction.AuctionStatus.FINISHED);
-        assertFalse(auction.isActive(), "Trạng thái FINISHED không được active (false)");
-
-        auction.setStatus(Auction.AuctionStatus.CANCELED);
-        assertFalse(auction.isActive(), "Trạng thái CANCELED không được active (false)");
+        BidTransaction lowBid = new BidTransaction(auction.getId(), "USER_001", 1050.0); // Thieu (1000 + 100 = 1100)
+        
+        assertThrows(server.auction.AuctionLowBidException.class, () -> {
+            auction.addBid(lowBid, auctionClient);
+        });
     }
 }

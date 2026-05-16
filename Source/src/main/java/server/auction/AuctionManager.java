@@ -4,6 +4,10 @@ import server.dao.AuctionDAO;
 import server.models.auction.Auction;
 import server.models.auction.Auction.AuctionStatus;
 import server.models.auction.BidTransaction;
+import server.models.network.AuctionClient;
+import server.auction.AuctionLowBidException;
+import server.auction.AuctionNotRegisteredException;
+import server.auction.AuctionClientIsOwnerException;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -37,6 +41,10 @@ public class AuctionManager {
     // DAO để persist/load dữ liệu từ file JSON (data/auctions.json).
 
     private final AuctionDAO dao = new AuctionDAO();
+
+    public AuctionDAO getDao() {
+        return dao;
+    }
 
     // Danh sách các Observer đã đăng ký nhận thông báo.
     private final List<BidObserver> observers = new java.util.concurrent.CopyOnWriteArrayList<>();
@@ -103,8 +111,8 @@ public class AuctionManager {
     }
 
     // Xử lý lượt Bid thủ công từ người dùng, kích hoạt phản ứng dây chuyền.
-    public boolean datGia(BidTransaction transaction, List<AutoBid> autoBids)
-            throws IOException {
+    public boolean datGia(BidTransaction transaction, AuctionClient client)
+            throws IOException, AuctionLowBidException, AuctionNotRegisteredException, AuctionClientIsOwnerException {
 
         Auction auction = timTheoId(transaction.getAuctionId());
         if (auction == null) {
@@ -112,38 +120,13 @@ public class AuctionManager {
         }
 
         synchronized (auction) {
-            auction.updateStatus(); // Chỉ cập nhật trạng thái của riêng phiên này
-            
-            // GỌI VALIDATE TỪ TRANSACTION
-            boolean isValid = transaction.validate(auction);
+            // GỌI LOGIC TRỰC TIẾP TRONG AUCTION (Đã gộp DatGia + AntiSniping)
+            auction.addBid(transaction, client);
 
-            // Lưu vết giao dịch vào lịch sử phiên đấu giá (dù thành công hay thất bại)
-            auction.addBidToHistory(transaction);
-
-            if (!isValid) {
-                System.out.println("[AuctionManager] Giao dịch không hợp lệ: " + transaction);
-                return false;
-            }
-
-            // THỰC HIỆN ĐẶT GIÁ (Sử dụng logic đóng gói trong Auction)
-            auction.setCurrentHighestBid(transaction.getBidAmount());
-            auction.setHighestBidderId(transaction.getBidderId());
-
-            System.out.printf("[AuctionManager] %s đặt giá $%.2f cho phiên [%s]. Kết quả: %s%n",
-                    transaction.getBidderId(), transaction.getBidAmount(), transaction.getAuctionId(),
-                    transaction.getStatus());
-
+            // Notify Observers (nếu có)
             notifyObservers(auction, transaction.getBidderId(), transaction.getBidAmount());
 
-            // Kích hoạt phản ứng dây chuyền Auto-Bid (nếu có đăng ký)
-            if (autoBids != null && !autoBids.isEmpty()) {
-                AutoBid.handleManualBid(transaction.getBidAmount(), transaction.getBidderId(), auction, autoBids);
-            }
-
-            // Anti-Sniping: luôn chạy sau mọi bid (dù có hay không có auto-bid)
-            applyAntiSniping(auction);
-
-            // Persist trạng thái mới (bao gồm cả endTime nếu bị gia hạn)
+            // Persist trạng thái mới
             dao.capNhat(auction);
             return true;
         }

@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch; // Bắt chạy chính xác tại 1 thời điểm
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.net.Socket;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -49,7 +50,11 @@ class ConcurrentBidTest {
                     // GỌI HÀM CỐT LÕI QUA AUCTION MANAGER ĐỂ TEST LOCAL LOCK
                     BidTransaction tx = new BidTransaction(managedAuction.getId(), "ManualBidder" + index,
                             110.0 + index);
-                    AuctionManager.getInstance().datGia(tx, autoBids);
+                    // GIA LẬP CLIENT ĐỂ THỎA MÃN ĐIỀU KIỆN TRONG AUCTION.ADDBID
+                    AuctionClient dummyClient = new AuctionClient(new Socket()); // Dummy socket
+                    managedAuction.addClient(dummyClient); // Đăng ký để không bị Exception
+
+                    AuctionManager.getInstance().datGia(tx, dummyClient);
 
                 } catch (Exception e) {
                     Thread.currentThread().interrupt();

@@ -9,6 +9,11 @@ import java.io.IOException;
 import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
+import server.models.network.AuctionClient;
+import java.net.Socket;
+import server.auction.AuctionLowBidException;
+import server.auction.AuctionNotRegisteredException;
+import server.auction.AuctionClientIsOwnerException;
 
 class AuctionManagerTest {
 
@@ -43,7 +48,11 @@ class AuctionManagerTest {
         
         BidTransaction bid = new BidTransaction(auction.getId(), "bidder1", 60.0);
         
-        boolean result = manager.datGia(bid, null);
+        // Tạo dummy client
+        AuctionClient dummyClient = new AuctionClient(new Socket());
+        auction.addClient(dummyClient);
+
+        boolean result = manager.datGia(bid, dummyClient);
         
         assertTrue(result, "Giao dịch hợp lệ phải thành công");
         assertEquals(60.0, auction.getCurrentHighestBid());
@@ -57,7 +66,11 @@ class AuctionManagerTest {
         
         BidTransaction bid = new BidTransaction(auction.getId(), "bidder1", 40.0); // Giá thấp hơn giá hiện tại
         
-        boolean result = manager.datGia(bid, null);
+        // Tạo dummy client
+        AuctionClient dummyClient = new AuctionClient(new Socket());
+        auction.addClient(dummyClient);
+
+        boolean result = manager.datGia(bid, dummyClient);
         
         assertFalse(result, "Giao dịch giá thấp hơn không được chấp nhận");
         assertEquals(50.0, auction.getCurrentHighestBid(), "Giá phiên đấu giá không được thay đổi");
@@ -74,7 +87,11 @@ class AuctionManagerTest {
         
         BidTransaction bid = new BidTransaction(auction.getId(), "bidder_sniper", 120.0);
         
-        manager.datGia(bid, null);
+        // Tạo dummy client
+        AuctionClient dummyClient = new AuctionClient(new Socket());
+        auction.addClient(dummyClient);
+
+        manager.datGia(bid, dummyClient);
         
         // Anti-sniping threshold là 30s. Nếu đặt trong 10s cuối, endTime sẽ tăng lên 30s từ thời điểm hiện tại.
         assertTrue(auction.getEndTime().isAfter(endTime), "Thời gian kết thúc phải được gia hạn");
