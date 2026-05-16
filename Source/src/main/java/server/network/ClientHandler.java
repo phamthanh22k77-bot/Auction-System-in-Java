@@ -244,23 +244,6 @@ public class ClientHandler extends Thread {
 
     private void handleLogin(PacketMessage packetMessage) throws IOException {
         String[] credentials = (String[]) packetMessage.getPayload();
-<<<<<<< Updated upstream
-        String username = credentials[0];
-        String password = credentials[1];
-
-        try {
-            java.util.List<server.models.user.User> users = new server.dao.UserDAO().loadAll();
-            server.models.user.User matchedUser = users.stream()
-                    .filter(u -> u.getUsername().equalsIgnoreCase(username) && u.getPassword().equals(password))
-                    .findFirst()
-                    .orElse(null);
-
-            if (matchedUser != null) {
-                sendPacket(new PacketMessage(AUTH_SUCCESS, matchedUser));
-            } else {
-                sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Sai ten dang nhap hoac mat khau.")));
-            }
-=======
         String username = credentials != null && credentials.length > 0 ? credentials[0] : "";
         String password = credentials != null && credentials.length > 1 ? credentials[1] : "";
 
@@ -287,12 +270,13 @@ public class ClientHandler extends Thread {
         } catch (server.models.network.LoginException e) {
             LOGGER.warning("[ClientHandler] Lỗi login: " + e.getMessage());
             sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
->>>>>>> Stashed changes
+
         } catch (Exception e) {
             LOGGER.log(Level.SEVERE, "[ClientHandler] Lỗi hệ thống trong handleLogin", e);
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Loi he thong: " + e.getMessage())));
+            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Lỗi hệ thống: " + e.getMessage())));
         }
     }
+
 
     private void handleSignup(PacketMessage packetMessage) throws IOException {
         server.models.user.User newUser = (server.models.user.User) packetMessage.getPayload();
