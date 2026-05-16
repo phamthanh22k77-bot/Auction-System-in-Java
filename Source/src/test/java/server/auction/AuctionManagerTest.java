@@ -27,7 +27,7 @@ class AuctionManagerTest {
     }
 
     @Test
-    void testTaoPhien() throws IOException {
+    void testTaoPhien() throws Exception {
         int initialSize = manager.soLuongPhien();
         
         Auction auction = manager.taoPhien("item123", "sellerA", LocalDateTime.now(), LocalDateTime.now().plusHours(1), 100.0, 10.0);
@@ -42,7 +42,7 @@ class AuctionManagerTest {
     }
 
     @Test
-    void testDatGia_HopLe() throws IOException {
+    void testDatGia_HopLe() throws Exception {
         Auction auction = manager.taoPhien("item_test", "sellerX", LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), 50.0, 5.0);
         auction.setStatus(Auction.AuctionStatus.RUNNING);
         
@@ -60,7 +60,7 @@ class AuctionManagerTest {
     }
 
     @Test
-    void testDatGia_KhongHopLe() throws IOException {
+    void testDatGia_KhongHopLe() throws Exception {
         Auction auction = manager.taoPhien("item_test", "sellerX", LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), 50.0, 5.0);
         auction.setStatus(Auction.AuctionStatus.RUNNING);
         
@@ -70,15 +70,16 @@ class AuctionManagerTest {
         AuctionClient dummyClient = new AuctionClient(new Socket());
         auction.addClient(dummyClient);
 
-        boolean result = manager.datGia(bid, dummyClient);
-        
-        assertFalse(result, "Giao dịch giá thấp hơn không được chấp nhận");
+        // Giá thấp (40.0 < 50.0) phải ném AuctionLowBidException
+        assertThrows(AuctionLowBidException.class, () -> {
+            manager.datGia(bid, dummyClient);
+        });
         assertEquals(50.0, auction.getCurrentHighestBid(), "Giá phiên đấu giá không được thay đổi");
         assertNull(auction.getHighestBidderId());
     }
 
     @Test
-    void testApplyAntiSniping_GiaHanThoiGian() throws IOException {
+    void testApplyAntiSniping_GiaHanThoiGian() throws Exception {
         LocalDateTime startTime = LocalDateTime.now().minusHours(1);
         LocalDateTime endTime = LocalDateTime.now().plusSeconds(10); // Chỉ còn 10 giây
         
@@ -98,7 +99,7 @@ class AuctionManagerTest {
     }
 
     @Test
-    void testUpdateAllAuctionStatuses_ChuyenTrangThaiThoiGianThuc() throws IOException {
+    void testUpdateAllAuctionStatuses_ChuyenTrangThaiThoiGianThuc() throws Exception {
         Auction futureAuction = manager.taoPhien("item_future", "seller1", LocalDateTime.now().plusHours(1), LocalDateTime.now().plusHours(2), 10.0, 1.0);
         Auction runningAuction = manager.taoPhien("item_running", "seller2", LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), 10.0, 1.0);
         Auction pastAuction = manager.taoPhien("item_past", "seller3", LocalDateTime.now().minusHours(2), LocalDateTime.now().minusHours(1), 10.0, 1.0);
@@ -111,7 +112,7 @@ class AuctionManagerTest {
     }
 
     @Test
-    void testKetThucPhien() throws IOException {
+    void testKetThucPhien() throws Exception {
         Auction auction = manager.taoPhien("item_test", "seller1", LocalDateTime.now().minusHours(2), LocalDateTime.now().plusHours(1), 100.0, 10.0);
         
         boolean res = manager.ketThucPhien(auction.getId(), false);

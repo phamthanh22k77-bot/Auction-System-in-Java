@@ -3,6 +3,7 @@ package server.models.auction;
 import org.junit.jupiter.api.Test;
 import server.auction.AuctionManager;
 import server.auction.AutoBid;
+import server.models.network.AuctionClient;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
