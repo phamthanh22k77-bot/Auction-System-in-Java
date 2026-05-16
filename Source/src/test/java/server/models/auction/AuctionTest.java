@@ -74,7 +74,7 @@ public class AuctionTest {
         auction.setStatus(AuctionStatus.RUNNING);
         auction.addClient(auctionClient);
 
-        BidTransaction lowBid = new BidTransaction(auction.getId(), "USER_001", 1050.0); // Thieu (1000 + 100 = 1100)
+        BidTransaction lowBid = new BidTransaction(auction.getId(), "USER_001", 950.0); // Thấp hơn startingPrice (1000)
         
         assertThrows(server.auction.AuctionLowBidException.class, () -> {
             auction.addBid(lowBid, auctionClient);

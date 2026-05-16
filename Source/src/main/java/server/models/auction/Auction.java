@@ -234,8 +234,12 @@ public class Auction extends Entity {
     public void addClient(AuctionClient client)
             throws AuctionAlreadyRegisteredException, AuctionClientIsOwnerException {
 
+        String clientIp = (client.getSocket() != null && client.getSocket().getInetAddress() != null)
+                ? client.getSocket().getInetAddress().getHostAddress()
+                : "127.0.0.1"; // Giá trị mặc định cho Unit Test
+
         // Kiểm tra xem client có phải là chủ sở hữu của auction hay không
-        if (!sellerId.equals(client.getSocket().getInetAddress().getHostAddress())) {
+        if (!sellerId.equals(clientIp)) {
 
             // Kiểm tra xem client đã đăng ký trong auction chưa
             if (!clientList.contains(client)) {
@@ -402,7 +406,11 @@ public class Auction extends Entity {
         }
 
         // 2. Kiểm tra chủ sở hữu
-        if (client.getSocket().getInetAddress().getHostAddress().equals(sellerId)) {
+        String clientIp = (client.getSocket() != null && client.getSocket().getInetAddress() != null)
+                ? client.getSocket().getInetAddress().getHostAddress()
+                : "127.0.0.1";
+
+        if (clientIp.equals(sellerId)) {
             throw new AuctionClientIsOwnerException("Chủ sở hữu không thể tham gia đặt giá phiên của chính mình.");
         }
 
