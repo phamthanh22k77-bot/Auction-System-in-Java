@@ -26,10 +26,17 @@ public enum MessageType {
     SEND_MY_AUCTIONS("Send the Clients Auctions"),
     HIGHEST_BID_OWNER_LOST("The Bidder with the Highest Bid in an Auction was Lost in Communication"),
     CONFIRM_AUCTION_REGISTRATION("Client is Registered to Auction"),
+
+    // ── Auth (đã có từ bản mới) ───────────────────────────────────────
     LOGIN_REQUEST("Login Request"),
     SIGNUP_REQUEST("Sign Up Request"),
-    AUTH_SUCCESS("Authentication Success");
-    private String type;
+    AUTH_SUCCESS("Authentication Success"),
+
+    // ── Thêm mới: server gửi khi đăng nhập / đăng ký thất bại ────────
+    /** payload = String thông báo lỗi */
+    AUTH_FAILED("Authentication Failed");
+
+    private final String type;
 
     MessageType(String type) {
         this.type = type;
@@ -37,8 +44,6 @@ public enum MessageType {
 
     @Override
     public String toString() {
-        return "PacketMessage{" +
-                "type='" + type + '\'' +
-                '}';
+        return "PacketMessage{type='" + type + "'}";
     }
 }

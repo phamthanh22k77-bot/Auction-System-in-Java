@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Hyperlink?>
@@ -7,44 +8,89 @@
 <?import javafx.scene.control.PasswordField?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
+<?import javafx.scene.shape.Circle?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="rootPane" prefHeight="550.0" prefWidth="750.0" style="-fx-background-color: #f0fff0;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.SignUpController">
-   <children>
-      <VBox alignment="CENTER" layoutX="200.0" layoutY="50.0" prefWidth="350.0" spacing="15.0" style="-fx-background-color: #fdf5e6; -fx-padding: 40; -fx-background-radius: 15; -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 10, 0, 0, 5);" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="200.0" AnchorPane.rightAnchor="200.0" AnchorPane.topAnchor="50.0">
-         <children>
-            <Text fill="ROSYBROWN" strokeType="OUTSIDE" strokeWidth="0.0" text="TẠO TÀI KHOẢN">
-               <font>
-                  <Font name="System Bold" size="24.0" />
-               </font>
-            </Text>
-            
-            <TextField fx:id="tUsername" prefHeight="35.0" promptText="Tên đăng nhập" style="-fx-background-radius: 5;" />
-            
-            <TextField fx:id="tEmail" prefHeight="35.0" promptText="Email" style="-fx-background-radius: 5;" />
-            
-            <PasswordField fx:id="tPass" prefHeight="35.0" promptText="Mật khẩu" style="-fx-background-radius: 5;" />
-            
-            <PasswordField fx:id="tConfirm" prefHeight="35.0" promptText="Xác nhận mật khẩu" style="-fx-background-radius: 5;" />
-            
-            <ComboBox fx:id="cmbRole" prefHeight="35.0" prefWidth="Infinity" promptText="Chọn vai trò" style="-fx-background-radius: 5;" />
-            
-            <Label fx:id="lblError" textFill="#d32f2f" wrapText="true">
-               <font>
-                  <Font name="System Italic" size="12.0" />
-               </font>
-            </Label>
-            
-            <Button onAction="#handleSignUp" prefHeight="40.0" prefWidth="Infinity" style="-fx-background-color: #cd5c5c; -fx-background-radius: 5; -fx-cursor: hand;" text="ĐĂNG KÝ NGAY" textFill="WHITE">
-               <font>
-                  <Font name="System Bold" size="14.0" />
-               </font>
-            </Button>
-            
-            <Hyperlink onAction="#navigateToLogin" text="Đã có tài khoản? Đăng nhập" textFill="#2c49ae" />
-         </children>
+<AnchorPane fx:id="rootPane" prefHeight="570.0" prefWidth="500.0" style="-fx-background-color: #fdf8f2;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.SignUpController">
+
+  <children>
+
+    <!-- StackPane: căn giữa card tự động khi phóng to / thu nhỏ -->
+    <StackPane AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
+
+      <!-- Card trắng -->
+      <VBox alignment="TOP_LEFT" maxWidth="370.0" prefWidth="370.0" style="-fx-background-color: #ffffff;                    -fx-background-radius: 18;                    -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.11),22,0,0,4);">
+        <padding><Insets bottom="32" left="34" right="34" top="28" /></padding>
+        <children>
+
+          <!-- Logo -->
+          <HBox alignment="CENTER_LEFT" spacing="10">
+            <padding><Insets bottom="16" /></padding>
+            <children>
+              <AnchorPane prefHeight="46.0" prefWidth="46.0">
+                <children>
+                  <Circle centerX="23" centerY="23" fill="#e8622a" radius="20.0" />
+                  <Text fill="white" layoutX="13.0" layoutY="30.0" text="⚙">
+                    <font><Font size="19.0" /></font>
+                  </Text>
+                </children>
+              </AnchorPane>
+              <VBox>
+                <children>
+                  <Label style="-fx-font-size:16;-fx-font-weight:bold;-fx-text-fill:#1a1a2e;" text="AUCTION" />
+                  <Label style="-fx-font-size:16;-fx-font-weight:bold;-fx-text-fill:#e8622a;" text="PRO" />
+                </children>
+              </VBox>
+            </children>
+          </HBox>
+
+          <!-- Tiêu đề -->
+          <Label style="-fx-font-size:22;-fx-font-weight:bold;-fx-text-fill:#1a1a2e;" text="TẠO TÀI KHOẢN">
+            <VBox.margin><Insets bottom="4" /></VBox.margin>
+          </Label>
+          <Label style="-fx-font-size:13;-fx-text-fill:#888888;" text="Tham gia để bắt đầu đấu giá">
+            <VBox.margin><Insets bottom="18" /></VBox.margin>
+          </Label>
+
+          <!-- Tên đăng nhập -->
+          <TextField fx:id="tUsername" prefHeight="40.0" promptText="Tên đăng nhập" style="-fx-background-color:#fff;                             -fx-border-color:#e0d6cc;-fx-border-width:1.5;                             -fx-border-radius:10;-fx-background-radius:10;                             -fx-font-size:14;-fx-prompt-text-fill:#c0b8b0;">
+            <VBox.margin><Insets bottom="11" /></VBox.margin>
+          </TextField>
+
+          <!-- Mật khẩu -->
+          <PasswordField fx:id="tPass" prefHeight="40.0" promptText="Mật khẩu" style="-fx-background-color:#fff;                                 -fx-border-color:#e0d6cc;-fx-border-width:1.5;                                 -fx-border-radius:10;-fx-background-radius:10;                                 -fx-font-size:14;-fx-prompt-text-fill:#c0b8b0;">
+            <VBox.margin><Insets bottom="11" /></VBox.margin>
+          </PasswordField>
+
+          <!-- Xác nhận mật khẩu -->
+          <PasswordField fx:id="tConfirm" prefHeight="40.0" promptText="Xác nhận mật khẩu" style="-fx-background-color:#fff;                                 -fx-border-color:#e0d6cc;-fx-border-width:1.5;                                 -fx-border-radius:10;-fx-background-radius:10;                                 -fx-font-size:14;-fx-prompt-text-fill:#c0b8b0;">
+            <VBox.margin><Insets bottom="11" /></VBox.margin>
+          </PasswordField>
+
+          <!-- Vai trò -->
+          <ComboBox fx:id="cmbRole" maxWidth="Infinity" prefHeight="40.0" promptText="Chọn vai trò" style="-fx-background-color:#fff;                            -fx-border-color:#e0d6cc;-fx-border-width:1.5;                            -fx-border-radius:10;-fx-background-radius:10;                            -fx-font-size:14;">
+            <VBox.margin><Insets bottom="8" /></VBox.margin>
+          </ComboBox>
+
+          <!-- Thông báo lỗi -->
+          <Label fx:id="lblError" maxWidth="Infinity" style="-fx-font-size:12;-fx-font-style:italic;-fx-text-fill:#d32f2f;" text="" wrapText="true">
+            <VBox.margin><Insets bottom="6" /></VBox.margin>
+          </Label>
+
+          <!-- Nút đăng ký -->
+          <Button maxWidth="Infinity" onAction="#handleSignUp" prefHeight="42.0" style="-fx-background-color:#e8622a;                          -fx-background-radius:50;                          -fx-font-size:14;-fx-font-weight:bold;                          -fx-cursor:hand;" text="ĐĂNG KÝ NGAY" textFill="WHITE">
+            <VBox.margin><Insets bottom="12" /></VBox.margin>
+          </Button>
+
+          <!-- Link đến Login -->
+          <Hyperlink alignment="CENTER" onAction="#navigateToLogin" prefHeight="24.0" prefWidth="297.0" text="Đã có tài khoản? Đăng nhập" textFill="#2c49ae" />
+
+        </children>
       </VBox>
-   </children>
+    </StackPane>
+  </children>
 </AnchorPane>

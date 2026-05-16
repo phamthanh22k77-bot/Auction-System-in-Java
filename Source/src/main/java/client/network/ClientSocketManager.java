@@ -1,5 +1,6 @@
 package client.network;
 
+import client.message.MessageType;
 import client.message.PacketMessage;
 
 import java.io.IOException;
@@ -8,12 +9,14 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 public class ClientSocketManager {
+
     private static ClientSocketManager instance;
     private Socket socket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
 
-    private ClientSocketManager() {}
+    private ClientSocketManager() {
+    }
 
     public static synchronized ClientSocketManager getInstance() {
         if (instance == null) {
@@ -22,11 +25,30 @@ public class ClientSocketManager {
         return instance;
     }
 
+    /**
+     * Kết nối đến server.
+     * - ObjectOutputStream phải khởi tạo TRƯỚC ObjectInputStream
+     * (nếu ngược lại cả hai bên sẽ deadlock khi bắt tay header).
+     * - Sau khi kết nối, server gửi ngay WELCOME_MESSAGE —
+     * đọc và bỏ qua ở đây để các controller không phải lo.
+     */
     public void connect(String ip, int port) throws IOException {
-        if (socket == null || socket.isClosed()) {
-            socket = new Socket(ip, port);
-            out = new ObjectOutputStream(socket.getOutputStream());
-            in = new ObjectInputStream(socket.getInputStream());
+        if (socket != null && !socket.isClosed())
+            return; // đã kết nối
+
+        socket = new Socket(ip, port);
+
+        // Thứ tự quan trọng: out trước, in sau
+        out = new ObjectOutputStream(socket.getOutputStream());
+        out.flush(); // gửi OOS header ngay
+        in = new ObjectInputStream(socket.getInputStream());
+
+        // Tiêu thụ WELCOME_MESSAGE server gửi ngay khi accept
+        try {
+            PacketMessage welcome = (PacketMessage) in.readObject();
+            System.out.println("[ClientSocketManager] " + welcome.getType()); // WELCOME_MESSAGE
+        } catch (ClassNotFoundException e) {
+            System.err.println("[ClientSocketManager] Không đọc được WELCOME_MESSAGE: " + e.getMessage());
         }
     }
 
@@ -34,6 +56,7 @@ public class ClientSocketManager {
         if (out != null) {
             out.writeObject(message);
             out.flush();
+            out.reset(); // tránh Java cache object cũ qua các lần gửi liên tiếp
         }
     }
 
@@ -46,11 +69,22 @@ public class ClientSocketManager {
 
     public void disconnect() {
         try {
-            if (in != null) in.close();
-            if (out != null) out.close();
-            if (socket != null && !socket.isClosed()) socket.close();
+            if (in != null)
+                in.close();
+            if (out != null)
+                out.close();
+            if (socket != null && !socket.isClosed())
+                socket.close();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            socket = null;
+            out = null;
+            in = null;
         }
+    }
+
+    public boolean isConnected() {
+        return socket != null && !socket.isClosed() && socket.isConnected();
     }
 }
