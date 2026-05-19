@@ -19,105 +19,100 @@ import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
 import server.dao.UserDAO;
 import server.models.user.User;
+import client.network.ClientSocketManager;
+import client.message.PacketMessage;
+import client.message.MessageType;
+import server.payload.LoginPayload;
+import server.payload.LoginResponsePayload;
+import javafx.application.Platform;
 
+/**
+ * Điều khiển màn hình đăng nhập tài khoản (LoginController).
+ * Giao diện tương ứng: Login.fxml
+ */
 public class LoginController implements Initializable {
 
-    @FXML private TextField     tname;
-    @FXML private PasswordField tpass;
-    @FXML private Button        btnCon;
-    @FXML private Button        btnSignUp;
-    @FXML private Label         lblError;
-    @FXML private ImageView     imgBackground;
-    @FXML private AnchorPane    rootPane;
+    @FXML
+    private TextField tname;
+    @FXML
+    private PasswordField tpass;
+    @FXML
+    private Button btnCon;
+    @FXML
+    private Button btnSignUp;
+    @FXML
+    private Label lblError;
+    @FXML
+    private ImageView imgBackground;
+    @FXML
+    private AnchorPane rootPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Bind anh nen theo kich thuoc cua so
+        // Tự động kéo dãn kích thước ảnh nền theo kích thước thực tế của cửa sổ hiển thị
         imgBackground.fitWidthProperty().bind(rootPane.widthProperty());
         imgBackground.fitHeightProperty().bind(rootPane.heightProperty());
 
-        // Cho phep bam Enter tren o mat khau de dang nhap
+        // Cho phép người dùng nhấn phím Enter trên ô mật khẩu để đăng nhập nhanh chóng
         tpass.setOnAction(e -> handleLogin());
 
-        // Xoa thong bao loi khi nguoi dung bat dau go lai
+        // Xóa sạch thông báo lỗi cũ ngay khi người dùng bắt đầu gõ nhập liệu lại
         tname.textProperty().addListener((o, old, nw) -> clearError());
         tpass.textProperty().addListener((o, old, nw) -> clearError());
     }
 
     // ═════════════════════════════════════════════════════════
-    // DANG NHAP
+    // XỬ LÝ ĐĂNG NHẬP (LOGIN ACTION)
     // ═════════════════════════════════════════════════════════
-
     @FXML
     private void handleLogin() {
         String username = tname.getText().trim();
         String password = tpass.getText();
 
-        // Validate trong
-        if (username.isEmpty()) {
-            showError("Vui long nhap ten dang nhap.");
-            tname.requestFocus();
-            return;
-        }
-        if (password.isEmpty()) {
-            showError("Vui long nhap mat khau.");
-            tpass.requestFocus();
+        if (username.isEmpty() || password.isEmpty()) {
+            showError("Vui lòng nhập đầy đủ thông tin tài khoản và mật khẩu.");
             return;
         }
 
-        // Xac thuc & tao User object
-        // TODO: thay bang goi server thuc te:
-        //   User user = networkClient.login(username, password);
-        //   if (user == null) { showError("Sai tai khoan hoac mat khau."); return; }
-        User user = authenticate(username, password);
-
-        if (user == null) {
-            showError("Sai ten dang nhap hoac mat khau.");
-            tpass.clear();
-            tpass.requestFocus();
-            return;
+        // Tự động kết nối tới Server thông qua Socket nếu phát hiện kết nối chưa sẵn sàng
+        ClientSocketManager socketManager = ClientSocketManager.getInstance();
+        if (!socketManager.isConnected()) {
+            if (!socketManager.connect("localhost", 9090)) {
+                showError("Không thể kết nối tới Server. Vui lòng bật Server hoặc kiểm tra kết nối mạng!");
+                return;
+            }
         }
 
-        // Luu vao SessionManager de cac Controller sau dung chung
-        SessionManager.getInstance().setCurrentUser(user);
+        // Gửi yêu cầu đăng nhập lên Server
+        socketManager.sendPacket(new PacketMessage(MessageType.LOGIN, new LoginPayload(username, password)));
 
-        // Dieu huong theo vai tro
-        navigateByRole(user.getRole());
+        // Đăng ký bộ lắng nghe phản hồi gói tin kết quả đăng nhập từ Server
+        socketManager.addMessageListener(new java.util.function.Consumer<PacketMessage>() {
+            @Override
+            public void accept(PacketMessage msg) {
+                if (msg.getType() == MessageType.LOGIN_SUCCESS) {
+                    socketManager.removeMessageListener(this);
+                    LoginResponsePayload res = (LoginResponsePayload) msg.getPayload();
+                    Platform.runLater(() -> {
+                        SessionManager.getInstance().setCurrentUser(res.getUser());
+                        navigateByRole(res.getUser().getRole());
+                    });
+                } else if (msg.getType() == MessageType.LOGIN_FAILURE) {
+                    socketManager.removeMessageListener(this);
+                    LoginResponsePayload res = (LoginResponsePayload) msg.getPayload();
+                    Platform.runLater(() -> showError(res.getMessage()));
+                }
+            }
+        });
     }
 
     // ═════════════════════════════════════════════════════════
-    // XAC THUC — doc tu users.json qua UserDAO
+    // ĐIỀU HƯỚNG MÀN HÌNH THEO VAI TRÒ (ROUTING & NAVIGATION)
     // ═════════════════════════════════════════════════════════
-
-    /**
-     * Kiem tra username + password voi du lieu trong users.json.
-     * Tra ve User neu hop le, null neu sai.
-     *
-     * TODO: khi co server, xoa ham nay va goi network.login() thay the.
-     */
-    private User authenticate(String username, String password) {
-        try {
-            List<User> users = new UserDAO().loadAll();
-            return users.stream()
-                    .filter(u -> u.getUsername().equalsIgnoreCase(username)
-                              && u.getPassword().equals(password))
-                    .findFirst()
-                    .orElse(null);
-        } catch (IOException e) {
-            showError("Khong the doc du lieu nguoi dung.");
-            return null;
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════
-    // DIEU HUONG
-    // ═════════════════════════════════════════════════════════
-
     @FXML
     private void handleSignUp() {
         try {
-            FXMLLoader loader = new FXMLLoader(
-                getClass().getResource("/client/views/SignUp.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/views/SignUp.fxml"));
             Parent root = loader.load();
 
             Stage stage = (Stage) btnSignUp.getScene().getWindow();
@@ -126,21 +121,21 @@ public class LoginController implements Initializable {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Khong the mo man hinh dang ky.");
+            showError("Không thể mở màn hình đăng ký tài khoản.");
         }
     }
 
     private void navigateByRole(String role) {
-        // Role trong JSON la chữ HOA: BIDDER, SELLER, ADMIN
+        // Vai trò (Role) được lưu trữ trong tệp JSON dưới dạng chữ HOA: BIDDER, SELLER, ADMIN
         String fxmlPath = switch (role.toUpperCase()) {
             case "BIDDER" -> "/client/views/BidderDashboard.fxml";
             case "SELLER" -> "/client/views/SellerDashboard.fxml";
-            case "ADMIN"  -> "/client/views/AdminDashboard.fxml";
-            default       -> null;
+            case "ADMIN" -> "/client/views/AdminDashboard.fxml";
+            default -> null;
         };
 
         if (fxmlPath == null) {
-            showError("Vai tro khong xac dinh.");
+            showError("Vai trò của tài khoản không xác định trên hệ thống.");
             return;
         }
 
@@ -150,10 +145,20 @@ public class LoginController implements Initializable {
 
             Stage stage = (Stage) btnCon.getScene().getWindow();
 
+            // Tự động phân tách kích thước cửa sổ chuẩn tối ưu riêng cho từng giao diện vai trò
             switch (role.toUpperCase()) {
-                case "BIDDER" -> { stage.setWidth(1200); stage.setHeight(750); }
-                case "SELLER" -> { stage.setWidth(1100); stage.setHeight(700); }
-                case "ADMIN"  -> { stage.setWidth(1200); stage.setHeight(750); }
+                case "BIDDER" -> {
+                    stage.setWidth(1200);
+                    stage.setHeight(750);
+                }
+                case "SELLER" -> {
+                    stage.setWidth(1100);
+                    stage.setHeight(700);
+                }
+                case "ADMIN" -> {
+                    stage.setWidth(1200);
+                    stage.setHeight(750);
+                }
             }
 
             stage.setScene(new Scene(root));
@@ -161,14 +166,13 @@ public class LoginController implements Initializable {
 
         } catch (IOException e) {
             e.printStackTrace();
-            showError("Khong the tai man hinh. Kiem tra duong dan FXML.");
+            showError("Không thể tải giao diện màn hình. Vui lòng kiểm tra lại đường dẫn FXML.");
         }
     }
 
     // ═════════════════════════════════════════════════════════
-    // HELPER
+    // PHƯƠNG THỨC TRỢ GIÚP (HELPERS)
     // ═════════════════════════════════════════════════════════
-
     private void showError(String msg) {
         if (lblError != null) {
             lblError.setText(msg);
