@@ -16,42 +16,84 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * ItemDAO - Lưu và tải danh sách Item từ file JSON.
- * File lưu tại: data/items.json
- */
+//DAO xử lý lưu trữ dữ liệu cho các vật phẩm (Item).
 public class ItemDAO {
 
-    // Đường dẫn tới file JSON sẽ lưu dữ liệu
-    private static final String FILE_PATH = "data/items.json";
+    public static String FILE_PATH = "data/items.json";
     private static final DateTimeFormatter formatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
     private static final Gson gson = new GsonBuilder()
             // Adapter xử lý thời gian (LocalDateTime)
-            .registerTypeAdapter(LocalDateTime.class,
+            .registerTypeHierarchyAdapter(LocalDateTime.class,
                     (JsonSerializer<LocalDateTime>) (src, typeOfSrc,
                             context) -> new JsonPrimitive(src.format(formatter)))
-            .registerTypeAdapter(LocalDateTime.class,
+            .registerTypeHierarchyAdapter(LocalDateTime.class,
                     (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> LocalDateTime
                             .parse(json.getAsString(), formatter))
+
             // Adapter xử lý đa hình (Item) dựa trên trường "category"
-            .registerTypeAdapter(Item.class, (JsonDeserializer<Item>) (json, typeOfT, context) -> {
+            .registerTypeHierarchyAdapter(Item.class, (JsonDeserializer<Item>) (json, typeOfT, context) -> {
                 JsonObject jsonObject = json.getAsJsonObject();
                 JsonElement categoryElement = jsonObject.get("category");
                 if (categoryElement == null) {
                     throw new JsonParseException("Lỗi thiếu trường 'category' trong Item JSON");
                 }
                 String category = categoryElement.getAsString();
+                
+                String id = jsonObject.has("id") ? jsonObject.get("id").getAsString() : java.util.UUID.randomUUID().toString();
+                String name = jsonObject.has("name") ? jsonObject.get("name").getAsString() : "";
+                String description = jsonObject.has("description") ? jsonObject.get("description").getAsString() : "";
+                double startingPrice = jsonObject.has("startingPrice") ? jsonObject.get("startingPrice").getAsDouble() : 0.0;
+                double currentPrice = jsonObject.has("currentPrice") ? jsonObject.get("currentPrice").getAsDouble() : startingPrice;
+
                 return switch (category) {
-                    case "ART" -> context.deserialize(jsonObject, Art.class);
-                    case "ELECTRONICS" -> context.deserialize(jsonObject, Electronics.class);
-                    case "VEHICLE" -> context.deserialize(jsonObject, Vehicle.class);
+                    case "ART" -> {
+                        String artist = jsonObject.has("artist") ? jsonObject.get("artist").getAsString() : "";
+                        String medium = jsonObject.has("medium") ? jsonObject.get("medium").getAsString() : "";
+                        int year = jsonObject.has("year") ? jsonObject.get("year").getAsInt() : 0;
+                        yield new Art(id, name, description, startingPrice, currentPrice, artist, medium, year);
+                    }
+                    case "ELECTRONICS" -> {
+                        String brand = jsonObject.has("brand") ? jsonObject.get("brand").getAsString() : "";
+                        String model = jsonObject.has("model") ? jsonObject.get("model").getAsString() : "";
+                        int warranty = jsonObject.has("warranty") ? jsonObject.get("warranty").getAsInt() : 0;
+                        yield new Electronics(id, name, description, startingPrice, currentPrice, brand, model, warranty);
+                    }
+                    case "VEHICLE" -> {
+                        String engineType = jsonObject.has("engineType") ? jsonObject.get("engineType").getAsString() : "";
+                        int modelYear = jsonObject.has("modelYear") ? jsonObject.get("modelYear").getAsInt() : 0;
+                        double mileage = jsonObject.has("mileage") ? jsonObject.get("mileage").getAsDouble() : 0.0;
+                        String licensePlate = jsonObject.has("licensePlate") ? jsonObject.get("licensePlate").getAsString() : "";
+                        yield new Vehicle(id, name, description, startingPrice, currentPrice, engineType, modelYear, mileage, licensePlate);
+                    }
                     default -> throw new JsonParseException("Category không hợp lệ: " + category);
                 };
             })
-            .registerTypeAdapter(Item.class, (JsonSerializer<Item>) (src, typeOfSrc, context) -> {
-                JsonObject jsonObject = context.serialize(src, src.getClass()).getAsJsonObject();
+            .registerTypeHierarchyAdapter(Item.class, (JsonSerializer<Item>) (src, typeOfSrc, context) -> {
+                JsonObject jsonObject = new JsonObject();
+                
+                if (src instanceof Electronics e) {
+                    jsonObject.addProperty("brand", e.getBrand());
+                    jsonObject.addProperty("model", e.getModel());
+                    jsonObject.addProperty("warranty", e.getWarranty());
+                } else if (src instanceof Art a) {
+                    jsonObject.addProperty("artist", a.getArtist());
+                    jsonObject.addProperty("medium", a.getMedium());
+                    jsonObject.addProperty("year", a.getYear());
+                } else if (src instanceof Vehicle v) {
+                    jsonObject.addProperty("engineType", v.getEngineType());
+                    jsonObject.addProperty("modelYear", v.getModelYear());
+                    jsonObject.addProperty("mileage", v.getMileage());
+                    jsonObject.addProperty("licensePlate", v.getLicensePlate());
+                }
+                
+                jsonObject.addProperty("name", src.getName());
+                jsonObject.addProperty("description", src.getDescription());
+                jsonObject.addProperty("startingPrice", src.getStartingPrice());
+                jsonObject.addProperty("currentPrice", src.getCurrentPrice());
+                jsonObject.addProperty("id", src.getId());
                 jsonObject.addProperty("category", src.getCategory().name());
+                
                 return jsonObject;
             })
             .setPrettyPrinting()
