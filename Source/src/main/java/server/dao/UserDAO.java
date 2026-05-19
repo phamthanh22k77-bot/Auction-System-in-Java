@@ -14,30 +14,35 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-//DAO xử lý lưu trữ dữ liệu cho người dùng (User).
+/**
+ * DAO xử lý lưu trữ dữ liệu cho User.
+ */
 public class UserDAO {
 
-    public static String FILE_PATH = "data/users.json";
+    private static final String FILE_PATH = "data/users.json";
 
-    private static final Gson baseGson = new GsonBuilder().setPrettyPrinting().create();
-
+    /**
+     * Tùy chỉnh Gson để hỗ trợ Đa hình (Polymorphism) cho Abstract class User.
+     * - Serialize: Tự động trích xuất getRole() để nhúng vào JSON.
+     * - Deserialize: Đọc trường "role" để quyết định map về Subclass cụ thể.
+     */
     private static final Gson gson = new GsonBuilder()
-            .registerTypeHierarchyAdapter(User.class, (JsonDeserializer<User>) (json, typeOfT, context) -> {
+            .registerTypeAdapter(User.class, (JsonDeserializer<User>) (json, typeOfT, context) -> {
                 JsonObject jsonObject = json.getAsJsonObject();
                 JsonElement roleElement = jsonObject.get("role");
                 if (roleElement == null) {
                     throw new JsonParseException("Lỗi thiếu trường 'role' trong User JSON");
                 }
                 String role = roleElement.getAsString();
-                return switch (role.toUpperCase()) {
-                    case "ADMIN" -> baseGson.fromJson(jsonObject, Admin.class);
-                    case "BIDDER" -> baseGson.fromJson(jsonObject, Bidder.class);
-                    case "SELLER" -> baseGson.fromJson(jsonObject, Seller.class);
+                return switch (role) {
+                    case "ADMIN" -> context.deserialize(jsonObject, Admin.class);
+                    case "BIDDER" -> context.deserialize(jsonObject, Bidder.class);
+                    case "SELLER" -> context.deserialize(jsonObject, Seller.class);
                     default -> throw new JsonParseException("Role không hợp lệ: " + role);
                 };
             })
-            .registerTypeHierarchyAdapter(User.class, (JsonSerializer<User>) (src, typeOfSrc, context) -> {
-                JsonObject jsonObject = baseGson.toJsonTree(src).getAsJsonObject();
+            .registerTypeAdapter(User.class, (JsonSerializer<User>) (src, typeOfSrc, context) -> {
+                JsonObject jsonObject = context.serialize(src, src.getClass()).getAsJsonObject();
                 jsonObject.addProperty("role", src.getRole());
                 return jsonObject;
             })
@@ -61,8 +66,7 @@ public class UserDAO {
             return new ArrayList<>();
         }
 
-        Type listType = new TypeToken<List<User>>() {
-        }.getType();
+        Type listType = new TypeToken<List<User>>(){}.getType();
         List<User> users = gson.fromJson(content, listType);
 
         System.out.println("Đã tải " + users.size() + " user từ " + FILE_PATH);

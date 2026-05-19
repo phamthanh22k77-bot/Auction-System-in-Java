@@ -13,18 +13,20 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-//DAO xử lý lưu trữ dữ liệu cho các phiên đấu giá (Auction).
-
+/**
+ * DAO xử lý lưu trữ dữ liệu cho các phiên đấu giá (Auction).
+ */
 public class AuctionDAO {
 
-    public static String FILE_PATH = "data/auctions.json";
+    private static final String FILE_PATH = "data/auctions.json";
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
 
+    // Cấu hình Gson CỰC KỲ GỌN NHẸ cho Auction (Không có đa hình rườm rà như Item)
     private static final Gson gson = new GsonBuilder()
-            .registerTypeHierarchyAdapter(LocalDateTime.class,
+            .registerTypeAdapter(LocalDateTime.class,
                     (JsonSerializer<LocalDateTime>) (src, typeOfSrc,
-                            context) -> new JsonPrimitive(src.format(FORMATTER)))
-            .registerTypeHierarchyAdapter(LocalDateTime.class,
+                                                     context) -> new JsonPrimitive(src.format(FORMATTER)))
+            .registerTypeAdapter(LocalDateTime.class,
                     (JsonDeserializer<LocalDateTime>) (json, typeOfT, context) -> LocalDateTime
                             .parse(json.getAsString(), FORMATTER))
             .setPrettyPrinting()
