@@ -2,28 +2,16 @@ package server.auction;
 
 import server.models.auction.Auction;
 
-/**
- * Hỗ trợ các Component độc lập (Logger, Network Broadcaster) kết nối vào hệ thống
- * mà không gây ra vi phạm Tight-Coupling tới AuctionManager.
- */
+// Lắng nghe sự kiện đấu giá (Observer Pattern).
+
 public interface BidObserver {
 
-    /**
-     * Được kích hoạt tự động mỗi khi có giá thầu mới hợp lệ.
-     *
-     * @param auction   Phòng đấu giá mục tiêu
-     * @param bidderId  Định danh người đấu giá
-     * @param bidAmount Mức giá trúng
-     */
+    // Kích hoạt tự động khi có lượt đặt giá (bid) mới hợp lệ.
     void onBidPlaced(Auction auction, String bidderId, double bidAmount);
 
-    /**
-     * [Optional] Lắng nghe sự kiện chuyển đổi trạng thái của phiên đấu.
-     * (VD: OPEN -> RUNNING, RUNNING -> FINISHED)
-     *
-     * @param auction Phiên đấu bị tác động
-     */
+    // Lắng nghe sự kiện thay đổi trạng thái phiên đấu giá.
+
     default void onAuctionStatusChanged(Auction auction) {
-        // Implement default để không gò ép Override ở cấp Subclass
+        // Mặc định không bắt buộc lớp con phải override
     }
 }

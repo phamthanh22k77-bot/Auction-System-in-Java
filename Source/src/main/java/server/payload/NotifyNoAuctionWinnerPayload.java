@@ -4,38 +4,18 @@ import java.io.Serializable;
 import java.util.Objects;
 
 // Payload dùng để thông báo auction kết thúc nhưng KHÔNG có người thắng
-// 👉 Server gửi payload này khi:
-//    - Không có ai bid
-//    - Hoặc không ai đạt điều kiện thắng
-// 👉 Client nhận để hiển thị thông báo cho user
 public class NotifyNoAuctionWinnerPayload implements Serializable {
 
-    // ===== Attributes =====
-
-    // ID của auction đã kết thúc
-    // 👉 Dùng để xác định auction nào không có winner
     private String auctionID;
-
-    // Tên item của auction
-    // 👉 Hiển thị cho user biết item nào không bán được
     private String itemName;
+    private double itemStartingPrice;
 
-    // Giá khởi điểm ban đầu
-    // 👉 Có thể hiển thị lại để user tham khảo
-    private float itemStartingPrice;
-
-    // ===== Constructor =====
-
-    // Khởi tạo payload với thông tin auction không có winner
-    public NotifyNoAuctionWinnerPayload(String auctionID, String itemName, float itemStartingPrice) {
+    public NotifyNoAuctionWinnerPayload(String auctionID, String itemName, double itemStartingPrice) {
         this.auctionID = auctionID;
         this.itemName = itemName;
         this.itemStartingPrice = itemStartingPrice;
     }
 
-    // ===== Getter & Setter =====
-
-    // Lấy auctionID
     public String getAuctionID() {
         return auctionID;
     }
@@ -44,7 +24,6 @@ public class NotifyNoAuctionWinnerPayload implements Serializable {
         this.auctionID = auctionID;
     }
 
-    // Lấy tên item
     public String getItemName() {
         return itemName;
     }
@@ -53,45 +32,36 @@ public class NotifyNoAuctionWinnerPayload implements Serializable {
         this.itemName = itemName;
     }
 
-    // Lấy giá khởi điểm
-    public float getItemStartingPrice() {
+    public double getItemStartingPrice() {
         return itemStartingPrice;
     }
 
-    public void setItemStartingPrice(float itemStartingPrice) {
+    public void setItemStartingPrice(double itemStartingPrice) {
         this.itemStartingPrice = itemStartingPrice;
     }
 
-    // ===== Methods =====
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true; // cùng object
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         NotifyNoAuctionWinnerPayload that = (NotifyNoAuctionWinnerPayload) o;
 
-        // So sánh toàn bộ thông tin auction
-        return Objects.equals(auctionID, that.auctionID) &&
-                Float.compare(that.itemStartingPrice, itemStartingPrice) == 0 &&
-                Objects.equals(itemName, that.itemName);
+        return Objects.equals(auctionID, that.auctionID)
+                && Double.compare(that.itemStartingPrice, itemStartingPrice) == 0
+                && Objects.equals(itemName, that.itemName);
     }
 
     @Override
     public int hashCode() {
-        // Hash dựa trên các field
         return Objects.hash(auctionID, itemName, itemStartingPrice);
     }
 
     @Override
     public String toString() {
-        // 👉 Nếu log payload:
-        // System.out.println(payload);
-        // → sẽ in thông tin auction không có người thắng
-        return "NoAuctionWinnerPayload{" +
-                "auctionID=" + auctionID +
-                ", itemName='" + itemName + '\'' +
-                ", itemStartingPrice=" + itemStartingPrice +
-                '}';
+        return "NotifyNoAuctionWinnerPayload{" + "auctionID='" + auctionID + '\'' + ", itemName='" + itemName + '\''
+                + ", itemStartingPrice=" + itemStartingPrice + '}';
     }
 }

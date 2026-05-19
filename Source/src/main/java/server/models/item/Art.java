@@ -1,21 +1,19 @@
 package server.models.item;
 
-
 public class Art extends Item {
     private String artist;
     private String medium; // Chất liệu (Sơn dầu, Acrylic, ...)
     private int year; // Năm sáng tác
 
-    public Art(String name, String description, double startingPrice,
-            String artist, String medium, int year) {
+    public Art(String name, String description, double startingPrice, String artist, String medium, int year) {
         super(name, description, startingPrice);
         this.artist = artist;
         this.medium = medium;
         this.year = year;
     }
 
-    public Art(String id, String name, String description, double startingPrice,
-            double currentPrice, String artist, String medium, int year) {
+    public Art(String id, String name, String description, double startingPrice, double currentPrice, String artist,
+            String medium, int year) {
         super(id, name, description, startingPrice, currentPrice);
         this.artist = artist;
         this.medium = medium;

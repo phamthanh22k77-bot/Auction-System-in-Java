@@ -5,57 +5,23 @@ import java.util.Date;
 import java.util.Objects;
 
 // Payload dùng để gửi TOÀN BỘ thông tin của một auction từ server → client
-// 👉 Đây là payload "full data"
-// 👉 Client dùng để hiển thị chi tiết auction (UI, màn hình detail, realtime update,...)
 public class SendAuctionPayload implements Serializable {
 
-    // ===== Attributes =====
-
-    // ID của auction
-    // 👉 Dùng để định danh duy nhất auction
     private String auctionID;
-
-    // Loại auction (NORMAL, DUTCH,...)
-    // 👉 Client có thể hiển thị hoặc xử lý UI khác nhau
     private String auctionType;
-
-    // Thời điểm tạo auction
     private Date auctionCreationDate;
-
-    // Thời điểm kết thúc auction
     private Date auctionTerminationDate;
-
-    // Thời điểm bid gần nhất được tạo
-    // 👉 Dùng để hiển thị realtime hoặc lịch sử
     private Date bidCreationDate;
-
-    // Giá cao nhất hiện tại
-    private float highestBid;
-
-    // Giá khởi điểm
-    private float itemStartingPrice;
-
-    // Tên item
+    private double highestBid;
+    private double itemStartingPrice;
     private String itemName;
-
-    // Mô tả item
     private String itemDescription;
-
-    // IP của người tạo auction
-    // 👉 Có thể dùng để phân quyền hoặc hiển thị owner
     private String auctionOwnerIP;
-
-    // IP của người đang giữ bid cao nhất
     private String highestBidderIP;
 
-    // ===== Constructor =====
-
-    // Khởi tạo payload với đầy đủ thông tin auction
     public SendAuctionPayload(String auctionID, String auctionType, Date auctionCreationDate,
-                              Date auctionTerminationDate, Date bidCreationDate,
-                              float highestBid, float itemStartingPrice,
-                              String itemName, String itemDescription,
-                              String auctionOwnerIP, String highestBidderIP) {
+            Date auctionTerminationDate, Date bidCreationDate, double highestBid, double itemStartingPrice,
+            String itemName, String itemDescription, String auctionOwnerIP, String highestBidderIP) {
 
         this.auctionID = auctionID;
         this.auctionType = auctionType;
@@ -69,8 +35,6 @@ public class SendAuctionPayload implements Serializable {
         this.auctionOwnerIP = auctionOwnerIP;
         this.highestBidderIP = highestBidderIP;
     }
-
-    // ===== Getter & Setter =====
 
     public String getAuctionID() {
         return auctionID;
@@ -112,19 +76,19 @@ public class SendAuctionPayload implements Serializable {
         this.bidCreationDate = bidCreationDate;
     }
 
-    public float getHighestBid() {
+    public double getHighestBid() {
         return highestBid;
     }
 
-    public void setHighestBid(float highestBid) {
+    public void setHighestBid(double highestBid) {
         this.highestBid = highestBid;
     }
 
-    public float getItemStartingPrice() {
+    public double getItemStartingPrice() {
         return itemStartingPrice;
     }
 
-    public void setItemStartingPrice(float itemStartingPrice) {
+    public void setItemStartingPrice(double itemStartingPrice) {
         this.itemStartingPrice = itemStartingPrice;
     }
 
@@ -160,56 +124,38 @@ public class SendAuctionPayload implements Serializable {
         this.highestBidderIP = highestBidderIP;
     }
 
-    // ===== Methods =====
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true; // cùng object
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         SendAuctionPayload that = (SendAuctionPayload) o;
 
-        // So sánh toàn bộ dữ liệu auction
-        return Objects.equals(auctionID, that.auctionID) &&
-                Float.compare(that.highestBid, highestBid) == 0 &&
-                Float.compare(that.itemStartingPrice, itemStartingPrice) == 0 &&
-                Objects.equals(auctionType, that.auctionType) &&
-                Objects.equals(auctionCreationDate, that.auctionCreationDate) &&
-                Objects.equals(auctionTerminationDate, that.auctionTerminationDate) &&
-                Objects.equals(bidCreationDate, that.bidCreationDate) &&
-                Objects.equals(itemName, that.itemName) &&
-                Objects.equals(itemDescription, that.itemDescription) &&
-                Objects.equals(auctionOwnerIP, that.auctionOwnerIP) &&
-                Objects.equals(highestBidderIP, that.highestBidderIP);
+        return Objects.equals(auctionID, that.auctionID) && Double.compare(that.highestBid, highestBid) == 0
+                && Double.compare(that.itemStartingPrice, itemStartingPrice) == 0
+                && Objects.equals(auctionType, that.auctionType)
+                && Objects.equals(auctionCreationDate, that.auctionCreationDate)
+                && Objects.equals(auctionTerminationDate, that.auctionTerminationDate)
+                && Objects.equals(bidCreationDate, that.bidCreationDate) && Objects.equals(itemName, that.itemName)
+                && Objects.equals(itemDescription, that.itemDescription)
+                && Objects.equals(auctionOwnerIP, that.auctionOwnerIP)
+                && Objects.equals(highestBidderIP, that.highestBidderIP);
     }
 
     @Override
     public int hashCode() {
-        // Hash dựa trên toàn bộ field
-        return Objects.hash(auctionID, auctionType, auctionCreationDate,
-                auctionTerminationDate, bidCreationDate,
-                highestBid, itemStartingPrice,
-                itemName, itemDescription,
-                auctionOwnerIP, highestBidderIP);
+        return Objects.hash(auctionID, auctionType, auctionCreationDate, auctionTerminationDate, bidCreationDate,
+                highestBid, itemStartingPrice, itemName, itemDescription, auctionOwnerIP, highestBidderIP);
     }
 
     @Override
     public String toString() {
-        // 👉 Nếu log payload:
-        // System.out.println(payload);
-        // → sẽ in toàn bộ thông tin auction
-        return "SendAuctionPayload{" +
-                "auctionID=" + auctionID +
-                ", auctionType='" + auctionType + '\'' +
-                ", auctionCreationDate=" + auctionCreationDate +
-                ", auctionTerminationDate=" + auctionTerminationDate +
-                ", bidCreationDate=" + bidCreationDate +
-                ", highestBid=" + highestBid +
-                ", itemStartingPrice=" + itemStartingPrice +
-                ", itemName='" + itemName + '\'' +
-                ", itemDescription='" + itemDescription + '\'' +
-                ", auctionOwnerIP='" + auctionOwnerIP + '\'' +
-                ", highestBidderIP='" + highestBidderIP + '\'' +
-                '}';
+        return "SendAuctionPayload{" + "auctionID=" + auctionID + ", auctionType='" + auctionType + '\''
+                + ", auctionCreationDate=" + auctionCreationDate + ", auctionTerminationDate=" + auctionTerminationDate
+                + ", bidCreationDate=" + bidCreationDate + ", highestBid=" + highestBid + ", itemStartingPrice="
+                + itemStartingPrice + ", itemName='" + itemName + '\'' + ", itemDescription='" + itemDescription + '\''
+                + ", auctionOwnerIP='" + auctionOwnerIP + '\'' + ", highestBidderIP='" + highestBidderIP + '\'' + '}';
     }
 }

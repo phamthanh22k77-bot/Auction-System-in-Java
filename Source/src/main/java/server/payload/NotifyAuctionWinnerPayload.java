@@ -5,19 +5,16 @@ import java.util.Objects;
 
 public class NotifyAuctionWinnerPayload implements Serializable {
 
-    //Attributes
     private String auctionID;
-    private float highestBid;
+    private double highestBid;
     private String itemName;
 
-    //Constructors
-    public NotifyAuctionWinnerPayload(String auctionID, float highestBid, String itemName) {
+    public NotifyAuctionWinnerPayload(String auctionID, double highestBid, String itemName) {
         this.auctionID = auctionID;
         this.highestBid = highestBid;
         this.itemName = itemName;
     }
 
-    //Setters and Getters
     public String getAuctionID() {
         return auctionID;
     }
@@ -26,11 +23,11 @@ public class NotifyAuctionWinnerPayload implements Serializable {
         this.auctionID = auctionID;
     }
 
-    public float getHighestBid() {
+    public double getHighestBid() {
         return highestBid;
     }
 
-    public void setHighestBid(float highestBid) {
+    public void setHighestBid(double highestBid) {
         this.highestBid = highestBid;
     }
 
@@ -44,12 +41,13 @@ public class NotifyAuctionWinnerPayload implements Serializable {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         NotifyAuctionWinnerPayload that = (NotifyAuctionWinnerPayload) o;
-        return Objects.equals(auctionID, that.auctionID) &&
-                Float.compare(that.highestBid, highestBid) == 0 &&
-                Objects.equals(itemName, that.itemName);
+        return Objects.equals(auctionID, that.auctionID) && Double.compare(that.highestBid, highestBid) == 0
+                && Objects.equals(itemName, that.itemName);
     }
 
     @Override
@@ -59,10 +57,7 @@ public class NotifyAuctionWinnerPayload implements Serializable {
 
     @Override
     public String toString() {
-        return "NotifyAuctionWinnerPayload{" +
-                "auctionID=" + auctionID +
-                ", highestBid=" + highestBid +
-                ", itemName='" + itemName + '\'' +
-                '}';
+        return "NotifyAuctionWinnerPayload{" + "auctionID=" + auctionID + ", highestBid=" + highestBid + ", itemName='"
+                + itemName + '\'' + '}';
     }
 }

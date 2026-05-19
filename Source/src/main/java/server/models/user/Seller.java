@@ -1,7 +1,6 @@
 package server.models.user;
 
 public class Seller extends User {
-    private static final long serialVersionUID = 4L;
     private String companyName;
     private double rating;
 

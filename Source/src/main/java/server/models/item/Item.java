@@ -11,7 +11,6 @@ public abstract class Item extends Entity {
     // Thêm biến static để lưu item hiện tại
     private static Item currentItem;
 
-
     // 1. Constructor cho việc tạo mới vật phẩm (ID tự sinh)
     public Item(String name, String description, double startingPrice) {
         super();

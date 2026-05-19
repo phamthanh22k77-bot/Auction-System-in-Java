@@ -1,505 +1,481 @@
 [
   {
-    "itemId": "I001",
-    "sellerId": "U003",
-    "startTime": "2026-05-11T00:00:00",
-    "endTime": "2026-05-15T00:00:00",
-    "startingPrice": 3.2E7,
-    "currentHighestBid": 3.4E7,
-    "highestBidderId": "U002",
+    "itemId": "ITEM001",
+    "sellerId": "gv_son_uet",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 3.5E7,
+    "currentHighestBid": 3.5E7,
     "status": "RUNNING",
-    "bidHistory": [
-      {
-        "auctionId": "A001",
-        "bidderId": "U001",
-        "bidAmount": 3.3E7,
-        "timestamp": "2026-05-11T01:00:00",
-        "status": "ACCEPTED"
-      },
-      {
-        "auctionId": "A001",
-        "bidderId": "U002",
-        "bidAmount": 3.4E7,
-        "timestamp": "2026-05-11T02:00:00",
-        "status": "ACCEPTED"
-      }
-    ],
+    "antiSnipeCount": 0,
+    "bidHistory": [],
     "minimumBidIncrement": 500000.0,
-    "id": "A001"
+    "id": "AUC001"
   },
   {
-    "itemId": "I002",
-    "sellerId": "U003",
-    "startTime": "2026-05-12T00:00:00",
-    "endTime": "2026-05-20T00:00:00",
-    "startingPrice": 1.5E7,
-    "currentHighestBid": 1.5E7,
-    "status": "OPEN",
+    "itemId": "ITEM002",
+    "sellerId": "gv_dung_uet",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 4.8E7,
+    "currentHighestBid": 4.8E7,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 500000.0,
+    "id": "AUC002"
+  },
+  {
+    "itemId": "ITEM003",
+    "sellerId": "uet_clb_robocon",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 1500000.0,
+    "currentHighestBid": 1500000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 50000.0,
+    "id": "AUC003"
+  },
+  {
+    "itemId": "ITEM004",
+    "sellerId": "uet_clb_robocon",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 300000.0,
+    "currentHighestBid": 300000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 10000.0,
+    "id": "AUC004"
+  },
+  {
+    "itemId": "ITEM005",
+    "sellerId": "uet_vp_khoa_dtvt",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 8000000.0,
+    "currentHighestBid": 8000000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 100000.0,
+    "id": "AUC005"
+  },
+  {
+    "itemId": "ITEM006",
+    "sellerId": "gv_son_uet",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 1.8E7,
+    "currentHighestBid": 1.8E7,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
     "bidHistory": [],
     "minimumBidIncrement": 200000.0,
-    "id": "A002"
+    "id": "AUC010"
   },
   {
-    "itemId": "I003",
-    "sellerId": "U003",
-    "startTime": "2026-05-01T00:00:00",
-    "endTime": "2026-05-10T00:00:00",
-    "startingPrice": 1.2E9,
-    "currentHighestBid": 1.25E9,
-    "highestBidderId": "U001",
-    "status": "FINISHED",
-    "bidHistory": [
-      {
-        "auctionId": "A003",
-        "bidderId": "U001",
-        "bidAmount": 1.25E9,
-        "timestamp": "2026-05-09T00:00:00",
-        "status": "ACCEPTED"
-      }
-    ],
+    "itemId": "ITEM007",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 800000.0,
+    "currentHighestBid": 800000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 50000.0,
+    "id": "AUC006"
+  },
+  {
+    "itemId": "ITEM008",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 500000.0,
+    "currentHighestBid": 500000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 20000.0,
+    "id": "AUC007"
+  },
+  {
+    "itemId": "ITEM009",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 3000000.0,
+    "currentHighestBid": 3000000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 100000.0,
+    "id": "AUC011"
+  },
+  {
+    "itemId": "ITEM010",
+    "sellerId": "gv_dung_uet",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 4500000.0,
+    "currentHighestBid": 4500000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 100000.0,
+    "id": "AUC017"
+  },
+  {
+    "itemId": "ITEM011",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 1.6E7,
+    "currentHighestBid": 1.6E7,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 200000.0,
+    "id": "AUC012"
+  },
+  {
+    "itemId": "ITEM012",
+    "sellerId": "uet_vp_khoa_dtvt",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 9000000.0,
+    "currentHighestBid": 9000000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 100000.0,
+    "id": "AUC015"
+  },
+  {
+    "itemId": "ITEM013",
+    "sellerId": "uet_clb_robocon",
+    "startTime": "2026-05-18T11:15:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 4000000.0,
+    "currentHighestBid": 4000000.0,
+    "status": "OPEN",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 100000.0,
+    "id": "AUC016"
+  },
+  {
+    "itemId": "ITEM014",
+    "sellerId": "uet_vp_khoa_dtvt",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 2.8E7,
+    "currentHighestBid": 2.8E7,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 500000.0,
+    "id": "AUC013"
+  },
+  {
+    "itemId": "ITEM015",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 2500000.0,
+    "currentHighestBid": 2500000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 50000.0,
+    "id": "AUC018"
+  },
+  {
+    "itemId": "e6dfc7f2-cef4-4ed7-89a7-de9d5e0c8a2d",
+    "sellerId": "gv_son_uet",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 100000.0,
+    "currentHighestBid": 100000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 5000.0,
+    "id": "AUC021"
+  },
+  {
+    "itemId": "2f5b3eb2-6ca9-4571-854c-ea901e65060e",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 1.0E9,
+    "currentHighestBid": 1.0E9,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
     "minimumBidIncrement": 1.0E7,
-    "id": "A003"
+    "id": "AUC022"
   },
   {
-    "itemId": "item_test",
-    "sellerId": "seller1",
-    "startTime": "2026-05-16T11:26:10.6744927",
-    "endTime": "2026-05-16T14:26:10.6744927",
-    "startingPrice": 100.0,
-    "currentHighestBid": 100.0,
+    "itemId": "ITEM016",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 1200000.0,
+    "currentHighestBid": 1200000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 50000.0,
+    "id": "AUC023"
+  },
+  {
+    "itemId": "ITEM017",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 500000.0,
+    "currentHighestBid": 500000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 20000.0,
+    "id": "AUC024"
+  },
+  {
+    "itemId": "16fd5bdd-f63d-41ba-9202-639f4bfa7f0a",
+    "sellerId": "gv_son_uet",
+    "startTime": "2026-05-18T08:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 1000.0,
+    "currentHighestBid": 1000.0,
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [],
+    "minimumBidIncrement": 100.0,
+    "id": "AUC025"
+  },
+  {
+    "itemId": "2fd3dc61-bb51-4155-82a3-af5de9e0dc19",
+    "sellerId": "uet_doan_thanhnien",
+    "startTime": "2026-05-18T10:00:00",
+    "endTime": "2026-05-18T23:59:00",
+    "startingPrice": 1.0,
+    "currentHighestBid": 2.6900001E7,
+    "highestBidderId": "thanh_uet",
+    "status": "RUNNING",
+    "antiSnipeCount": 0,
+    "bidHistory": [
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "thanh_uet",
+        "bidAmount": 100001.0,
+        "timestamp": "2026-05-18T22:04:22.5053469",
+        "status": "ACCEPTED",
+        "id": "cfab5024-8cfe-4202-a357-2dfcd6ae07fc"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "bitdo1",
+        "bidAmount": 200001.0,
+        "timestamp": "2026-05-18T22:07:46.7163374",
+        "status": "ACCEPTED",
+        "id": "6670f5b8-77ba-4636-be69-d280319c280e"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "thanh_uet",
+        "bidAmount": 400001.0,
+        "timestamp": "2026-05-18T22:08:19.7621216",
+        "status": "ACCEPTED",
+        "id": "1778efe7-908d-4ee9-92ec-6d2d02ca6772"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "bitdo1",
+        "bidAmount": 1400001.0,
+        "timestamp": "2026-05-18T22:08:28.0116299",
+        "status": "ACCEPTED",
+        "id": "b2e006fd-aeb5-4423-a2de-9fc9a9109c26"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "thanh_uet",
+        "bidAmount": 6400001.0,
+        "timestamp": "2026-05-18T22:08:33.2261147",
+        "status": "ACCEPTED",
+        "id": "33f670f5-660e-40a0-a261-3962ba76e7e1"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "bitdo1",
+        "bidAmount": 1.1400001E7,
+        "timestamp": "2026-05-18T22:09:02.9155969",
+        "status": "ACCEPTED",
+        "id": "06c85292-c041-43dc-9b4f-88a8d20ba1cc"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "bitdo1",
+        "bidAmount": 1.6400001E7,
+        "timestamp": "2026-05-18T22:15:30.8570005",
+        "status": "ACCEPTED",
+        "id": "053c2af7-c1c9-45d4-a31c-a47f38256fc1"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "bitdo1",
+        "bidAmount": 1.6900001E7,
+        "timestamp": "2026-05-18T22:17:02.8607272",
+        "status": "ACCEPTED",
+        "id": "c5e703cd-c57f-4692-818d-ba321138a234"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "bitdo1",
+        "bidAmount": 2.1900001E7,
+        "timestamp": "2026-05-18T22:20:22.0661793",
+        "status": "ACCEPTED",
+        "id": "fa39e9de-6285-48b1-aa92-0c521e31c913"
+      },
+      {
+        "auctionId": "57ce54df-7838-4de6-b136-b87f339e55e1",
+        "bidderId": "thanh_uet",
+        "bidAmount": 2.6900001E7,
+        "timestamp": "2026-05-18T22:20:28.1077252",
+        "status": "ACCEPTED",
+        "id": "24d7dd85-6e80-45f3-a90d-4cbcbd7c9f7b"
+      }
+    ],
+    "minimumBidIncrement": 0.0,
+    "id": "57ce54df-7838-4de6-b136-b87f339e55e1"
+  },
+  {
+    "itemId": "6b110fa5-9a6f-4ce4-8623-1c7b7a0e9ef2",
+    "sellerId": "seolo1",
+    "startTime": "2026-05-18T22:10:00",
+    "endTime": "2026-05-18T22:20:00",
+    "startingPrice": 5000000.0,
+    "currentHighestBid": 5000000.0,
     "status": "FINISHED",
+    "antiSnipeCount": 0,
     "bidHistory": [],
-    "minimumBidIncrement": 10.0,
-    "id": "3d5bb1be-3ca8-4fc2-90d9-c9c3855acd2e"
+    "minimumBidIncrement": 0.0,
+    "id": "fdec01bc-18d9-4e8e-ad07-9271636c4a27"
   },
   {
-    "itemId": "item_test",
-    "sellerId": "sellerX",
-    "startTime": "2026-05-16T12:26:10.8352672",
-    "endTime": "2026-05-16T14:26:10.8352672",
-    "startingPrice": 50.0,
-    "currentHighestBid": 60.0,
-    "highestBidderId": "bidder1",
-    "status": "RUNNING",
+    "itemId": "3559c6bd-10a5-47ba-9134-067aa203d077",
+    "sellerId": "seolo1",
+    "startTime": "2026-05-19T07:38:00",
+    "endTime": "2026-05-19T07:45:00",
+    "startingPrice": 5000000.0,
+    "currentHighestBid": 3.5E7,
+    "highestBidderId": "thanh_uet",
+    "status": "FINISHED",
+    "antiSnipeCount": 0,
     "bidHistory": [
       {
-        "auctionId": "4da12583-527c-465e-ac0c-84fe5a565803",
-        "bidderId": "bidder1",
-        "bidAmount": 60.0,
-        "timestamp": "2026-05-16T13:26:10.8485251",
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "thanh_uet",
+        "bidAmount": 6000000.0,
+        "timestamp": "2026-05-19T07:38:38.7481342",
         "status": "ACCEPTED",
-        "id": "aee01557-e151-4140-9302-4bc943a9fc44"
+        "id": "d1aa1045-3d3c-4b13-9742-1466df2e024b"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "bitdo1",
+        "bidAmount": 1.1E7,
+        "timestamp": "2026-05-19T07:38:46.2800705",
+        "status": "ACCEPTED",
+        "id": "03a2e37c-3622-4b57-9646-c36e18669c66"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "thanh_uet",
+        "bidAmount": 1.15E7,
+        "timestamp": "2026-05-19T07:38:52.6304946",
+        "status": "ACCEPTED",
+        "id": "8e5cac0e-cdbd-4220-b8a0-16254012f299"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "bitdo1",
+        "bidAmount": 1.25E7,
+        "timestamp": "2026-05-19T07:39:03.2026979",
+        "status": "ACCEPTED",
+        "id": "cafc8781-2118-42cd-a3a4-8c20709178ec"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "thanh_uet",
+        "bidAmount": 1.75E7,
+        "timestamp": "2026-05-19T07:39:07.4345613",
+        "status": "ACCEPTED",
+        "id": "e43747f6-bf1a-4c38-a2c4-5f4f3fc74eab"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "bitdo1",
+        "bidAmount": 1.8E7,
+        "timestamp": "2026-05-19T07:39:14.2753728",
+        "status": "ACCEPTED",
+        "id": "8525f7ce-07ab-4bd1-b5f3-2767b9ab393c"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "bitdo1",
+        "bidAmount": 1.9E7,
+        "timestamp": "2026-05-19T07:39:18.9765786",
+        "status": "ACCEPTED",
+        "id": "129a4086-1cac-494c-a647-2e4635e9abd4"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "thanh_uet",
+        "bidAmount": 1.91E7,
+        "timestamp": "2026-05-19T07:39:24.4458085",
+        "status": "ACCEPTED",
+        "id": "90bd0694-7cc7-4919-80c8-4901c898abcb"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "thanh_uet",
+        "bidAmount": 2.16E7,
+        "timestamp": "2026-05-19T07:40:18.6923783",
+        "status": "ACCEPTED",
+        "id": "4c5c1569-d998-469e-88f3-b4bba77a65e1"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "bitdo1",
+        "bidAmount": 2.66E7,
+        "timestamp": "2026-05-19T07:40:25.4965176",
+        "status": "ACCEPTED",
+        "id": "a1a6c62a-b251-492a-88a2-f64b3e124ff3"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "bitdo1",
+        "bidAmount": 3.0E7,
+        "timestamp": "2026-05-19T07:40:37.6088092",
+        "status": "ACCEPTED",
+        "id": "126c25cd-b7d5-4622-85d2-84384f398a0a"
+      },
+      {
+        "auctionId": "3b64b6c1-91fe-4bed-a205-8c740624c566",
+        "bidderId": "thanh_uet",
+        "bidAmount": 3.5E7,
+        "timestamp": "2026-05-19T07:40:47.1043991",
+        "status": "ACCEPTED",
+        "id": "0a228a7d-c50e-47e4-8050-1db75f992e5f"
       }
     ],
-    "minimumBidIncrement": 5.0,
-    "id": "4da12583-527c-465e-ac0c-84fe5a565803"
-  },
-  {
-    "itemId": "item_future",
-    "sellerId": "seller1",
-    "startTime": "2026-05-16T14:26:10.8943294",
-    "endTime": "2026-05-16T15:26:10.8943294",
-    "startingPrice": 10.0,
-    "currentHighestBid": 10.0,
-    "status": "OPEN",
-    "bidHistory": [],
-    "minimumBidIncrement": 1.0,
-    "id": "45266277-e5b7-4c75-b441-6622099b6468"
-  },
-  {
-    "itemId": "item_running",
-    "sellerId": "seller2",
-    "startTime": "2026-05-16T12:26:10.9074525",
-    "endTime": "2026-05-16T14:26:10.9074525",
-    "startingPrice": 10.0,
-    "currentHighestBid": 10.0,
-    "status": "OPEN",
-    "bidHistory": [],
-    "minimumBidIncrement": 1.0,
-    "id": "29164ec0-6cbd-4f43-96fc-280a3efd285f"
-  },
-  {
-    "itemId": "item_past",
-    "sellerId": "seller3",
-    "startTime": "2026-05-16T11:26:10.9184665",
-    "endTime": "2026-05-16T12:26:10.9184665",
-    "startingPrice": 10.0,
-    "currentHighestBid": 10.0,
-    "status": "OPEN",
-    "bidHistory": [],
-    "minimumBidIncrement": 1.0,
-    "id": "65a776dc-ddb6-44d2-a443-48aed3eab644"
-  },
-  {
-    "itemId": "item123",
-    "sellerId": "sellerA",
-    "startTime": "2026-05-16T13:26:10.9488197",
-    "endTime": "2026-05-16T14:26:10.9488197",
-    "startingPrice": 100.0,
-    "currentHighestBid": 100.0,
-    "status": "OPEN",
-    "bidHistory": [],
-    "minimumBidIncrement": 10.0,
-    "id": "62cfe7de-c202-444f-91ab-468ddaefa4f3"
-  },
-  {
-    "itemId": "item_test",
-    "sellerId": "sellerX",
-    "startTime": "2026-05-16T12:26:10.9804794",
-    "endTime": "2026-05-16T14:26:10.9804794",
-    "startingPrice": 50.0,
-    "currentHighestBid": 50.0,
-    "status": "OPEN",
-    "bidHistory": [],
-    "minimumBidIncrement": 5.0,
-    "id": "840eceec-6b03-4565-bf49-fca0abfd2ea9"
-  },
-  {
-    "itemId": "item_snipe",
-    "sellerId": "sellerY",
-    "startTime": "2026-05-16T12:26:11.0425597",
-    "endTime": "2026-05-16T13:26:41.0584708",
-    "startingPrice": 100.0,
-    "currentHighestBid": 120.0,
-    "highestBidderId": "bidder_sniper",
-    "status": "RUNNING",
-    "bidHistory": [
-      {
-        "auctionId": "4d1d286c-f5f2-4b91-a8d3-bddaa9f84b77",
-        "bidderId": "bidder_sniper",
-        "bidAmount": 120.0,
-        "timestamp": "2026-05-16T13:26:11.0584708",
-        "status": "ACCEPTED",
-        "id": "f4e2c124-5a47-4a8e-a02e-fe1392d54bde"
-      }
-    ],
-    "minimumBidIncrement": 10.0,
-    "id": "4d1d286c-f5f2-4b91-a8d3-bddaa9f84b77"
-  },
-  {
-    "itemId": "item",
-    "sellerId": "seller",
-    "startTime": "2026-05-16T12:26:11.4436946",
-    "endTime": "2026-05-16T14:26:11.4436946",
-    "startingPrice": 100.0,
-    "currentHighestBid": 207.0,
-    "highestBidderId": "ManualBidder97",
-    "status": "RUNNING",
-    "bidHistory": [
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder97",
-        "bidAmount": 207.0,
-        "timestamp": "2026-05-16T13:26:11.5915771",
-        "status": "ACCEPTED",
-        "id": "3ff998ae-ddd0-41bc-8c42-5ff3d0fff327"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder87",
-        "bidAmount": 197.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "ACCEPTED",
-        "id": "b891b80f-294d-468d-aa67-c9afc6c0472f"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder76",
-        "bidAmount": 186.0,
-        "timestamp": "2026-05-16T13:26:11.5880447",
-        "status": "ACCEPTED",
-        "id": "aab55a3b-85cb-4cc5-ae47-28e0735aa074"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder27",
-        "bidAmount": 137.0,
-        "timestamp": "2026-05-16T13:26:11.5534799",
-        "status": "ACCEPTED",
-        "id": "204f3f95-b729-4848-b574-b485a443fb47"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder13",
-        "bidAmount": 123.0,
-        "timestamp": "2026-05-16T13:26:11.5514846",
-        "status": "ACCEPTED",
-        "id": "3ae40d98-f698-45a6-9000-70faa77119e8"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder1",
-        "bidAmount": 111.0,
-        "timestamp": "2026-05-16T13:26:11.5514846",
-        "status": "ACCEPTED",
-        "id": "4130018e-f86d-4085-aeef-73101e3209ca"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder10",
-        "bidAmount": 120.0,
-        "timestamp": "2026-05-16T13:26:11.5514846",
-        "status": "REJECTED",
-        "id": "ef531bba-5eba-4b86-bddc-8a0f075b6de2"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder2",
-        "bidAmount": 112.0,
-        "timestamp": "2026-05-16T13:26:11.5524824",
-        "status": "REJECTED",
-        "id": "c4863881-b47d-4ef1-8aac-3beba6d0833e"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder17",
-        "bidAmount": 127.0,
-        "timestamp": "2026-05-16T13:26:11.5524824",
-        "status": "REJECTED",
-        "id": "8fa8285c-e94a-4496-8b9f-cb4c3e24ea8a"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder6",
-        "bidAmount": 116.0,
-        "timestamp": "2026-05-16T13:26:11.5514846",
-        "status": "REJECTED",
-        "id": "e7164db3-a03f-4edc-88eb-97f4e14e7cdc"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder4",
-        "bidAmount": 114.0,
-        "timestamp": "2026-05-16T13:26:11.5514846",
-        "status": "REJECTED",
-        "id": "b9e62fdf-4f96-4226-9652-5ace6dd1b748"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder11",
-        "bidAmount": 121.0,
-        "timestamp": "2026-05-16T13:26:11.5524824",
-        "status": "REJECTED",
-        "id": "e0d57bfd-8520-48d4-ad2b-187e9d7c27e1"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder5",
-        "bidAmount": 115.0,
-        "timestamp": "2026-05-16T13:26:11.5524824",
-        "status": "REJECTED",
-        "id": "c6fb1b8e-9dc7-4fbe-bd87-84e3caee034c"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder12",
-        "bidAmount": 122.0,
-        "timestamp": "2026-05-16T13:26:11.5524824",
-        "status": "REJECTED",
-        "id": "f29a419a-cfdd-4de6-bfca-15c0aa505d52"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder3",
-        "bidAmount": 113.0,
-        "timestamp": "2026-05-16T13:26:11.5524824",
-        "status": "REJECTED",
-        "id": "64bab453-94de-4451-94ab-5d7e7644d813"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder0",
-        "bidAmount": 110.0,
-        "timestamp": "2026-05-16T13:26:11.5524824",
-        "status": "REJECTED",
-        "id": "bc83955f-d54c-4563-8923-afdfd5f3fbb7"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder9",
-        "bidAmount": 119.0,
-        "timestamp": "2026-05-16T13:26:11.5534799",
-        "status": "REJECTED",
-        "id": "33453ea9-8c1e-45c9-bbf5-67b608cf1d8a"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder8",
-        "bidAmount": 118.0,
-        "timestamp": "2026-05-16T13:26:11.5544812",
-        "status": "REJECTED",
-        "id": "79143b4e-8796-41e3-a149-4dec7a873ad1"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder7",
-        "bidAmount": 117.0,
-        "timestamp": "2026-05-16T13:26:11.5534799",
-        "status": "REJECTED",
-        "id": "62b9d47c-f16d-4cb3-8ae9-3dfacf9cb153"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder15",
-        "bidAmount": 125.0,
-        "timestamp": "2026-05-16T13:26:11.5584671",
-        "status": "REJECTED",
-        "id": "b77a6d1c-bf99-4d5c-bcac-f23f5ff9237f"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder19",
-        "bidAmount": 129.0,
-        "timestamp": "2026-05-16T13:26:11.5865224",
-        "status": "REJECTED",
-        "id": "367adbfb-eba8-4b17-b186-326939242a50"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder18",
-        "bidAmount": 128.0,
-        "timestamp": "2026-05-16T13:26:11.5880447",
-        "status": "REJECTED",
-        "id": "998381af-f4fb-4a03-831a-836d5927fbfe"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder52",
-        "bidAmount": 162.0,
-        "timestamp": "2026-05-16T13:26:11.5890687",
-        "status": "REJECTED",
-        "id": "0899ab39-23b2-4022-86ad-6f1c2e0291e2"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder72",
-        "bidAmount": 182.0,
-        "timestamp": "2026-05-16T13:26:11.5890687",
-        "status": "REJECTED",
-        "id": "02d08431-3c2d-4e3c-9783-73ac561b9cfe"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder49",
-        "bidAmount": 159.0,
-        "timestamp": "2026-05-16T13:26:11.5890687",
-        "status": "REJECTED",
-        "id": "53f9df83-a252-4873-a722-6b4d7f3ccc80"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder47",
-        "bidAmount": 157.0,
-        "timestamp": "2026-05-16T13:26:11.5890687",
-        "status": "REJECTED",
-        "id": "0c104ceb-b8d4-4391-9be2-f641a20f0b94"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder45",
-        "bidAmount": 155.0,
-        "timestamp": "2026-05-16T13:26:11.5890687",
-        "status": "REJECTED",
-        "id": "69146966-9a77-44f5-b453-8a39c67d62e9"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder38",
-        "bidAmount": 148.0,
-        "timestamp": "2026-05-16T13:26:11.5890687",
-        "status": "REJECTED",
-        "id": "09dfd6c7-7967-48d0-8782-7726f037c6e5"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder75",
-        "bidAmount": 185.0,
-        "timestamp": "2026-05-16T13:26:11.5890687",
-        "status": "REJECTED",
-        "id": "25938b8f-bd39-4592-be3c-934441e21951"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder14",
-        "bidAmount": 124.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "98cfc5c6-baeb-4cfd-a82c-d29a442a562d"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder80",
-        "bidAmount": 190.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "670f577b-222b-4138-8bb9-f98876d6363f"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder26",
-        "bidAmount": 136.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "4cd864f5-578e-4f62-aa90-99f724f23e41"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder79",
-        "bidAmount": 189.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "05f0cbf8-fcb4-4e59-b932-6852311295e8"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder33",
-        "bidAmount": 143.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "2877b308-1572-47a3-a47c-0ad43762c0fb"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder88",
-        "bidAmount": 198.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "8de0e37a-1fb5-4ef8-b42d-5e5e7b31e307"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder91",
-        "bidAmount": 201.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "429bd2c5-9722-4a2e-a12a-62498d5045f8"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder84",
-        "bidAmount": 194.0,
-        "timestamp": "2026-05-16T13:26:11.5900656",
-        "status": "REJECTED",
-        "id": "c587a626-7c7a-4033-b69f-f9125116f458"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder78",
-        "bidAmount": 188.0,
-        "timestamp": "2026-05-16T13:26:11.5915771",
-        "status": "REJECTED",
-        "id": "5d4e3c62-465d-40cc-9760-790f7ead815c"
-      },
-      {
-        "auctionId": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4",
-        "bidderId": "ManualBidder93",
-        "bidAmount": 203.0,
-        "timestamp": "2026-05-16T13:26:11.5915771",
-        "status": "REJECTED",
-        "id": "dbfd3e6c-a795-41ef-9f11-5a46fcad6903"
-      }
-    ],
-    "minimumBidIncrement": 10.0,
-    "id": "77dd4182-9df9-4a24-9a90-ef833cc9e8e4"
+    "minimumBidIncrement": 0.0,
+    "id": "3b64b6c1-91fe-4bed-a205-8c740624c566"
   }
 ]

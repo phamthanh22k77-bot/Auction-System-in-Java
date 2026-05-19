@@ -7,6 +7,7 @@ import server.models.item.ItemFactory;
 import server.models.network.*;
 import server.auction.*;
 import server.payload.*;
+import server.models.user.Bidder;
 
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -14,27 +15,23 @@ import client.message.*;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.LinkedList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
 
 import static client.message.MessageType.*;
 
 public class ClientHandler extends Thread {
-    private static final Logger LOGGER = Logger.getLogger(ClientHandler.class.getName());
-
-    // các variable cần nhận
     private AuctionClient client;
     private ObjectOutputStream objectOutputStream;
     private ObjectInputStream objectInputStream;
     private boolean isRunning;
+    private server.models.user.User loggedInUser;
 
-    // Constructor
     public ClientHandler(AuctionClient serverClient) {
         this.client = serverClient;
         this.isRunning = true;
     }
 
-    // Setter và getter
     public AuctionClient getClient() {
         return client;
     }
@@ -80,10 +77,10 @@ public class ClientHandler extends Thread {
 
             objectOutputStream = new ObjectOutputStream(client.getSocket().getOutputStream());
 
+            // Gửi thông điệp chào mừng khi kết nối thành công
             sendPacket(new PacketMessage(WELCOME_MESSAGE, null));
 
         } catch (IOException e) {
-
             e.printStackTrace();
             isRunning = false;
         }
@@ -94,60 +91,82 @@ public class ClientHandler extends Thread {
 
                 switch (packetMessage.getType()) {
 
+                    case LOGIN:
+                        handleLogin((LoginPayload) packetMessage.getPayload());
+                        break;
+
+                    case REGISTER:
+                        handleRegister((RegisterPayload) packetMessage.getPayload());
+                        break;
+
                     case REGISTER_IN_AUCTION:
-                        // Server received packet indicating the client wishes to register into an
-                        // auction
                         try {
                             joinAuction(packetMessage);
-                        } catch (AuctionAlreadyRegisteredException e) {
-                            e.printStackTrace();
-                        } catch (ServerNoAuctionException | ServerUnexpectedPayloadException e) {
+
+                            // Gửi xác nhận đăng ký kèm theo trạng thái hiện tại (Lịch sử đặt giá, Mức giá
+                            // cao nhất)
+                            String auctionID = ((RegisterClientPayload) packetMessage.getPayload()).getAuctionID();
+                            Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
+                            if (auction != null) {
+                                auction.updateStatus();
+                                ConfirmAuctionRegistrationPayload confirm = new ConfirmAuctionRegistrationPayload(
+                                        auctionID,
+                                        auction.getCurrentHighestBid(), auction.getHighestBidderId(),
+                                        new java.util.ArrayList<>(auction.getBidHistory()));
+                                sendPacket(new PacketMessage(MessageType.CONFIRM_AUCTION_REGISTRATION, confirm));
+                                System.out.println("[Server] Đã gửi xác nhận tham gia phiên " + auctionID + " tới "
+                                        + client.getUsername());
+                            }
+                        } catch (Exception e) {
+                            System.err.println("[ClientHandler] Lỗi tham gia phiên: " + e.getMessage());
                             sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
                         }
                         break;
 
-                    case LOGIN_REQUEST:
-                        handleLogin(packetMessage);
+                    case CANCEL_AUCTION:
+                        try {
+                            cancelAuction(packetMessage);
+                        } catch (Exception e) {
+                            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
+                        }
                         break;
-
-                    case SIGNUP_REQUEST:
-                        handleSignup(packetMessage);
-                        break;
-
-                    /*
-                     * case CANCEL_AUCTION:
-                     * try {
-                     * cancelAuction(packetMessage);
-                     * } catch (ServerNoAuctionException | ServerNotClientOwnerException |
-                     * AuctionException | ServerUnexpectedPayloadException e) {
-                     * 
-                     * sendPacket(new PacketMessage(ERROR, new
-                     * ErrorMessagePayload(e.getMessage())));
-                     * }
-                     * break; chưa có logic
-                     */
 
                     case REQUEST_ACTIVE_AUCTION_LIST:
-                        // Server received packet indicating the client wishes to receive a list of
-                        // active auctions
+                        // Server nhận được gói tin yêu cầu gửi danh sách các phiên đấu giá đang hoạt
+                        // động
                         sendAllAuctions();
                         break;
 
+                    case REQUEST_MY_AUCTIONS:
+                        // Client yêu cầu danh sách các phiên đấu giá của riêng họ
+                        sendMyAuctions();
+                        break;
+
+                    case BALANCE_UPDATE:
+                        handleBalanceUpdate((server.models.user.Bidder) packetMessage.getPayload());
+                        break;
+
+                    case REQUEST_ALL_USERS:
+                        sendAllUsers();
+                        break;
+
+                    case REQUEST_ALL_BIDS:
+                        sendAllBids();
+                        break;
+
                     case UNREGISTER_FROM_AUCTION:
-                        // Server received a packet indicating the client wishes to unregister from a
-                        // specific auction
+                        // Server nhận được gói tin yêu cầu hủy đăng ký khỏi một phiên đấu giá cụ thể
                         try {
                             leaveAuction(packetMessage);
                         } catch (ServerUnexpectedPayloadException | AuctionHighBidException
-                                | AuctionNotRegisteredException | ServerNoAuctionException
-                                | AuctionClientIsOwnerException e) {
+                                | AuctionNotRegisteredException
+                                | ServerNoAuctionException | AuctionClientIsOwnerException e) {
                             sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
                         }
                         break;
 
                     case DISCONNECT:
-                        // Server received a packet indicating the client wishes to disconnect from the
-                        // server
+                        // Server nhận được gói tin yêu cầu ngắt kết nối khỏi server
                         try {
                             disconnectFromServer();
                         } catch (ServerHasHighBidException | AuctionHighBidException e) {
@@ -156,8 +175,8 @@ public class ClientHandler extends Thread {
                         break;
 
                     case REQUEST_HIGHEST_BID:
-                        // Server received a packet indicating the client requested the highest bid in
-                        // an auction
+                        // Server nhận được gói tin yêu cầu lấy mức giá đặt cao nhất của một phiên đấu
+                        // giá
                         try {
                             requestHighestBid(packetMessage);
                         } catch (ServerNoAuctionException | ServerUnexpectedPayloadException e) {
@@ -166,61 +185,57 @@ public class ClientHandler extends Thread {
                         break;
 
                     case CREATE_AUCTION:
-                        // Server received a packet indicating the client wishes to create a new auction
-                        // Check if the server wishes to accept the creation of new auctions
+                        // Server nhận được gói tin yêu cầu tạo một phiên đấu giá mới
+                        // Kiểm tra xem Server hiện tại có cho phép tạo phiên đấu giá mới hay không
                         if (AuctionServer.getInstance().isAcceptingAuctions()) {
                             try {
                                 createAuction(packetMessage);
-                            } catch (ServerUnexpectedPayloadException e) {
+                            } catch (Exception e) {
                                 sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
                             }
                         } else {
-                            sendPacket(new PacketMessage(ERROR,
-                                    new ErrorMessagePayload("Server is not accepting auctions at this time")));
+                            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(
+                                     "Hệ thống hiện không chấp nhận tạo phiên đấu giá mới vào lúc này.")));
                         }
                         break;
 
                     case MAKE_BID:
-                        // Server received a packet indicating the client wishes to make a bid in an
-                        // auction
+                        // Server nhận được gói tin yêu cầu thực hiện lượt đặt giá (bid) trong phiên đấu
+                        // giá
                         try {
                             makeBid(packetMessage);
-                        } catch (ServerUnexpectedPayloadException | AuctionLowBidException
-                                | AuctionClientIsOwnerException | AuctionNotRegisteredException
-                                | ServerNoAuctionException e) {
+                        } catch (Exception e) {
                             sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
                         }
                         break;
 
-                    /*
-                     * case REQUEST_MY_AUCTIONS:
-                     * //Client requested their auctions list
-                     * sendMyAuctions(packetMessage);
-                     * break; chưa có logic
-                     */
+                    case TOGGLE_USER_LOCK:
+                        handleToggleUserLock((String) packetMessage.getPayload());
+                        break;
+
+                    case REQUEST_BID_HISTORY:
+                        handleRequestBidHistory((String) packetMessage.getPayload());
+                        break;
 
                     default:
                         break;
                 }
 
             } catch (IOException e) {
-                LOGGER.log(Level.SEVERE, "[ClientHandler] Lỗi IO trong vòng lặp chính. Đang đóng kết nối.", e);
                 try {
-                    if (client.getSocket() != null && !client.getSocket().isClosed()) {
-                        client.getSocket().close();
-                    }
+                    client.getSocket().close();
                     isRunning = false;
-                    String clientKey = client.getSocket().getInetAddress().getHostAddress()
-                            + ":" +
-                            client.getSocket().getPort();
+                    String clientKey = client.getSocket().getInetAddress().getHostAddress() + ":"
+                            + client.getSocket().getPort();
 
                     server.getClientHandlers().remove(clientKey);
                     for (String auctionID : client.getRegisteredAuctions()) {
-                        if (server.getAuctions().containsKey(auctionID)) {
+                        Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
+                        if (auction != null) {
                             try {
-                                server.getAuctions().get(auctionID).forcefullyRemoveClient(client);
+                                auction.forcefullyRemoveClient(client);
                             } catch (AuctionNotRegisteredException auctionNotRegisteredException) {
-                                auctionNotRegisteredException.printStackTrace();
+                                // Bỏ qua nếu client chưa đăng ký
                             }
                         }
                     }
@@ -233,74 +248,76 @@ public class ClientHandler extends Thread {
         }
     }
 
-    // vào: phương thức nhận một packet msg, thử gửi một packet
-    // Đầu ra: packet được gửi đúng chỗ
+    private void handleBalanceUpdate(server.models.user.Bidder updatedUser) {
+        if (updatedUser == null)
+            return;
+        try {
+            server.dao.UserDAO userDAO = new server.dao.UserDAO();
+            List<server.models.user.User> users = userDAO.loadAll();
+            for (server.models.user.User u : users) {
+                if (u.getUsername().equals(updatedUser.getUsername())) {
+                    if (u instanceof server.models.user.Bidder) {
+                        Bidder b = (server.models.user.Bidder) u;
+                        b.setBalance(updatedUser.getBalance());
+
+                        // Cập nhật lại đối tượng đang giữ trong Handler để makeBid dùng đúng số dư mới
+                        if (loggedInUser != null && loggedInUser.getUsername().equals(b.getUsername())) {
+                            this.loggedInUser = b;
+                        }
+                    }
+                    break;
+                }
+            }
+            userDAO.saveAll(users);
+            System.out.println("[Server] Đã cập nhật số dư cho người dùng: " + updatedUser.getUsername());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendAllUsers() {
+        try {
+            server.dao.UserDAO userDAO = new server.dao.UserDAO();
+            List<server.models.user.User> users = userDAO.loadAll();
+            sendPacket(new PacketMessage(SEND_ALL_USERS, new java.util.ArrayList<>(users)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendAllBids() {
+        List<BidTransaction> allBids = new ArrayList<>();
+        for (Auction a : AuctionManager.getInstance().getAuctions()) {
+            allBids.addAll(a.getBidHistory());
+        }
+        try {
+            sendPacket(new PacketMessage(SEND_ALL_BIDS, new java.util.ArrayList<>(allBids)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void sendMyAuctions() {
+        try {
+            String username = (loggedInUser != null) ? loggedInUser.getUsername() : "";
+            LinkedList<AuctionListItem> myAuctions = AuctionServer.getInstance().getMyAuctions(username);
+            sendPacket(new PacketMessage(MessageType.SEND_MY_AUCTIONS, new AuctionListPayload(myAuctions)));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Đầu vào: Nhận một đối tượng PacketMessage và thử gửi qua socket
+    // Đầu ra: Gói tin được truyền tải thành công tới client
     public void sendPacket(PacketMessage packetMessage) throws IOException {
         objectOutputStream.writeObject(packetMessage);
-        objectOutputStream.flush();
-        objectOutputStream.reset();
-
     }
 
-    private void handleLogin(PacketMessage packetMessage) throws IOException {
-        String[] credentials = (String[]) packetMessage.getPayload();
-        String username = credentials != null && credentials.length > 0 ? credentials[0] : "";
-        String password = credentials != null && credentials.length > 1 ? credentials[1] : "";
-
-        LOGGER.info("[ClientHandler] Nhận " + LOGIN_REQUEST + " từ client. username='" + username + "'");
-
-        LoginService loginService = new LoginService();
-        try {
-            server.models.user.User matchedUser = loginService.login(username, password);
-            LOGGER.info("[ClientHandler] Xác thực thành công cho '" + username + "'. Gửi AUTH_SUCCESS.");
-            sendPacket(new PacketMessage(AUTH_SUCCESS, matchedUser));
-
-        } catch (server.models.network.LoginEmptyCredentialsException e) {
-            LOGGER.warning("[ClientHandler] " + e.getMessage());
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
-
-        } catch (server.models.network.LoginInvalidCredentialsException e) {
-            LOGGER.warning("[ClientHandler] " + e.getMessage());
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
-
-        } catch (server.models.network.LoginDataAccessException e) {
-            LOGGER.log(Level.SEVERE, "[ClientHandler] Lỗi đọc dữ liệu khi login.", e);
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
-
-        } catch (server.models.network.LoginException e) {
-            LOGGER.warning("[ClientHandler] Lỗi login: " + e.getMessage());
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
-
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "[ClientHandler] Lỗi hệ thống trong handleLogin", e);
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Lỗi hệ thống: " + e.getMessage())));
-        }
-    }
-
-
-    private void handleSignup(PacketMessage packetMessage) throws IOException {
-        server.models.user.User newUser = (server.models.user.User) packetMessage.getPayload();
-        try {
-            new server.dao.UserDAO().them(newUser);
-            sendPacket(new PacketMessage(AUTH_SUCCESS, newUser));
-        } catch (Exception e) {
-            sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload("Khong the luu tai khoan.")));
-        }
-    }
-
-    /*
-     * Đầu vào: nhận được yêu cầu của một client để tham gia phiên đấu giá
-     * Đầu ra: client tham gia phiên đấu giá
-     * ServerUnexpectedPayloadException khi packet nhận được payload sai kiểu
-     * AuctionAlreadyRegisteredException khi client đang cố gắng tham gia phiên đấu
-     * giá đã tham gia
-     * ServerNoAuctionException khi client đang cố gắng tham gia một phiên đấu giá
-     * đã kết thúc
-     * IOException khi phương thức packet không hoạt động trong auction
-     */
-    public void joinAuction(PacketMessage packetMessage)
-            throws AuctionAlreadyRegisteredException, ServerNoAuctionException, ServerUnexpectedPayloadException,
-            IOException {
+    // Thực hiện đăng ký cho Client tham gia vào một phiên đấu giá.
+    // Kiểm tra đầy đủ tính hợp lệ của gói tin và trạng thái phiên trước khi chấp
+    // nhận.
+    public void joinAuction(PacketMessage packetMessage) throws AuctionAlreadyRegisteredException,
+            AuctionClientIsOwnerException, ServerNoAuctionException, ServerUnexpectedPayloadException, IOException {
         // Kiểm tra packet nhận được payload đúng
         if (packetMessage.getPayload() instanceof RegisterClientPayload) {
             // Tạo server instance tạm thời để chứa packet
@@ -309,20 +326,12 @@ public class ClientHandler extends Thread {
             // Thêm object "client" của clienthandler vào auctionID tương ứng quá server
             server.joinAuction(clientRegisterPayload.getAuctionID(), client);
         } else {
-            throw new ServerUnexpectedPayloadException("Packet provided the wrong payload");
+            throw new ServerUnexpectedPayloadException("Gói tin nhận được chứa sai loại dữ liệu (payload)");
         }
     }
 
-    /*
-     * Điều kiện trước: Gói tin yêu cầu xem tất cả các phiên đấu giá đang hoạt động
-     * đã được nhận từ client.
-     * 
-     * Điều kiện sau:
-     * - Client nhận được danh sách tất cả các phiên đấu giá đang hoạt động từ
-     * server.
-     * - Nếu xảy ra lỗi trong quá trình gửi dữ liệu, một thông báo lỗi sẽ được gửi
-     * đến client.
-     */
+    // Gửi danh sách các phiên đấu giá đang hoạt động tới Client, trả về lỗi nếu kết
+    // nối gặp sự cố.
     public void sendAllAuctions() {
         // Tạo một instance tạm thời của server
         AuctionServer server = AuctionServer.getInstance();
@@ -331,21 +340,15 @@ public class ClientHandler extends Thread {
             // Lấy và gửi tất cả các phiên đấu giá đang hoạt động cho client
             LinkedList<AuctionListItem> auctionListItemAuctionListPayload = server.getAllAuctions();
 
-            server.sendPacket(
-                    client,
-                    new PacketMessage(
-                            SEND_ACTIVE_AUCTION_LIST,
-                            new AuctionListPayload(auctionListItemAuctionListPayload)));
+            server.sendPacket(client, new PacketMessage(SEND_ACTIVE_AUCTION_LIST,
+                    new AuctionListPayload(auctionListItemAuctionListPayload)));
 
         } catch (IOException e) {
 
             try {
                 // Gửi thông báo lỗi nếu không thể gửi danh sách phiên đấu giá
-                server.sendPacket(
-                        client,
-                        new PacketMessage(
-                                ERROR,
-                                new ErrorMessagePayload("Không thể gửi danh sách các phiên đấu giá đang hoạt động")));
+                server.sendPacket(client, new PacketMessage(ERROR,
+                        new ErrorMessagePayload("Không thể gửi danh sách các phiên đấu giá đang hoạt động")));
 
             } catch (IOException ioException) {
                 ioException.printStackTrace();
@@ -353,23 +356,9 @@ public class ClientHandler extends Thread {
         }
     }
 
-    /*
-     * Điều kiện trước:
-     * - Client cần được xóa khỏi hệ thống.
-     * 
-     * Điều kiện sau:
-     * - Client được xóa thành công khỏi hệ thống nếu không giữ mức giá đấu cao nhất
-     * trong bất kỳ phiên đấu giá nào.
-     * - Việc lắng nghe gói tin từ client bị dừng.
-     * - Socket của client được đóng.
-     * - Đối tượng ClientHandler hiện tại bị xóa khỏi danh sách quản lý của server.
-     * 
-     * Lưu ý:
-     * - ServerHasHighBidException được ném ra nếu client đang giữ mức giá đấu cao
-     * nhất
-     * trong ít nhất một phiên đấu giá.
-     * - IOException được ném ra nếu xảy ra lỗi khi đóng socket.
-     */
+    // Ngắt kết nối của Client, đóng socket và gỡ bỏ Handler khỏi danh sách quản lý
+    // của Server.
+    // Chặn hành động nếu Client đang dẫn đầu mức giá của phiên đấu giá nào đó.
     public void stopRunning() throws ServerHasHighBidException, IOException {
 
         // Kiểm tra xem client có đang giữ giá đấu cao nhất trong phiên đấu giá nào
@@ -386,9 +375,8 @@ public class ClientHandler extends Thread {
             AuctionServer server = AuctionServer.getInstance();
 
             // Xóa chính ClientHandler hiện tại khỏi danh sách quản lý
-            String clientKey = client.getSocket().getInetAddress().getHostAddress()
-                    + ":" +
-                    client.getSocket().getPort();
+            String clientKey = client.getSocket().getInetAddress().getHostAddress() + ":"
+                    + client.getSocket().getPort();
 
             server.getClientHandlers().remove(clientKey);
 
@@ -399,33 +387,11 @@ public class ClientHandler extends Thread {
         }
     }
 
-    /*
-     * Điều kiện trước:
-     * - Gói tin yêu cầu client hủy đăng ký khỏi một phiên đấu giá đã được nhận.
-     * 
-     * Điều kiện sau:
-     * - Client được xóa thành công khỏi phiên đấu giá tương ứng nếu các điều kiện
-     * hợp lệ.
-     * 
-     * Lưu ý:
-     * - AuctionHighBidException được ném ra nếu client đang giữ mức giá đấu cao
-     * nhất
-     * trong phiên đấu giá.
-     * - ServerUnexpectedPayloadException được ném ra nếu gói tin nhận được chứa sai
-     * loại payload.
-     * - AuctionNotRegisteredException được ném ra nếu client chưa đăng ký trong
-     * phiên đấu giá đó.
-     * - ServerNoAuctionException được ném ra nếu phiên đấu giá mà client muốn rời
-     * khỏi không còn tồn tại.
-     * - AuctionClientIsOwnerException được ném ra nếu client yêu cầu hủy đăng ký
-     * cũng chính là chủ sở hữu của phiên đấu giá.
-     */
+    // Hủy đăng ký của Client khỏi một phiên đấu giá.
+    // Kiểm tra đầy đủ điều kiện hợp lệ trước khi cho phép client rời phiên.
     public void leaveAuction(PacketMessage packetMessage)
-            throws ServerUnexpectedPayloadException,
-            AuctionHighBidException,
-            AuctionNotRegisteredException,
-            ServerNoAuctionException,
-            AuctionClientIsOwnerException {
+            throws ServerUnexpectedPayloadException, AuctionHighBidException, AuctionNotRegisteredException,
+            ServerNoAuctionException, AuctionClientIsOwnerException {
 
         // Kiểm tra xem gói tin nhận được có chứa đúng loại payload hay không
         if (packetMessage.getPayload() instanceof UnregisterClientPayload) {
@@ -441,30 +407,14 @@ public class ClientHandler extends Thread {
 
         } else {
 
-            throw new ServerUnexpectedPayloadException(
-                    "Gói tin nhận được chứa sai loại payload");
+            throw new ServerUnexpectedPayloadException("Gói tin nhận được chứa sai loại payload");
         }
     }
 
-    /*
-     * Điều kiện trước:
-     * - Client cần được ngắt kết nối khỏi server.
-     * 
-     * Điều kiện sau:
-     * - Client được xóa thành công khỏi server nếu không giữ mức giá đấu cao nhất
-     * trong bất kỳ phiên đấu giá nào.
-     * - Client được hủy đăng ký khỏi tất cả các phiên đấu giá đang tham gia.
-     * - Kết nối socket của client được đóng.
-     * 
-     * Lưu ý:
-     * - AuctionHighBidException được ném ra bởi phương thức leaveAuction()
-     * nếu client đang giữ mức giá đấu cao nhất trong một phiên đấu giá.
-     * - ServerHasHighBidException được ném ra nếu server phát hiện client
-     * đang giữ mức giá đấu cao nhất trong ít nhất một phiên đấu giá
-     * khi có yêu cầu ngắt kết nối.
-     */
-    public void disconnectFromServer()
-            throws ServerHasHighBidException, AuctionHighBidException {
+    // Rút client khỏi toàn bộ các phiên đang tham gia và ngắt kết nối khỏi Server.
+    // Không cho phép thoát nếu Client đang là người giữ giá cao nhất ở bất kỳ phiên
+    // nào.
+    public void disconnectFromServer() throws ServerHasHighBidException, AuctionHighBidException {
 
         // Lấy instance tạm thời của server
         AuctionServer server = AuctionServer.getInstance();
@@ -476,8 +426,7 @@ public class ClientHandler extends Thread {
 
             if (client.getNumberOfHighBids() > 1) {
 
-                errorMessage = "Client đang giữ mức giá đấu cao nhất trong "
-                        + client.getNumberOfHighBids()
+                errorMessage = "Client đang giữ mức giá đấu cao nhất trong " + client.getNumberOfHighBids()
                         + " phiên đấu giá đang hoạt động";
 
             } else {
@@ -508,34 +457,17 @@ public class ClientHandler extends Thread {
                 server.removeClient(client);
                 client.getSocket().close();
 
-            } catch (IOException
-                    | ServerClientHandlerDoesNotExistException
-                    | ServerHasHighBidException e) {
+            } catch (IOException | ServerClientHandlerDoesNotExistException | ServerHasHighBidException e) {
 
                 e.printStackTrace();
             }
         }
     }
 
-    /*
-     * Điều kiện trước:
-     * - Gói tin yêu cầu lấy mức giá đấu cao nhất của một phiên đấu giá đã được nhận
-     * từ client.
-     * 
-     * Điều kiện sau:
-     * - Mức giá đấu cao nhất của phiên đấu giá được tìm thấy và gửi về cho client.
-     * - Thông tin này được sử dụng cho chức năng làm mới (refresh) trong phần
-     * “respond to bids” của client.
-     * 
-     * Lưu ý:
-     * - ServerNoAuctionException được ném ra nếu phiên đấu giá cần truy cập
-     * để lấy mức giá đấu cao nhất không còn tồn tại.
-     * - ServerUnexpectedPayloadException được ném ra nếu gói tin nhận được
-     * chứa sai loại payload.
-     */
+    // Trả về thông tin lượt đặt giá cao nhất của phiên đấu giá cho Client để làm
+    // mới (refresh) giao diện.
     public void requestHighestBid(PacketMessage packetMessage)
-            throws ServerNoAuctionException,
-            ServerUnexpectedPayloadException {
+            throws ServerNoAuctionException, ServerUnexpectedPayloadException {
 
         // Kiểm tra xem gói tin nhận được có đúng loại payload hay không
         if (packetMessage.getPayload() instanceof RequestHighestBidPayload) {
@@ -550,13 +482,8 @@ public class ClientHandler extends Thread {
             BidTransaction highestBid = server.getHighestBid(auctionID);
 
             // Tạo gói tin phản hồi chứa mức giá đấu cao nhất
-            PacketMessage outputPacketMessage = new PacketMessage(
-                    SEND_HIGHEST_BID,
-                    new SendHighestBidPayload(
-                            highestBid.getTimestamp(),
-                            highestBid.getBidAmount(),
-                            highestBid.getBidderId(),
-                            auctionID));
+            PacketMessage outputPacketMessage = new PacketMessage(SEND_HIGHEST_BID, new SendHighestBidPayload(
+                    highestBid.getTimestamp(), highestBid.getBidAmount(), highestBid.getBidderId(), auctionID));
 
             // Thử gửi gói tin cho client
             try {
@@ -567,12 +494,8 @@ public class ClientHandler extends Thread {
 
                 try {
 
-                    server.sendPacket(
-                            client,
-                            new PacketMessage(
-                                    ERROR,
-                                    new ErrorMessagePayload(
-                                            "Không thể thực hiện yêu cầu lấy mức giá đấu cao nhất.")));
+                    server.sendPacket(client, new PacketMessage(ERROR,
+                            new ErrorMessagePayload("Không thể thực hiện yêu cầu lấy mức giá đấu cao nhất.")));
 
                 } catch (IOException ioException) {
 
@@ -582,32 +505,20 @@ public class ClientHandler extends Thread {
 
         } else {
 
-            throw new ServerUnexpectedPayloadException(
-                    "Gói tin nhận được chứa sai loại payload");
+            throw new ServerUnexpectedPayloadException("Gói tin nhận được chứa sai loại payload");
         }
     }
 
-    /*
-     * Điều kiện trước:
-     * - Gói tin yêu cầu tạo phiên đấu giá đã được nhận từ client.
-     * 
-     * Điều kiện sau:
-     * - Phiên đấu giá của client được tạo thành công với các thông tin
-     * được cung cấp trong gói tin.
-     * - Một mã định danh (ID) của phiên đấu giá mới được gửi lại cho client.
-     * 
-     * Lưu ý:
-     * - ServerUnexpectedPayloadException được ném ra nếu gói tin nhận được
-     * chứa sai loại payload.
-     */
+    // Tạo phiên đấu giá và vật phẩm mới từ yêu cầu của Client, sau đó trả về ID
+    // phiên đấu giá vừa tạo.
     public void createAuction(PacketMessage packetMessage)
-            throws ServerUnexpectedPayloadException {
+            throws ServerUnexpectedPayloadException, java.io.IOException {
 
         // Kiểm tra xem gói tin nhận được có chứa đúng loại payload hay không
         if (packetMessage.getPayload() instanceof CreateAuctionPayload) {
 
-            // Lưu tạm instance của server, item, ngày hiện tại,
-            // phiên đấu giá mới và payload nhận được
+            // Lưu tạm instance của server, item, ngày hiện tại, phiên đấu giá mới và
+            // payload nhận được
             AuctionServer server = AuctionServer.getInstance();
 
             CreateAuctionPayload createAuctionPayload = (CreateAuctionPayload) packetMessage.getPayload();
@@ -619,63 +530,67 @@ public class ClientHandler extends Thread {
 
                 case ELECTRONICS:
 
-                    item = ItemFactory.createElectronics(
-                            createAuctionPayload.getItemName(),
-                            createAuctionPayload.getItemDescription(),
-                            createAuctionPayload.getItemStartingPrice(),
-                            createAuctionPayload.getBrand(),
-                            createAuctionPayload.getModel(),
+                    item = ItemFactory.createElectronics(createAuctionPayload.getItemName(),
+                            createAuctionPayload.getItemDescription(), createAuctionPayload.getItemStartingPrice(),
+                            createAuctionPayload.getBrand(), createAuctionPayload.getModel(),
                             createAuctionPayload.getWarranty());
 
                     break;
 
                 case ART:
 
-                    item = ItemFactory.createArt(
-                            createAuctionPayload.getItemName(),
-                            createAuctionPayload.getItemDescription(),
-                            createAuctionPayload.getItemStartingPrice(),
-                            createAuctionPayload.getArtist(),
-                            createAuctionPayload.getMedium(),
+                    item = ItemFactory.createArt(createAuctionPayload.getItemName(),
+                            createAuctionPayload.getItemDescription(), createAuctionPayload.getItemStartingPrice(),
+                            createAuctionPayload.getArtist(), createAuctionPayload.getMedium(),
                             createAuctionPayload.getYear());
 
                     break;
 
                 case VEHICLE:
 
-                    item = ItemFactory.createVehicle(
-                            createAuctionPayload.getItemName(),
-                            createAuctionPayload.getItemDescription(),
-                            createAuctionPayload.getItemStartingPrice(),
-                            createAuctionPayload.getEngineType(),
-                            createAuctionPayload.getModelYear(),
-                            createAuctionPayload.getMileage(),
-                            createAuctionPayload.getLicensePlate());
+                    item = ItemFactory.createVehicle(createAuctionPayload.getItemName(),
+                            createAuctionPayload.getItemDescription(), createAuctionPayload.getItemStartingPrice(),
+                            createAuctionPayload.getEngineType(), createAuctionPayload.getModelYear(),
+                            createAuctionPayload.getMileage(), createAuctionPayload.getLicensePlate());
 
                     break;
 
                 default:
-                    throw new IllegalArgumentException("Invalid item category");
+                    throw new IllegalArgumentException("Danh mục vật phẩm không hợp lệ");
             }
 
+            // Lưu vật phẩm vào Manager và DAO để hiển thị đúng Tên thay vì ID
+            try {
+                ItemManager.getInstance().themItem(item);
+            } catch (IOException e) {
+                System.err.println("[Server] Lỗi khi lưu vật phẩm: " + e.getMessage());
+                sendPacket(new PacketMessage(ERROR,
+                        new ErrorMessagePayload("Lỗi server khi lưu vật phẩm: " + e.getMessage())));
+                return;
+            }
+
+            // Sử dụng Username để đồng bộ với logic getMyAuctions trên Server
+            String sellerId = (loggedInUser != null) ? loggedInUser.getUsername() : "Unknown";
+
             // Tạo thời gian hiện tại
-
             LocalDateTime now = LocalDateTime.now();
-
             LocalDateTime startTime = createAuctionPayload.getStartTime();
 
-            // Không cho phép startTime trước thời điểm tạo auction
-            if (startTime.isBefore(now)) {
-                throw new IllegalArgumentException(
-                        "Auction start time cannot be before current time.");
+            // Nếu không có startTime, mặc định là ngay bây giờ
+            if (startTime == null) {
+                startTime = now;
+            }
+
+            // Cho phép trễ tối đa 24 giờ để tránh lỗi do lệch múi giờ hoặc điền form lâu
+            if (startTime.isBefore(now.minusHours(24))) {
+                throw new IllegalArgumentException("Thời gian bắt đầu không thể ở quá khứ quá xa (tối đa 24 giờ).");
             }
 
             LocalDateTime endTime = startTime.plusMinutes(createAuctionPayload.getAuctionDuration());
 
             // endTime phải sau startTime
             if (!endTime.isAfter(startTime)) {
-                throw new IllegalArgumentException(
-                        "Auction end time must be after start time.");
+                throw new IllegalArgumentException("Thời gian kết thúc phiên đấu giá phải sau thời gian bắt đầu.");
             }
 
             Auction newAuction = new Auction(
@@ -683,9 +598,7 @@ public class ClientHandler extends Thread {
                     item.getId(),
 
                     // sellerId
-                    client.getSocketAddress()
-                            .getAddress()
-                            .getHostAddress(),
+                    sellerId,
 
                     // startTime
                     startTime,
@@ -702,13 +615,13 @@ public class ClientHandler extends Thread {
             // Liên hệ server để xử lý yêu cầu thêm phiên đấu giá
             server.addAuction(newAuction);
 
+            // Broadcast danh sách mới tới tất cả các client
+            broadcastAuctionList();
+
             // Thử gửi ID phiên đấu giá mới cho client
             try {
 
-                sendPacket(
-                        new PacketMessage(
-                                SEND_AUCTION_ID,
-                                new SendAuctionIDPayload(newAuction.getId())));
+                sendPacket(new PacketMessage(SEND_AUCTION_ID, new SendAuctionIDPayload(newAuction.getId())));
 
             } catch (IOException e) {
 
@@ -717,36 +630,15 @@ public class ClientHandler extends Thread {
 
         } else {
 
-            throw new ServerUnexpectedPayloadException(
-                    "Gói tin nhận được chứa sai loại payload");
+            throw new ServerUnexpectedPayloadException("Gói tin nhận được chứa sai loại payload");
         }
     }
 
-    /*
-     * Điều kiện trước:
-     * - Gói tin yêu cầu đặt giá đấu cho một phiên đấu giá đã được nhận từ client.
-     * 
-     * Điều kiện sau:
-     * - Client tạo một BidTransaction mới cho phiên đấu giá được chỉ định.
-     * - BidTransaction được gửi đến server để xử lý và kiểm tra tính hợp lệ.
-     * 
-     * Lưu ý:
-     * - ServerUnexpectedPayloadException được ném ra nếu gói tin nhận được
-     * chứa sai loại payload.
-     * - AuctionLowBidException được ném ra nếu mức giá đấu thấp hơn
-     * mức giá hợp lệ tối thiểu của phiên đấu giá.
-     * - AuctionClientIsOwnerException được ném ra nếu chủ sở hữu phiên đấu giá
-     * cố gắng đấu giá trong chính phiên đấu giá của mình.
-     * - AuctionNotRegisteredException được ném ra nếu client chưa đăng ký
-     * tham gia phiên đấu giá được chỉ định.
-     * - ServerNoAuctionException được ném ra nếu phiên đấu giá không tồn tại.
-     */
+    // Tiến hành xử lý và xác thực giao dịch đặt giá mới từ Client gửi lên.
     public void makeBid(PacketMessage packetMessage)
-            throws ServerUnexpectedPayloadException,
-            AuctionLowBidException,
-            AuctionClientIsOwnerException,
-            AuctionNotRegisteredException,
-            ServerNoAuctionException, IOException {
+            throws server.models.network.ServerUnexpectedPayloadException, server.auction.AuctionLowBidException,
+            server.auction.AuctionClientIsOwnerException, server.auction.AuctionNotRegisteredException,
+            server.models.network.ServerNoAuctionException, java.io.IOException {
 
         // Kiểm tra payload nhận được có đúng kiểu không
         if (packetMessage.getPayload() instanceof MakeBidPayload) {
@@ -757,29 +649,346 @@ public class ClientHandler extends Thread {
             MakeBidPayload newBidPayload = (MakeBidPayload) packetMessage.getPayload();
 
             // Tạo BidTransaction mới
-            BidTransaction newBid = new BidTransaction(
+            BidTransaction newBid = new BidTransaction(newBidPayload.getAuctionID(),
+                    loggedInUser != null ? loggedInUser.getUsername() : client.getIP(), newBidPayload.getHighestBid());
 
-                    // auctionId
-                    newBidPayload.getAuctionID(),
+            String currentUsername = loggedInUser != null ? loggedInUser.getUsername() : client.getIP();
 
-                    // bidderId
-                    client.getSocketAddress()
-                            .getAddress()
-                            .getHostAddress(),
+            // Log lượt bid nhận được
+            System.out.println("[Server] Nhận MAKE_BID từ " + currentUsername + ": " + newBidPayload.getHighestBid()
+                    + " cho phiên " + newBidPayload.getAuctionID());
 
-                    // bidAmount
-                    newBidPayload.getHighestBid());
+            // KIỂM TRA PHIÊN ĐẤU GIÁ TỒN TẠI
+            Auction auction = AuctionManager.getInstance().timTheoId(newBidPayload.getAuctionID());
 
-            // Gửi bid cho server xử lý
-            server.auctionBid(
-                    newBidPayload.getAuctionID(),
-                    newBid,
-                    client);
+            if (auction == null) {
+                System.err.println("[Server] Phiên không tồn tại: " + newBidPayload.getAuctionID());
+                sendPacket(
+                        new PacketMessage(MessageType.ERROR, new ErrorMessagePayload("Phiên đấu giá không tồn tại!")));
+                return;
+            }
+
+            newBid.setAuctionId(auction.getId());
+
+            // Khóa phiên đấu giá để ngăn chặn Race Condition
+            synchronized (auction) {
+                String previousLeaderId = auction.getHighestBidderId();
+                double previousLeaderBid = auction.getCurrentHighestBid();
+
+                // Kiểm tra số dư của người hiện tại
+                if (loggedInUser instanceof Bidder) {
+                    Bidder bidder = (Bidder) loggedInUser;
+
+                    // Nếu đã là người giữ giá cao nhất, số tiền thực tế có = Số dư + Số tiền đang
+                    // giam
+                    double effectiveBalance = bidder.getBalance();
+                    if (currentUsername.equalsIgnoreCase(previousLeaderId)) {
+                        effectiveBalance += previousLeaderBid;
+                    }
+
+                    if (effectiveBalance < newBid.getBidAmount()) {
+                        System.err.println("[Server] " + currentUsername + " không đủ tiền: " + effectiveBalance + " < "
+                                + newBid.getBidAmount());
+                        sendPacket(new PacketMessage(MessageType.ERROR,
+                                new ErrorMessagePayload("Số dư tài khoản không đủ!")));
+                        return;
+                    }
+                }
+
+                // Thực hiện đặt giá tại AuctionManager
+                try {
+                    server.auctionBid(auction.getId(), newBid, client);
+                    System.out.println("[Server] AuctionManager chấp nhận lượt bid của " + currentUsername);
+                } catch (Exception e) {
+                    System.err.println("[Server] AuctionManager từ chối lượt bid: " + e.getMessage());
+                    sendPacket(new PacketMessage(MessageType.ERROR, new ErrorMessagePayload(e.getMessage())));
+                    return;
+                }
+
+                // Nếu thành công, tiến hành trừ tiền và hoàn tiền
+                // Trừ toàn bộ số tiền bid mới của user hiện tại
+                updateBalance(currentUsername, -newBid.getBidAmount());
+
+                // Hoàn lại tiền cho người đặt giá trước đó (Bao gồm cả chính mình nếu tự nâng
+                // giá)
+                if (previousLeaderId != null && !previousLeaderId.isEmpty()) {
+                    updateBalance(previousLeaderId, previousLeaderBid);
+                }
+
+                // Broadcast cập nhật giá mới
+                server.models.item.Item item = ItemManager.getInstance().timTheoId(auction.getItemId());
+                String itemDesc = (item != null) ? item.getDescription() : "Không có mô tả";
+
+                AuctionUpdatePayload update = new AuctionUpdatePayload(auction.getId(), LocalDateTime.now(),
+                        auction.getCurrentHighestBid(), auction.getItemId(), auction.getHighestBidderId(),
+                        itemDesc, auction.getEndTime(), auction.getAntiSnipeCount());
+
+                server.sendPackets(auction.getClientList(), new PacketMessage(MessageType.AUCTION_UPDATE, update));
+                System.out.println(
+                        "[Server] Đã hoàn tất xử lý và broadcast cho " + auction.getClientList().size() + " clients.");
+
+                // Cập nhật giá trên Dashboard của Seller/Bidder theo thời gian thực khi có
+                // người bid mới
+                broadcastAuctionList();
+            }
 
         } else {
+            throw new ServerUnexpectedPayloadException("Packet provided the wrong payload");
+        }
+    }
 
-            throw new ServerUnexpectedPayloadException(
-                    "Packet provided the wrong payload");
+    // Hủy phiên đấu giá và broadcast cho tất cả client.
+    private void cancelAuction(PacketMessage packetMessage)
+            throws ServerUnexpectedPayloadException, ServerNoAuctionException {
+        // Hỗ trợ cả UnregisterClientPayload và String (auctionID)
+        String auctionID = null;
+        if (packetMessage.getPayload() instanceof UnregisterClientPayload) {
+            auctionID = ((UnregisterClientPayload) packetMessage.getPayload()).getAuctionID();
+        } else if (packetMessage.getPayload() instanceof String) {
+            auctionID = (String) packetMessage.getPayload();
+        }
+
+        if (auctionID != null) {
+            executeCancel(auctionID);
+        } else {
+            throw new ServerUnexpectedPayloadException("Payload không hợp lệ cho CANCEL_AUCTION");
+        }
+    }
+
+    private void executeCancel(String auctionID) throws ServerNoAuctionException {
+        try {
+            Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
+            if (auction == null) {
+                throw new ServerNoAuctionException("Không thể hủy phiên: " + auctionID);
+            }
+            String highestBidder = auction.getHighestBidderId();
+            double highestBid = auction.getCurrentHighestBid();
+
+            boolean success = AuctionManager.getInstance().ketThucPhien(auctionID, true);
+            if (success) {
+                // Hoàn tiền cho người giữ giá cao nhất khi hủy phiên
+                if (highestBidder != null && !highestBidder.isEmpty()) {
+                    updateBalance(highestBidder, highestBid);
+                    System.out.println("[Server] Đã hoàn " + highestBid + " đ cho " + highestBidder + " do phiên "
+                            + auctionID + " bị hủy.");
+                }
+                System.out.println("[Server] Đã hủy phiên: " + auctionID);
+
+                // Gửi thông báo hủy phiên cho các client để cập nhật UI
+                AuctionServer.getInstance().broadcast(new PacketMessage(MessageType.AUCTION_CONCLUDED, auctionID));
+
+                broadcastAuctionList();
+            } else {
+                throw new ServerNoAuctionException("Không thể hủy phiên: " + auctionID);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Gửi danh sách phiên đấu giá mới nhất tới TẤT CẢ các client đang kết nối.
+    private void broadcastAuctionList() {
+        AuctionServer server = AuctionServer.getInstance();
+        LinkedList<AuctionListItem> list = server.getAllAuctions();
+        PacketMessage refreshMsg = new PacketMessage(MessageType.SEND_ACTIVE_AUCTION_LIST,
+                new AuctionListPayload(list));
+        server.broadcast(refreshMsg);
+        System.out.println("[Server] Đã broadcast danh sách đấu giá cập nhật tới tất cả các client.");
+    }
+
+    private void handleRequestBidHistory(String auctionId) {
+        System.out.println("[Server] Nhận yêu cầu lịch sử đấu giá cho phiên: " + auctionId);
+        try {
+            Auction auction = AuctionManager.getInstance().timTheoId(auctionId);
+            if (auction != null) {
+                server.models.item.Item item = server.auction.ItemManager.getInstance().timTheoId(auction.getItemId());
+                server.payload.SendBidHistoryPayload payload = new server.payload.SendBidHistoryPayload(auctionId,
+                        new java.util.ArrayList<>(auction.getBidHistory()), item);
+                sendPacket(new PacketMessage(MessageType.SEND_BID_HISTORY, payload));
+            } else {
+                System.err.println("[Server] Không tìm thấy phiên đấu giá: " + auctionId);
+            }
+        } catch (Exception e) {
+            System.err.println("[Server] Lỗi handleRequestBidHistory: " + e.getMessage());
+        }
+    }
+
+    private void handleLogin(LoginPayload payload) throws IOException {
+        System.out.println("[Server] Đang xử lý đăng nhập cho: " + payload.getUsername());
+        try {
+            List<server.models.user.User> users = new server.dao.UserDAO().loadAll();
+            server.models.user.User found = users.stream()
+                    .filter(u -> u.getUsername().equalsIgnoreCase(payload.getUsername())
+                            && u.getPassword().equals(payload.getPassword()))
+                    .findFirst().orElse(null);
+
+            if (found != null) {
+                if (found.isLocked()) {
+                    sendPacket(new PacketMessage(LOGIN_FAILURE,
+                            new LoginResponsePayload(false, "Tài khoản của bạn đã bị khóa bởi quản trị viên.", null)));
+                    System.out.println("[Server] Từ chối đăng nhập: " + found.getUsername() + " đang bị khóa.");
+                    return;
+                }
+                this.loggedInUser = found;
+                this.client.setUsername(found.getUsername()); // [FIX] Đồng bộ username vào client object
+                sendPacket(new PacketMessage(LOGIN_SUCCESS,
+                        new LoginResponsePayload(true, "Đăng nhập thành công!", found)));
+                System.out.println("[Server] Đăng nhập thành công: " + found.getUsername());
+            } else {
+                sendPacket(new PacketMessage(LOGIN_FAILURE,
+                        new LoginResponsePayload(false, "Sai tài khoản hoặc mật khẩu.", null)));
+            }
+        } catch (Exception e) {
+            sendPacket(new PacketMessage(LOGIN_FAILURE,
+                    new LoginResponsePayload(false, "Lỗi server: " + e.getMessage(), null)));
+        }
+    }
+
+    private void handleToggleUserLock(String userId) {
+        System.out.println("[Server] Yêu cầu Thay đổi trạng thái khóa cho User ID: " + userId);
+        try {
+            server.dao.UserDAO dao = new server.dao.UserDAO();
+            List<server.models.user.User> users = dao.loadAll();
+            boolean found = false;
+            for (server.models.user.User u : users) {
+                if (u.getId().equals(userId)) {
+                    u.setLocked(!u.isLocked());
+                    found = true;
+                    System.out.println("[Server] User " + u.getUsername() + " hiện tại là: "
+                            + (u.isLocked() ? "BỊ KHÓA" : "MỞ KHÓA"));
+                    break;
+                }
+            }
+            if (found) {
+                dao.saveAll(users);
+
+                // Nếu user bị KHÓA, tìm Handler đang giữ user này và ngắt kết nối ngay lập tức
+                for (ClientHandler handler : AuctionServer.getInstance().getClientHandlers().values()) {
+                    if (handler.loggedInUser != null && handler.loggedInUser.getId().equals(userId)) {
+                        // Cập nhật trạng thái khóa cho đối tượng đang online
+                        for (server.models.user.User u : users) {
+                            if (u.getId().equals(userId)) {
+                                handler.loggedInUser.setLocked(u.isLocked());
+                                if (u.isLocked()) {
+                                    handler.sendPacket(new PacketMessage(MessageType.ERROR, new ErrorMessagePayload(
+                                            "Tài khoản của bạn đã bị khóa bởi quản trị viên. Kết nối sẽ bị ngắt.")));
+                                    handler.setRunning(false);
+                                    // Cưỡng chế đóng socket để cắt kết nối ngay lập tức
+                                    try {
+                                        handler.getClient().getSocket().close();
+                                    } catch (Exception ex) {
+                                        ex.printStackTrace();
+                                    }
+                                    System.out.println("[Server] Đã cưỡng chế ngắt kết nối user bị khóa: "
+                                            + handler.loggedInUser.getUsername());
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+                }
+
+                broadcastToAdmins(new PacketMessage(SEND_ALL_USERS, new java.util.ArrayList<>(users)));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    // Cập nhật số dư và thông báo cho Client.
+    private void updateBalance(String username, double delta) {
+        if (username == null || username.isEmpty() || username.equalsIgnoreCase("unknown"))
+            return;
+
+        try {
+            server.dao.UserDAO userDAO = new server.dao.UserDAO();
+            List<server.models.user.User> allUsers = userDAO.loadAll();
+
+            for (int i = 0; i < allUsers.size(); i++) {
+                server.models.user.User u = allUsers.get(i);
+                if (u.getUsername().equalsIgnoreCase(username) && u instanceof Bidder) {
+                    Bidder bidder = (Bidder) u;
+                    if (delta < 0) {
+                        bidder.withdraw(-delta);
+                    } else {
+                        bidder.deposit(delta);
+                    }
+
+                    allUsers.set(i, bidder);
+                    userDAO.saveAll(allUsers);
+
+                    // Thông báo cho chính ClientHandler đang giữ user này (nếu online)
+                    for (ClientHandler handler : AuctionServer.getInstance().getClientHandlers().values()) {
+                        if (handler.loggedInUser != null
+                                && handler.loggedInUser.getUsername().equalsIgnoreCase(username)) {
+                            // Cập nhật lại đối tượng loggedInUser trong handler để đồng bộ
+                            handler.loggedInUser = bidder;
+                            handler.sendPacket(new PacketMessage(MessageType.BALANCE_UPDATE,
+                                    new BalanceUpdatePayload(bidder.getBalance())));
+                        }
+                    }
+                    System.out.println("[Server] Đã cập nhật số dư cho " + username + ": delta=" + delta + ", balance="
+                            + bidder.getBalance());
+                    break;
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[Server] Lỗi updateBalance: " + e.getMessage());
+        }
+    }
+
+    private void handleRegister(RegisterPayload payload) throws IOException {
+        System.out.println("[Server] Đang xử lý đăng ký cho: " + payload.getUsername());
+        try {
+            server.dao.UserDAO dao = new server.dao.UserDAO();
+            List<server.models.user.User> users = dao.loadAll();
+
+            if (users.stream().anyMatch(u -> u.getUsername().equalsIgnoreCase(payload.getUsername()))) {
+                sendPacket(new PacketMessage(REGISTER_FAILURE,
+                        new LoginResponsePayload(false, "Tên đăng nhập đã tồn tại.", null)));
+                return;
+            }
+
+            server.models.user.User newUser;
+            if (payload.getRole().equalsIgnoreCase("Seller")) {
+                newUser = new server.models.user.Seller(payload.getUsername(), payload.getEmail(),
+                        payload.getPassword(), "");
+            } else {
+                newUser = new server.models.user.Bidder(payload.getUsername(), payload.getEmail(),
+                        payload.getPassword(), 50000000.0); // Cấp 50 triệu VNĐ số dư ban đầu để phục vụ chạy thử nghiệm
+                                                            // (test) hệ thống
+            }
+
+            dao.them(newUser);
+            this.loggedInUser = newUser;
+            this.client.setUsername(newUser.getUsername()); // [FIX] Đồng bộ username vào client object
+            sendPacket(new PacketMessage(REGISTER_SUCCESS,
+                    new LoginResponsePayload(true, "Đăng ký thành công!", newUser)));
+            System.out.println("[Server] Đăng ký thành công: " + newUser.getUsername());
+
+            // Broadcast danh sách user mới cập nhật tới tất cả các Admin đang online
+            try {
+                List<server.models.user.User> updatedUsers = dao.loadAll();
+                broadcastToAdmins(new PacketMessage(SEND_ALL_USERS, new java.util.ArrayList<>(updatedUsers)));
+            } catch (Exception ex) {
+                System.err.println("[Server] Lỗi cập nhật danh sách user cho Admin sau khi đăng ký: " + ex.getMessage());
+            }
+        } catch (Exception e) {
+            sendPacket(new PacketMessage(REGISTER_FAILURE,
+                    new LoginResponsePayload(false, "Lỗi server: " + e.getMessage(), null)));
+        }
+    }
+
+    private void broadcastToAdmins(PacketMessage packet) {
+        for (ClientHandler handler : AuctionServer.getInstance().getClientHandlers().values()) {
+            if (handler.loggedInUser != null && "ADMIN".equalsIgnoreCase(handler.loggedInUser.getRole())) {
+                try {
+                    handler.sendPacket(packet);
+                } catch (IOException e) {
+                    System.err.println("[Server] Lỗi broadcast to Admin: " + e.getMessage());
+                }
+            }
         }
     }
 }

@@ -26,8 +26,7 @@ public class BidTransaction extends Entity {
     }
 
     // 2. Constructor dùng khi load dữ liệu từ Database
-    public BidTransaction(String id, String auctionId, String bidderId, double bidAmount,
-            LocalDateTime timestamp, BidStatus status) {
+    public BidTransaction(String id, String auctionId, String bidderId, double bidAmount, LocalDateTime timestamp, BidStatus status) {
         super(id);
         this.auctionId = auctionId;
         this.bidderId = bidderId;
@@ -77,23 +76,25 @@ public class BidTransaction extends Entity {
     }
 
     // Thêm vào trước phương thức toString() trong BidTransaction.java
-    public boolean validate(Auction auction) {
+    public boolean validate(Auction auction)
+            throws server.auction.AuctionLowBidException, server.models.network.ServerNoAuctionException {
         // 1. Kiểm tra phiên đấu giá có tồn tại không
         if (auction == null) {
             this.status = BidStatus.REJECTED;
-            return false;
+            throw new server.models.network.ServerNoAuctionException("Phiên đấu giá không tồn tại.");
         }
 
         // 2. Kiểm tra phiên có đang hoạt động (RUNNING) không
         if (!auction.isActive()) {
             this.status = BidStatus.REJECTED;
-            return false;
+            throw new server.auction.AuctionLowBidException("Phiên đấu giá không trong trạng thái hoạt động.");
         }
 
         // 3. Kiểm tra số tiền đặt có cao hơn giá hiện tại không
         if (this.bidAmount <= auction.getCurrentHighestBid()) {
             this.status = BidStatus.REJECTED;
-            return false;
+            throw new server.auction.AuctionLowBidException(
+                    "Giá đặt phải cao hơn giá hiện tại (" + auction.getCurrentHighestBid() + " đ).");
         }
 
         // Nếu mọi thứ đều ổn, đánh dấu là ACCEPTED
@@ -103,12 +104,7 @@ public class BidTransaction extends Entity {
 
     @Override
     public String toString() {
-        return "BidTransaction{" +
-                "id='" + getId() + '\'' +
-                ", bidderId='" + bidderId + '\'' +
-                ", bidAmount=" + bidAmount +
-                ", time=" + timestamp +
-                ", status=" + status +
-                '}';
+        return "BidTransaction{" + "id='" + getId() + '\'' + ", bidderId='" + bidderId + '\'' + ", bidAmount="
+                + bidAmount + ", time=" + timestamp + ", status=" + status + '}';
     }
 }

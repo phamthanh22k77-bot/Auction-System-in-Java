@@ -1,35 +1,150 @@
 [
   {
-    "balance": 1.0E7,
-    "role": "BIDDER",
+    "username": "uet_admin",
+    "email": "admin.uet@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
     "id": "U001",
-    "username": "ThanhBot",
-    "email": "thanhbot@example.com",
-    "password": "123"
+    "role": "ADMIN"
   },
   {
-    "balance": 5000000.0,
-    "role": "BIDDER",
+    "username": "vnu_admin",
+    "email": "admin.vnu@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
     "id": "U002",
-    "username": "ThanhTop",
-    "email": "thanhtop@example.com",
-    "password": "123"
+    "role": "ADMIN"
   },
   {
-    "companyName": "Công ty TNHH Đấu Giá",
-    "rating": 4.8,
-    "role": "SELLER",
+    "companyName": "Phòng Thí Nghiệm AI Lab UET",
+    "rating": 5.0,
+    "username": "gv_son_uet",
+    "email": "son.gv@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
     "id": "U003",
-    "username": "seller",
-    "email": "seller@example.com",
-    "password": "123"
+    "role": "SELLER"
   },
   {
-    "department": "Hệ Thống",
-    "role": "ADMIN",
+    "companyName": "Khoa CNTT - UET",
+    "rating": 4.9,
+    "username": "gv_dung_uet",
+    "email": "dung.gv@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
     "id": "U004",
-    "username": "admin",
-    "email": "admin@example.com",
-    "password": "123"
+    "role": "SELLER"
+  },
+  {
+    "companyName": "Đoàn Thanh Niên UET",
+    "rating": 5.0,
+    "username": "uet_doan_thanhnien",
+    "email": "doanthanhnien@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U005",
+    "role": "SELLER"
+  },
+  {
+    "companyName": "CLB Robot UET (Robocon)",
+    "rating": 4.8,
+    "username": "uet_clb_robocon",
+    "email": "robocon@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U006",
+    "role": "SELLER"
+  },
+  {
+    "companyName": "Văn Phòng Khoa Điện Tử Viễn Thông",
+    "rating": 4.7,
+    "username": "uet_vp_khoa_dtvt",
+    "email": "dtvt.office@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U007",
+    "role": "SELLER"
+  },
+  {
+    "balance": 4.46299999E8,
+    "username": "thanh_uet",
+    "email": "thanh.uet@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U008",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 4.5E8,
+    "username": "thanh_pham",
+    "email": "thanh_pham@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U009",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 8.8987877E8,
+    "username": "kiet_uet",
+    "email": "kiet.vu@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U010",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 1.685E8,
+    "username": "hoang_uet",
+    "email": "hoang.le@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U011",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 1.2032E8,
+    "username": "thao_uet",
+    "email": "thao.tran@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U012",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 3.68E7,
+    "username": "kiet007_uet",
+    "email": "",
+    "password": "123123",
+    "isLocked": false,
+    "id": "85349f1f-3990-433f-b9f4-56da38e04447",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 5.0E7,
+    "username": "kiet010_uet",
+    "email": "",
+    "password": "123",
+    "isLocked": false,
+    "id": "d6a4d272-6852-4484-8d30-a042fbddc1d9",
+    "role": "BIDDER"
+  },
+  {
+    "companyName": "",
+    "rating": 5.0,
+    "username": "seolo1",
+    "email": "",
+    "password": "123",
+    "isLocked": false,
+    "id": "f78862f4-fc35-4288-94c0-b8e9c24ec2e9",
+    "role": "SELLER"
+  },
+  {
+    "balance": 1.0005E11,
+    "username": "bitdo1",
+    "email": "",
+    "password": "123",
+    "isLocked": false,
+    "id": "4ceefaaa-2496-4c33-a87a-a219a8bf0293",
+    "role": "BIDDER"
   }
 ]
