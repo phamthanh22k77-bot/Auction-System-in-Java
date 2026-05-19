@@ -1,0 +1,113 @@
+[
+  {
+    "username": "uet_admin",
+    "email": "admin.uet@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U001",
+    "role": "ADMIN"
+  },
+  {
+    "username": "vnu_admin",
+    "email": "admin.vnu@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U002",
+    "role": "ADMIN"
+  },
+  {
+    "companyName": "Phòng Thí Nghiệm AI Lab UET",
+    "rating": 5.0,
+    "username": "gv_son_uet",
+    "email": "son.gv@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U003",
+    "role": "SELLER"
+  },
+  {
+    "companyName": "Khoa CNTT - UET",
+    "rating": 4.9,
+    "username": "gv_dung_uet",
+    "email": "dung.gv@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U004",
+    "role": "SELLER"
+  },
+  {
+    "companyName": "Đoàn Thanh Niên UET",
+    "rating": 5.0,
+    "username": "uet_doan_thanhnien",
+    "email": "doanthanhnien@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U005",
+    "role": "SELLER"
+  },
+  {
+    "companyName": "CLB Robot UET (Robocon)",
+    "rating": 4.8,
+    "username": "uet_clb_robocon",
+    "email": "robocon@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U006",
+    "role": "SELLER"
+  },
+  {
+    "companyName": "Văn Phòng Khoa Điện Tử Viễn Thông",
+    "rating": 4.7,
+    "username": "uet_vp_khoa_dtvt",
+    "email": "dtvt.office@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U007",
+    "role": "SELLER"
+  },
+  {
+    "balance": 5.082E8,
+    "username": "thanh_uet",
+    "email": "thanh.uet@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U008",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 4.5E8,
+    "username": "thanh_pham",
+    "email": "thanh_pham@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U009",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 8.8987877E8,
+    "username": "kiet_uet",
+    "email": "kiet.vu@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U010",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 1.685E8,
+    "username": "hoang_uet",
+    "email": "hoang.le@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U011",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 1.2032E8,
+    "username": "thao_uet",
+    "email": "thao.tran@vnu.edu.vn",
+    "password": "123",
+    "isLocked": false,
+    "id": "U012",
+    "role": "BIDDER"
+  }
+]
