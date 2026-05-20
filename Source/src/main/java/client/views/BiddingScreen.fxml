@@ -39,7 +39,7 @@
 <BorderPane
     xmlns="http://javafx.com/javafx/21"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="controllers.bidder.BiddingController"
+    fx:controller="client.controllers.BiddingController"
     style="-fx-background-color: #F5F6FA;">
 
     <!-- ══ TOP BAR ════════════════════════════════════════ -->
