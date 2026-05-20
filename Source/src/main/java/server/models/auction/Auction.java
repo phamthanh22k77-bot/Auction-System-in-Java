@@ -28,24 +28,20 @@ public class Auction extends Entity {
     private double currentHighestBid; // Giá cao nhất hiện tại
     private String highestBidderId; // ID người đang trả giá cao nhất (Leader)
     private AuctionStatus status; // Trạng thái phiên đấu giá
+    private int antiSnipeCount = 0; // Số lần đã gia hạn Anti-Sniping
     private List<BidTransaction> bidHistory = new ArrayList<>(); // Lịch sử đặt giá
-    private transient List<AuctionClient> clientList = new CopyOnWriteArrayList<>(); // Tạo danh sách các client có trong một
-                                                                           // phiên đấu giá
+    private transient List<AuctionClient> clientList = new CopyOnWriteArrayList<>(); // Tạo danh sách các client có trong một phiên đấu giá
+
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
     private double minimumBidIncrement;
 
-    // Theo yêu cầu phân công: OPEN -> RUNNING -> FINISHED -> PAID/CANCELED
     public enum AuctionStatus {
-        OPEN,
-        RUNNING,
-        FINISHED,
-        PAID,
-        CANCELED
+        OPEN, RUNNING, FINISHED, PAID, CANCELED
     }
 
     // 1. Constructor khởi tạo phiên đấu giá mới
-    public Auction(String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime,
-            double startingPrice, double minimumBidIncrement) {
+    public Auction(String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime, double startingPrice,
+                   double minimumBidIncrement) {
         super(); // Khởi tạo ID (UUID) từ base class Entity
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -59,8 +55,8 @@ public class Auction extends Entity {
 
     // 2. Constructor dùng khi load dữ liệu từ Database
     public Auction(String id, String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime,
-            double startingPrice, double currentHighestBid, String highestBidderId,
-            double minimumBidIncrement, AuctionStatus status) {
+                   double startingPrice, double currentHighestBid, String highestBidderId, double minimumBidIncrement,
+                   AuctionStatus status) {
         super(id);
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -82,11 +78,12 @@ public class Auction extends Entity {
 
         if (now.isBefore(startTime)) {
             setStatus(AuctionStatus.OPEN);
-        } else if (now.isAfter(startTime) && now.isBefore(endTime)) {
+        } else if (!now.isAfter(endTime)) {
             setStatus(AuctionStatus.RUNNING);
-        } else if (now.isAfter(endTime)) {
+        } else {
             setStatus(AuctionStatus.FINISHED);
         }
+
     }
 
     public boolean isActive() {
@@ -165,6 +162,18 @@ public class Auction extends Entity {
         this.status = status;
     }
 
+    public int getAntiSnipeCount() {
+        return antiSnipeCount;
+    }
+
+    public void setAntiSnipeCount(int antiSnipeCount) {
+        this.antiSnipeCount = antiSnipeCount;
+    }
+
+    public void incrementAntiSnipeCount() {
+        this.antiSnipeCount++;
+    }
+
     public List<BidTransaction> getBidHistory() {
         return bidHistory;
     }
@@ -173,23 +182,25 @@ public class Auction extends Entity {
         this.bidHistory.add(transaction);
     }
 
-    public Item getItem() {return Item.getCurrentItem();}
+    public Item getItem() {
+        return Item.getCurrentItem();
+    }
 
-    /**
-     *
-     * @param bidder    Người đặt giá
-     * @param bidAmount Số tiền đặt
-     * @return BidTransaction chứa kết quả (ACCEPTED hoặc REJECTED)
-     */
+
     public BidTransaction placeBid(Bidder bidder, double bidAmount) {
         // 1. Khởi tạo một giao dịch mới
         BidTransaction transaction = new BidTransaction(this.getId(), bidder.getId(), bidAmount);
 
         // 2. Tự kiểm tra tính hợp lệ
-        if (transaction.validate(this)) {
-            // 3. Nếu hợp lệ, cập nhật ngay các thông số của phiên
-            this.currentHighestBid = bidAmount;
-            this.highestBidderId = bidder.getId();
+        try {
+            if (transaction.validate(this)) {
+                // 3. Nếu hợp lệ, cập nhật ngay các thông số của phiên
+                this.currentHighestBid = bidAmount;
+                this.highestBidderId = bidder.getId();
+            }
+        } catch (Exception e) {
+            // Nếu có lỗi (ví dụ: giá thấp), transaction.validate đã set status = REJECTED
+            System.err.println("[Auction] Đặt giá thất bại: " + e.getMessage());
         }
 
         // 4. Luôn ghi nhận vào lịch sử (dù thành hay bại)
@@ -199,6 +210,8 @@ public class Auction extends Entity {
     }
 
     public List<AuctionClient> getClientList() {
+        if (clientList == null)
+            clientList = new CopyOnWriteArrayList<>();
         return clientList;
     }
 
@@ -208,179 +221,96 @@ public class Auction extends Entity {
 
     @Override
     public String toString() {
-        return "Auction{" +
-                "id='" + getId() + '\'' +
-                ", itemId='" + itemId + '\'' +
-                ", status=" + status +
-                ", currentHighestBid=" + currentHighestBid +
-                ", highestBidder='" + highestBidderId + '\'' +
-                '}';
+        return "Auction{" + "id='" + getId() + '\'' + ", itemId='" + itemId + '\'' + ", status=" + status
+                + ", currentHighestBid=" + currentHighestBid + ", highestBidder='" + highestBidderId + '\'' + '}';
     }
-    /*
-     * Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client chưa được đăng
-     * ký trong auction
-     * Điều kiện sau: Phương thức thêm đối tượng Client nhận được vào biến
-     * clientList. Đối tượng Client sẽ có
-     * danh sách các auction đã đăng ký được cập nhật để bao gồm ID của auction này.
-     * Điều này chỉ xảy ra nếu Client chưa được đăng ký và không phải là chủ sở hữu.
-     * Phương thức không trả về giá trị.
-     * LƯU Ý:
-     * Nếu client là chủ sở hữu của auction thì ném ra
-     * AuctionClientIsOwnerException.
-     * Nếu client đã được đăng ký trước đó thì ném ra
-     * AuctionAlreadyRegisteredException.
-     */
 
+    /**
+     * Đăng ký một client tham gia vào phiên đấu giá.
+     * Sử dụng Guard Clauses để ném lỗi sớm.
+     */
     public void addClient(AuctionClient client)
             throws AuctionAlreadyRegisteredException, AuctionClientIsOwnerException {
 
-        // Kiểm tra xem client có phải là chủ sở hữu của auction hay không
-        if (!sellerId.equals(client.getSocket().getInetAddress().getHostAddress())) {
-
-            // Kiểm tra xem client đã đăng ký trong auction chưa
-            if (!clientList.contains(client)) {
-
-                // Thêm ID của phiên đấu giá này vào danh sách đã đăng ký của client
-                client.getRegisteredAuctions().addFirst(this.getId());
-
-                // Đăng ký client như một người tham gia auction
-                clientList.add(client);
-
-            } else {
-                throw new AuctionAlreadyRegisteredException("Client đã được đăng ký rồi");
-            }
-
-        } else {
-            throw new AuctionClientIsOwnerException("Chủ sở hữu của phiên" +
-                    " không thể đăng ký vào chính auction của mình");
+        // 1. Kiểm tra xem client có phải chủ sở hữu phiên không
+        if (sellerId != null && sellerId.equals(client.getUsername())) {
+            throw new AuctionClientIsOwnerException("Chủ sở hữu của phiên không thể đăng ký vào chính auction của mình");
         }
+
+        // 2. Kiểm tra xem client đã đăng ký trước đó chưa
+        if (getClientList().contains(client)) {
+            throw new AuctionAlreadyRegisteredException("Client đã được đăng ký rồi");
+        }
+
+        // Happy Path: Thực hiện khi tất cả điều kiện hợp lệ (Không lồng IF)
+        client.getRegisteredAuctions().addFirst(this.getId());
+        clientList.add(client);
     }
 
-    /*
-    Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client đã được đăng ký trong phiên đấu giá.
-    Điều kiện sau: Phương thức xóa đối tượng Client được cung cấp khỏi danh sách các client đã đăng ký trong biến clientList.
-    Đồng thời, phiên đấu giá này cũng sẽ được xóa khỏi danh sách các phiên đấu giá đã đăng ký của client.
-    Những thao tác này chỉ được thực hiện nếu Client đã được đăng ký và không sở hữu giá thầu cao nhất trong phiên đấu giá.
-    Phương thức không trả về giá trị nào.
-    LƯU Ý:
-    Nếu Client được cung cấp đang sở hữu giá thầu cao nhất thì sẽ ném ra ngoại lệ AuctionHighBidException.
-    Nếu Client được cung cấp chưa được đăng ký trong phiên đấu giá thì sẽ ném ra ngoại lệ AuctionNotRegisteredException.
-*/
-    public void removeClient(AuctionClient client)
-            throws AuctionHighBidException, AuctionNotRegisteredException {
+    /**
+     * Hủy đăng ký client khỏi phiên đấu giá một cách bình thường.
+     */
+    public void removeClient(AuctionClient client) throws AuctionHighBidException, AuctionNotRegisteredException {
 
-        // Kiểm tra xem client đã được đăng ký trong phiên đấu giá chưa
-        if (clientList.contains(client)) {
-
-            // Kiểm tra xem client có giá thầu cao nhất hay không
-            if (!bidHistory.isEmpty() && bidHistory.getFirst().getBidderId()
-                    .equals(client.getSocketAddress().getAddress().getHostAddress())) {
-                throw new AuctionHighBidException("Người dùng đang sở hữu giá thầu cao nhất");
-            }
-
-            // Xóa phiên đấu giá này khỏi danh sách các phiên đấu giá đã đăng ký của client
-            int auctionIndex = client.getRegisteredAuctions().indexOf(this.getId());
-            if (auctionIndex != -1) {
-                client.getRegisteredAuctions().remove(auctionIndex);
-            }
-
-            // Hủy đăng ký client khỏi phiên đấu giá
-            clientList.remove(client);
-        } else {
+        // 1. Kiểm tra xem client đã đăng ký trong phiên chưa
+        if (!getClientList().contains(client)) {
             throw new AuctionNotRegisteredException("Client chưa được đăng ký trong phiên đấu giá");
         }
-    }
-    /*
-    Điều kiện trước: Phương thức này yêu cầu nhận một đối tượng Client đã được đăng ký trong phiên đấu giá.
-    Điều kiện sau: Phương thức sẽ xóa đối tượng Client được cung cấp khỏi biến clientList của phiên đấu giá.
-    Việc này được thực hiện bất kể client có sở hữu giá thầu lớn nhất hay không. Phương thức sẽ xử lý cập nhật
-    giá thầu cao nhất bằng giá trị lớn tiếp theo nếu giá thầu cao nhất hiện tại thuộc về client bị xóa.
-    Trong trường hợp này, tất cả người tham gia sẽ được gửi một packet message để cập nhật về chủ sở hữu
-    giá thầu cao nhất mới.
-    Phương thức không trả về giá trị nào.
-    LƯU Ý:
-    Nếu client chưa được đăng ký trong phiên đấu giá thì sẽ ném ra ngoại lệ AuctionNotRegisteredException.
-*/
 
+        // 2. Kiểm tra xem client có đang giữ giá cao nhất không (so sánh với Username)
+        // Dùng getLast() vì lịch sử được thêm vào cuối, lượt mới nhất = người dẫn đầu hiện tại
+        if (!bidHistory.isEmpty() && bidHistory.getLast().getBidderId().equals(client.getUsername())) {
+            throw new AuctionHighBidException("Người dùng đang sở hữu giá thầu cao nhất");
+        }
+
+        // Happy Path: Xóa phiên khỏi danh sách của client và hủy đăng ký
+        client.getRegisteredAuctions().remove(this.getId());
+        clientList.remove(client);
+    }
+
+    // Cưỡng ép xóa client khỏi phiên đấu giá (Server ngắt kết nối đột ngột).
     public void forcefullyRemoveClient(AuctionClient client) throws AuctionNotRegisteredException {
+
+        // 1. Kiểm tra đăng ký trước
+        if (!getClientList().contains(client)) {
+            throw new AuctionNotRegisteredException("Chưa được đăng ký trong phiên đấu giá");
+        }
 
         AuctionServer server = AuctionServer.getInstance();
 
-        // Kiểm tra xem client đã được đăng ký trong phiên đấu giá chưa
-        if (clientList.contains(client)) {
+        // 2. Xử lý nếu client bị xóa đang là người giữ giá cao nhất
+        // (Sửa lỗi thứ tự kiểm tra rỗng && So sánh Username thay vì IP)
+        // Dùng getLast() vì lịch sử được thêm vào cuối, lượt mới nhất = người dẫn đầu hiện tại
+        if (!bidHistory.isEmpty() && bidHistory.getLast().getBidderId().equals(client.getUsername())) {
+            bidHistory.removeLast(); // Xóa lượt bid cao nhất của client bị ngắt kết nối
 
-            // Kiểm tra xem client có giá thầu cao nhất hay không
-            if (bidHistory.getFirst().getBidderId().equals
-                    (client.getSocket().getInetAddress().getHostAddress()) && !bidHistory.isEmpty()) {
-                bidHistory.remove(0);
-
-                double highestBid = Item.getCurrentItem().getStartingPrice();
-
-                if (!bidHistory.isEmpty()) {
-                    highestBid = bidHistory.getFirst().getBidAmount();
-                }
-
-                // Cập nhật cho những người tham gia về giá thầu cao nhất và chủ sở hữu mới
-                AuctionUpdatePayload auctionUpdate = new AuctionUpdatePayload(this.getId(), getStartTime(), highestBid,
-                        Item.getCurrentItem().getName(), client.getSocketAddress().getAddress().getHostAddress(),
-                        Item.getCurrentItem().getDescription());
-                server.sendPackets(clientList, new PacketMessage(HIGHEST_BID_OWNER_LOST, auctionUpdate));
+            // Lấy giá trị lớn tiếp theo trong lịch sử, nếu rỗng thì trả về giá xuất phát
+            double highestBid = this.startingPrice;
+            if (!bidHistory.isEmpty()) {
+                highestBid = bidHistory.getLast().getBidAmount();
             }
 
-            // Hủy đăng ký client khỏi phiên đấu giá
-            clientList.remove(client);
-
-        } else {
-            throw new AuctionNotRegisteredException("Chưa được đăng ký trong phiên đấu giá");
+            // Gửi cập nhật chủ nhân giá cao mới tới tất cả client còn lại đang online
+            String newBidderId = !bidHistory.isEmpty() ? bidHistory.getLast().getBidderId() : "";
+            AuctionUpdatePayload auctionUpdate = new AuctionUpdatePayload(
+                    this.getId(), getStartTime(), highestBid,
+                    "", newBidderId, "", getEndTime(), getAntiSnipeCount()
+            );
+            server.sendPackets(clientList, new PacketMessage(HIGHEST_BID_OWNER_LOST, auctionUpdate));
         }
+
+        // Hủy đăng ký client khỏi danh sách
+        clientList.remove(client);
     }
-    /*
-    Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client đã được đăng ký trong phiên đấu giá
-    và một đối tượng Bid đại diện cho giá thầu được thực hiện bởi đối tượng Client đó.
 
-    Điều kiện sau: Phương thức thêm đối tượng Bid được cung cấp như một giá thầu hợp lệ
-    vào biến bidList. Đồng thời, biến numberOfHighBids của Client được cung cấp
-    cũng sẽ được tăng thêm 1 nếu thao tác thành công.
-
-    Những thao tác này chỉ có thể xảy ra nếu đối tượng Bid có giá trị lớn hơn
-    giá thầu cao nhất hiện tại (hoặc giá khởi điểm) và đối tượng Client đã được đăng ký
-    trong phiên đấu giá và không phải là chủ sở hữu của phiên đấu giá.
-
-    Phương thức không trả về giá trị nào.
-
-    LƯU Ý:
-    Nếu Client được cung cấp chưa được đăng ký thì sẽ ném ra ngoại lệ AuctionNotRegisteredException.
-
-    Nếu Bid được cung cấp thấp hơn giá thầu hiện tại thì sẽ ném ra ngoại lệ AuctionLowBidException.
-
-    Nếu Client được cung cấp là chủ sở hữu của phiên đấu giá thì sẽ ném ra ngoại lệ
-    AuctionClientIsOwnerException.
-*/
-
+    // Tìm lượt đặt giá cao nhất (lượt mới nhất = cuối danh sách).
     public BidTransaction findHighestBid() {
-        //Check if there are any bids in the auction
-        if (!bidHistory.isEmpty()) {
-            return this.getBidHistory().getFirst();
-        } else {
-            return new BidTransaction(null, null, 0);
-        }
+        return !bidHistory.isEmpty() ? bidHistory.getLast() : new BidTransaction(null, null, 0);
     }
-    /*
-    Điều kiện trước: Không có.
 
-    Điều kiện sau:
-    - Phương thức trả về một giá trị double.
-    - Nếu danh sách bidHistory có phần tử, giá trị trả về là mức giá đấu cao nhất hiện tại.
-    - Nếu bidHistory rỗng, giá trị trả về là 0.
-*/
+    // Tìm giá của vật phẩm hiện tại cao nhất.
     public double findHighestItemPrice() {
-
-        double highestBid = 0;
-
-        if (!bidHistory.isEmpty()) {
-            highestBid = bidHistory.getFirst().getBidAmount();
-        }
-
-        return highestBid;
+        return !bidHistory.isEmpty() ? bidHistory.getLast().getBidAmount() : 0.0;
     }
+
 }
