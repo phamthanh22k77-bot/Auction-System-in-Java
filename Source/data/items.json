@@ -169,28 +169,6 @@
     "category": "ART"
   },
   {
-    "brand": "APPLE",
-    "model": "APPLE",
-    "warranty": 12,
-    "name": "SIÊU LAPTOP LIMITED EDITION",
-    "description": "",
-    "startingPrice": 100000.0,
-    "currentPrice": 100000.0,
-    "id": "e6dfc7f2-cef4-4ed7-89a7-de9d5e0c8a2d",
-    "category": "ELECTRONICS"
-  },
-  {
-    "artist": "ẨN DANH",
-    "medium": "SƠN DẦU",
-    "year": 2026,
-    "name": "TRANH",
-    "description": "",
-    "startingPrice": 1.0E9,
-    "currentPrice": 1.0E9,
-    "id": "2f5b3eb2-6ca9-4571-854c-ea901e65060e",
-    "category": "ART"
-  },
-  {
     "artist": "Sinh Viên K68 UET",
     "medium": "Tranh khảm trai nghệ thuật",
     "year": 2025,
@@ -211,49 +189,5 @@
     "currentPrice": 500000.0,
     "id": "ITEM017",
     "category": "ART"
-  },
-  {
-    "brand": "",
-    "model": "",
-    "warranty": 0,
-    "name": "LAPTOP",
-    "description": "",
-    "startingPrice": 1000.0,
-    "currentPrice": 1000.0,
-    "id": "16fd5bdd-f63d-41ba-9202-639f4bfa7f0a",
-    "category": "ELECTRONICS"
-  },
-  {
-    "brand": "",
-    "model": "",
-    "warranty": 0,
-    "name": "Final",
-    "description": "",
-    "startingPrice": 1.0,
-    "currentPrice": 1.0,
-    "id": "2fd3dc61-bb51-4155-82a3-af5de9e0dc19",
-    "category": "ELECTRONICS"
-  },
-  {
-    "brand": "1",
-    "model": "1",
-    "warranty": 24,
-    "name": "pin",
-    "description": "1",
-    "startingPrice": 5000000.0,
-    "currentPrice": 5000000.0,
-    "id": "6b110fa5-9a6f-4ce4-8623-1c7b7a0e9ef2",
-    "category": "ELECTRONICS"
-  },
-  {
-    "brand": "4",
-    "model": "4",
-    "warranty": 24,
-    "name": "Pin",
-    "description": "?",
-    "startingPrice": 5000000.0,
-    "currentPrice": 5000000.0,
-    "id": "3559c6bd-10a5-47ba-9134-067aa203d077",
-    "category": "ELECTRONICS"
   }
 ]

@@ -41,7 +41,7 @@ public class Auction extends Entity {
 
     // 1. Constructor khởi tạo phiên đấu giá mới
     public Auction(String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime, double startingPrice,
-            double minimumBidIncrement) {
+                   double minimumBidIncrement) {
         super(); // Khởi tạo ID (UUID) từ base class Entity
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -55,8 +55,8 @@ public class Auction extends Entity {
 
     // 2. Constructor dùng khi load dữ liệu từ Database
     public Auction(String id, String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime,
-            double startingPrice, double currentHighestBid, String highestBidderId, double minimumBidIncrement,
-            AuctionStatus status) {
+                   double startingPrice, double currentHighestBid, String highestBidderId, double minimumBidIncrement,
+                   AuctionStatus status) {
         super(id);
         this.itemId = itemId;
         this.sellerId = sellerId;

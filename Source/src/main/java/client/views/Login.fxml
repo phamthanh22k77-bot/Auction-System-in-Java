@@ -10,58 +10,58 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="618.0" prefWidth="926.0" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.LoginController">
+<AnchorPane fx:id="rootPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="441.0" prefWidth="672.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.LoginController">
 
    <children>
 
       <!-- Anh nen -->
-      <ImageView fx:id="imgBackground" fitHeight="631.0" fitWidth="926.0" layoutY="-6.0" pickOnBounds="true" preserveRatio="false" AnchorPane.bottomAnchor="-7.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="-6.0">
+      <ImageView fx:id="imgBackground" fitHeight="441.0" fitWidth="672.0" pickOnBounds="true" preserveRatio="false" AnchorPane.bottomAnchor="0" AnchorPane.leftAnchor="0" AnchorPane.rightAnchor="0" AnchorPane.topAnchor="0">
          <image>
             <Image url="@images/theme_rm.png" />
          </image>
       </ImageView>
 
       <!-- Tieu de -->
-      <Text fill="#4449a1de" layoutX="65.0" layoutY="250.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome Back," textAlignment="CENTER">
-         <font><Font name="Algerian" size="30.0" /></font>
+      <Text fill="#4449a1de" layoutX="40.0" layoutY="173.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Welcome Back," textAlignment="CENTER">
+         <font><Font name="Algerian" size="25.0" /></font>
       </Text>
-      <Text fill="#a43737" layoutX="68.0" layoutY="287.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign in to continue">
-         <font><Font name="Californian FB Bold" size="21.0" /></font>
+      <Text fill="#a43737" layoutX="48.0" layoutY="198.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Sign in to continue">
+         <font><Font name="Californian FB Bold" size="17.0" /></font>
       </Text>
 
       <!-- Username -->
-      <Label layoutX="25.0" layoutY="319.0" text="Username">
-         <font><Font name="System Bold" size="18.0" /></font>
+      <Label layoutX="9.0" layoutY="230.0" text="Username">
+         <font><Font name="System Bold" size="13.0" /></font>
       </Label>
-      <TextField fx:id="tname" layoutX="126.0" layoutY="312.0" prefHeight="42.0" prefWidth="308.0" promptText="Username" style="-fx-background-radius: 50;">
-         <font><Font name="System Italic" size="15.0" /></font>
+      <TextField fx:id="tname" layoutX="72.0" layoutY="227.0" prefHeight="25.0" prefWidth="187.0" promptText="Username" style="-fx-background-radius: 50;">
+         <font><Font name="System Italic" size="12.0" /></font>
       </TextField>
 
       <!-- Password -->
-      <Label layoutX="28.0" layoutY="386.0" text="Password">
-         <font><Font name="System Bold" size="18.0" /></font>
+      <Label layoutX="11.0" layoutY="271.0" text="Password">
+         <font><Font name="System Bold" size="13.0" /></font>
       </Label>
-      <PasswordField fx:id="tpass" layoutX="126.0" layoutY="379.0" prefHeight="42.0" prefWidth="308.0" promptText="Password" style="-fx-background-radius: 50;">
-         <font><Font name="System Italic" size="15.0" /></font>
+      <PasswordField fx:id="tpass" layoutX="72.0" layoutY="268.0" prefHeight="25.0" prefWidth="187.0" promptText="Password" style="-fx-background-radius: 50;">
+         <font><Font name="System Italic" size="12.0" /></font>
       </PasswordField>
 
       <!-- Forgot password -->
-      <Label layoutX="342.0" layoutY="433.0" style="-fx-cursor: hand;" text="Forgot pass?" textFill="#2c49ae">
-         <font><Font name="System Italic" size="15.0" /></font>
+      <Label layoutX="185.0" layoutY="302.0" style="-fx-cursor: hand;" text="Forgot pass?" textFill="#2c49ae">
+         <font><Font name="System Italic" size="12.0" /></font>
       </Label>
 
       <!-- Nut Login -->
-      <Button fx:id="btnCon" layoutX="110.0" layoutY="475.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="40.0" prefWidth="113.0" style="-fx-background-radius: 50; -fx-background-color: #cd5c5c;" text="Login" textFill="LEMONCHIFFON">
-         <font><Font name="System Bold" size="18.0" /></font>
+      <Button fx:id="btnCon" layoutX="72.0" layoutY="339.0" mnemonicParsing="false" onAction="#handleLogin" prefHeight="27.0" prefWidth="88.0" style="-fx-background-radius: 50; -fx-background-color: #cd5c5c;" text="Login" textFill="LEMONCHIFFON">
+         <font><Font name="System Bold" size="13.0" /></font>
       </Button>
 
       <!-- Nut Sign Up -->
-      <Button fx:id="btnSignUp" layoutX="286.0" layoutY="474.0" mnemonicParsing="false" onAction="#handleSignUp" prefHeight="40.0" prefWidth="114.0" style="-fx-background-radius: 50; -fx-background-color: transparent; -fx-border-color: #cd5c5c; -fx-border-radius: 50;" text="Sign Up" textFill="#cd5c5c">
-         <font><Font name="System Bold" size="18.0" /></font>
+      <Button fx:id="btnSignUp" layoutX="171.0" layoutY="339.0" mnemonicParsing="false" onAction="#handleSignUp" prefHeight="27.0" prefWidth="88.0" style="-fx-background-radius: 50; -fx-background-color: transparent; -fx-border-color: #cd5c5c; -fx-border-radius: 50;" text="Sign Up" textFill="#cd5c5c">
+         <font><Font name="System Bold" size="13.0" /></font>
       </Button>
 
       <!-- Label hien loi dang nhap — Controller goi showError() de hien thi -->
-      <Label fx:id="lblError" layoutX="80.0" layoutY="530.0" prefHeight="34.0" prefWidth="353.0" style="-fx-font-size: 12;" text="" textFill="#C62828" wrapText="true">
+      <Label fx:id="lblError" layoutX="72.0" layoutY="374.0" prefWidth="210.0" style="-fx-font-size: 12;" text="" textFill="#C62828" wrapText="true">
       </Label>
 
    </children>

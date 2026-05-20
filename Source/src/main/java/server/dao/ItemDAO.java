@@ -39,15 +39,12 @@ public class ItemDAO {
                     throw new JsonParseException("Lỗi thiếu trường 'category' trong Item JSON");
                 }
                 String category = categoryElement.getAsString();
-
-                String id = jsonObject.has("id") ? jsonObject.get("id").getAsString()
-                        : java.util.UUID.randomUUID().toString();
+                
+                String id = jsonObject.has("id") ? jsonObject.get("id").getAsString() : java.util.UUID.randomUUID().toString();
                 String name = jsonObject.has("name") ? jsonObject.get("name").getAsString() : "";
                 String description = jsonObject.has("description") ? jsonObject.get("description").getAsString() : "";
-                double startingPrice = jsonObject.has("startingPrice") ? jsonObject.get("startingPrice").getAsDouble()
-                        : 0.0;
-                double currentPrice = jsonObject.has("currentPrice") ? jsonObject.get("currentPrice").getAsDouble()
-                        : startingPrice;
+                double startingPrice = jsonObject.has("startingPrice") ? jsonObject.get("startingPrice").getAsDouble() : 0.0;
+                double currentPrice = jsonObject.has("currentPrice") ? jsonObject.get("currentPrice").getAsDouble() : startingPrice;
 
                 return switch (category) {
                     case "ART" -> {
@@ -60,26 +57,21 @@ public class ItemDAO {
                         String brand = jsonObject.has("brand") ? jsonObject.get("brand").getAsString() : "";
                         String model = jsonObject.has("model") ? jsonObject.get("model").getAsString() : "";
                         int warranty = jsonObject.has("warranty") ? jsonObject.get("warranty").getAsInt() : 0;
-                        yield new Electronics(id, name, description, startingPrice, currentPrice, brand, model,
-                                warranty);
+                        yield new Electronics(id, name, description, startingPrice, currentPrice, brand, model, warranty);
                     }
                     case "VEHICLE" -> {
-                        String engineType = jsonObject.has("engineType") ? jsonObject.get("engineType").getAsString()
-                                : "";
+                        String engineType = jsonObject.has("engineType") ? jsonObject.get("engineType").getAsString() : "";
                         int modelYear = jsonObject.has("modelYear") ? jsonObject.get("modelYear").getAsInt() : 0;
                         double mileage = jsonObject.has("mileage") ? jsonObject.get("mileage").getAsDouble() : 0.0;
-                        String licensePlate = jsonObject.has("licensePlate")
-                                ? jsonObject.get("licensePlate").getAsString()
-                                : "";
-                        yield new Vehicle(id, name, description, startingPrice, currentPrice, engineType, modelYear,
-                                mileage, licensePlate);
+                        String licensePlate = jsonObject.has("licensePlate") ? jsonObject.get("licensePlate").getAsString() : "";
+                        yield new Vehicle(id, name, description, startingPrice, currentPrice, engineType, modelYear, mileage, licensePlate);
                     }
                     default -> throw new JsonParseException("Category không hợp lệ: " + category);
                 };
             })
             .registerTypeHierarchyAdapter(Item.class, (JsonSerializer<Item>) (src, typeOfSrc, context) -> {
                 JsonObject jsonObject = new JsonObject();
-
+                
                 if (src instanceof Electronics e) {
                     jsonObject.addProperty("brand", e.getBrand());
                     jsonObject.addProperty("model", e.getModel());
@@ -94,14 +86,14 @@ public class ItemDAO {
                     jsonObject.addProperty("mileage", v.getMileage());
                     jsonObject.addProperty("licensePlate", v.getLicensePlate());
                 }
-
+                
                 jsonObject.addProperty("name", src.getName());
                 jsonObject.addProperty("description", src.getDescription());
                 jsonObject.addProperty("startingPrice", src.getStartingPrice());
                 jsonObject.addProperty("currentPrice", src.getCurrentPrice());
                 jsonObject.addProperty("id", src.getId());
                 jsonObject.addProperty("category", src.getCategory().name());
-
+                
                 return jsonObject;
             })
             .setPrettyPrinting()

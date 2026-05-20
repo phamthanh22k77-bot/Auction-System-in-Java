@@ -66,7 +66,7 @@
     "role": "SELLER"
   },
   {
-    "balance": 4.46299999E8,
+    "balance": 5.082E8,
     "username": "thanh_uet",
     "email": "thanh.uet@vnu.edu.vn",
     "password": "123",
@@ -108,43 +108,6 @@
     "password": "123",
     "isLocked": false,
     "id": "U012",
-    "role": "BIDDER"
-  },
-  {
-    "balance": 3.68E7,
-    "username": "kiet007_uet",
-    "email": "",
-    "password": "123123",
-    "isLocked": false,
-    "id": "85349f1f-3990-433f-b9f4-56da38e04447",
-    "role": "BIDDER"
-  },
-  {
-    "balance": 5.0E7,
-    "username": "kiet010_uet",
-    "email": "",
-    "password": "123",
-    "isLocked": false,
-    "id": "d6a4d272-6852-4484-8d30-a042fbddc1d9",
-    "role": "BIDDER"
-  },
-  {
-    "companyName": "",
-    "rating": 5.0,
-    "username": "seolo1",
-    "email": "",
-    "password": "123",
-    "isLocked": false,
-    "id": "f78862f4-fc35-4288-94c0-b8e9c24ec2e9",
-    "role": "SELLER"
-  },
-  {
-    "balance": 1.0005E11,
-    "username": "bitdo1",
-    "email": "",
-    "password": "123",
-    "isLocked": false,
-    "id": "4ceefaaa-2496-4c33-a87a-a219a8bf0293",
     "role": "BIDDER"
   }
 ]

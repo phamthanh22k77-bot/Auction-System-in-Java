@@ -1,10 +1,10 @@
 package client.controllers;
 
-import client.message.MessageType;
-import client.message.PacketMessage;
-import client.network.ClientSocketManager;
-import javafx.application.Platform;
-import javafx.concurrent.Task;
+import java.io.IOException;
+import java.net.URL;
+import java.util.List;
+import java.util.ResourceBundle;
+
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
@@ -17,153 +17,116 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.stage.Stage;
+import server.dao.UserDAO;
 import server.models.user.User;
-import server.payload.ErrorMessagePayload;
+import client.network.ClientSocketManager;
+import client.message.PacketMessage;
+import client.message.MessageType;
+import server.payload.LoginPayload;
+import server.payload.LoginResponsePayload;
+import javafx.application.Platform;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ResourceBundle;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
+/**
+ * Điều khiển màn hình đăng nhập tài khoản (LoginController).
+ * Giao diện tương ứng: Login.fxml
+ */
 public class LoginController implements Initializable {
 
-    private static final Logger LOGGER = Logger.getLogger(LoginController.class.getName());
-
-    @FXML private TextField tname;
-    @FXML private PasswordField tpass;
-    @FXML private Button btnCon;
-    @FXML private Button btnSignUp;
-    @FXML private Label lblError;
-    @FXML private ImageView imgBackground;
-    @FXML private AnchorPane rootPane;
+    @FXML
+    private TextField tname;
+    @FXML
+    private PasswordField tpass;
+    @FXML
+    private Button btnCon;
+    @FXML
+    private Button btnSignUp;
+    @FXML
+    private Label lblError;
+    @FXML
+    private ImageView imgBackground;
+    @FXML
+    private AnchorPane rootPane;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        // Bind ảnh nền theo kích thước cửa sổ
+        // Tự động kéo dãn kích thước ảnh nền theo kích thước thực tế của cửa sổ hiển thị
         imgBackground.fitWidthProperty().bind(rootPane.widthProperty());
         imgBackground.fitHeightProperty().bind(rootPane.heightProperty());
 
-        // Enter trên ô mật khẩu → đăng nhập luôn
+        // Cho phép người dùng nhấn phím Enter trên ô mật khẩu để đăng nhập nhanh chóng
         tpass.setOnAction(e -> handleLogin());
 
-        // Xoá thông báo lỗi khi người dùng bắt đầu gõ lại
+        // Xóa sạch thông báo lỗi cũ ngay khi người dùng bắt đầu gõ nhập liệu lại
         tname.textProperty().addListener((o, old, nw) -> clearError());
         tpass.textProperty().addListener((o, old, nw) -> clearError());
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // ĐĂNG NHẬP
-    // ═══════════════════════════════════════════════════════════
-
+    // ═════════════════════════════════════════════════════════
+    // XỬ LÝ ĐĂNG NHẬP (LOGIN ACTION)
+    // ═════════════════════════════════════════════════════════
     @FXML
     private void handleLogin() {
         String username = tname.getText().trim();
         String password = tpass.getText();
 
-        if (username.isEmpty()) {
-            showError("Vui lòng nhập tên đăng nhập.");
-            tname.requestFocus();
-            return;
-        }
-        if (password.isEmpty()) {
-            showError("Vui lòng nhập mật khẩu.");
-            tpass.requestFocus();
+        if (username.isEmpty() || password.isEmpty()) {
+            showError("Vui lòng nhập đầy đủ thông tin tài khoản và mật khẩu.");
             return;
         }
 
-        // Disable form trong lúc chờ
-        setFormDisabled(true);
-        showError("Đang kết nối...");
-
-        // Chạy network call trên background thread - KHÔNG block JavaFX thread
-        Task<User> loginTask = new Task<>() {
-            @Override
-            protected User call() throws Exception {
-                return authenticate(username, password);
-            }
-        };
-
-        loginTask.setOnSucceeded(event -> {
-            User user = loginTask.getValue();
-            setFormDisabled(false);
-
-            if (user == null) {
-                // Lỗi có thể đã được hiển thị qua authenticate (ErrorMessagePayload)
-                if (lblError.getText().equals("Đang kết nối...")) {
-                    showError("Sai tên đăng nhập hoặc mật khẩu.");
-                }
-                tpass.clear();
-                tpass.requestFocus();
+        // Tự động kết nối tới Server thông qua Socket nếu phát hiện kết nối chưa sẵn sàng
+        ClientSocketManager socketManager = ClientSocketManager.getInstance();
+        if (!socketManager.isConnected()) {
+            if (!socketManager.connect("localhost", 9090)) {
+                showError("Không thể kết nối tới Server. Vui lòng bật Server hoặc kiểm tra kết nối mạng!");
                 return;
             }
+        }
 
-            LOGGER.info("Đăng nhập thành công: " + user.getUsername() + " [" + user.getRole() + "]");
-            SessionManager.getInstance().setCurrentUser(user);
-            navigateByRole(user.getRole());
+        // Gửi yêu cầu đăng nhập lên Server
+        socketManager.sendPacket(new PacketMessage(MessageType.LOGIN, new LoginPayload(username, password)));
+
+        // Đăng ký bộ lắng nghe phản hồi gói tin kết quả đăng nhập từ Server
+        socketManager.addMessageListener(new java.util.function.Consumer<PacketMessage>() {
+            @Override
+            public void accept(PacketMessage msg) {
+                if (msg.getType() == MessageType.LOGIN_SUCCESS) {
+                    socketManager.removeMessageListener(this);
+                    LoginResponsePayload res = (LoginResponsePayload) msg.getPayload();
+                    Platform.runLater(() -> {
+                        SessionManager.getInstance().setCurrentUser(res.getUser());
+                        navigateByRole(res.getUser().getRole());
+                    });
+                } else if (msg.getType() == MessageType.LOGIN_FAILURE) {
+                    socketManager.removeMessageListener(this);
+                    LoginResponsePayload res = (LoginResponsePayload) msg.getPayload();
+                    Platform.runLater(() -> showError(res.getMessage()));
+                }
+            }
         });
-
-        loginTask.setOnFailed(event -> {
-            setFormDisabled(false);
-            Throwable ex = loginTask.getException();
-            LOGGER.log(Level.SEVERE, "Login task thất bại", ex);
-            showError("Lỗi kết nối: " + (ex != null ? ex.getMessage() : "không rõ"));
-        });
-
-        Thread thread = new Thread(loginTask);
-        thread.setDaemon(true);
-        thread.start();
     }
 
-    private User authenticate(String username, String password) throws Exception {
-        ClientSocketManager csm = ClientSocketManager.getInstance();
-        csm.connect("localhost", 9090);
-
-        String[] credentials = {username, password};
-        PacketMessage request = new PacketMessage(MessageType.LOGIN_REQUEST, credentials);
-        csm.sendMessage(request);
-        LOGGER.info("Gửi " + MessageType.LOGIN_REQUEST + " cho user: " + username);
-
-        PacketMessage response = csm.receiveMessage();
-        LOGGER.info("Nhận phản hồi: " + (response != null ? response.getType() : "null"));
-
-        if (response == null) {
-            throw new Exception("Server không phản hồi.");
-        }
-
-        if (response.getType() == MessageType.AUTH_SUCCESS) {
-            return (User) response.getPayload();
-        }
-
-        if (response.getType() == MessageType.ERROR) {
-            ErrorMessagePayload err = (ErrorMessagePayload) response.getPayload();
-            Platform.runLater(() -> showError(err.getErrorMessage()));
-        }
-
-        return null;
-    }
-
-    // ═══════════════════════════════════════════════════════════
-    // ĐIỀU HƯỚNG
-    // ═══════════════════════════════════════════════════════════
-
+    // ═════════════════════════════════════════════════════════
+    // ĐIỀU HƯỚNG MÀN HÌNH THEO VAI TRÒ (ROUTING & NAVIGATION)
+    // ═════════════════════════════════════════════════════════
     @FXML
     private void handleSignUp() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/views/SignUp.fxml"));
             Parent root = loader.load();
+
             Stage stage = (Stage) btnSignUp.getScene().getWindow();
             stage.setScene(new Scene(root));
             stage.centerOnScreen();
+
         } catch (IOException e) {
-            LOGGER.log(Level.SEVERE, "Không thể mở màn hình đăng ký", e);
-            showError("Không thể mở màn hình đăng ký.");
+            e.printStackTrace();
+            showError("Không thể mở màn hình đăng ký tài khoản.");
         }
     }
 
     private void navigateByRole(String role) {
-        LOGGER.info("Điều hướng theo vai trò: '" + role + "'");
-
+        // Vai trò (Role) được lưu trữ trong tệp JSON dưới dạng chữ HOA: BIDDER, SELLER, ADMIN
         String fxmlPath = switch (role.toUpperCase()) {
             case "BIDDER" -> "/client/views/BidderDashboard.fxml";
             case "SELLER" -> "/client/views/SellerDashboard.fxml";
@@ -172,26 +135,19 @@ public class LoginController implements Initializable {
         };
 
         if (fxmlPath == null) {
-            LOGGER.severe("Vai trò không xác định: '" + role + "'");
-            showError("Vai trò không hợp lệ: " + role);
+            showError("Vai trò của tài khoản không xác định trên hệ thống.");
             return;
         }
 
         try {
-            URL fxmlUrl = getClass().getResource(fxmlPath);
-            if (fxmlUrl == null) {
-                LOGGER.severe("Không tìm thấy FXML: " + fxmlPath);
-                showError("Không tìm thấy file giao diện: " + fxmlPath);
-                return;
-            }
-
-            LOGGER.info("Đang nạp FXML: " + fxmlUrl);
-            FXMLLoader loader = new FXMLLoader(fxmlUrl);
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
             Stage stage = (Stage) btnCon.getScene().getWindow();
+
+            // Tự động phân tách kích thước cửa sổ chuẩn tối ưu riêng cho từng giao diện vai trò
             switch (role.toUpperCase()) {
-                case "BIDDER", "ADMIN" -> {
+                case "BIDDER" -> {
                     stage.setWidth(1200);
                     stage.setHeight(750);
                 }
@@ -199,37 +155,33 @@ public class LoginController implements Initializable {
                     stage.setWidth(1100);
                     stage.setHeight(700);
                 }
+                case "ADMIN" -> {
+                    stage.setWidth(1200);
+                    stage.setHeight(750);
+                }
             }
+
             stage.setScene(new Scene(root));
             stage.centerOnScreen();
-            LOGGER.info("Điều hướng thành công -> " + fxmlPath);
 
-        } catch (Exception e) {
-            LOGGER.log(Level.SEVERE, "Lỗi khi nạp FXML: " + fxmlPath, e);
-            showError("Lỗi tải màn hình: " + e.getMessage());
+        } catch (IOException e) {
+            e.printStackTrace();
+            showError("Không thể tải giao diện màn hình. Vui lòng kiểm tra lại đường dẫn FXML.");
         }
     }
 
-    // ═══════════════════════════════════════════════════════════
-    // HELPER
-    // ═══════════════════════════════════════════════════════════
-
+    // ═════════════════════════════════════════════════════════
+    // PHƯƠNG THỨC TRỢ GIÚP (HELPERS)
+    // ═════════════════════════════════════════════════════════
     private void showError(String msg) {
-        if (lblError != null)
-            Platform.runLater(() -> lblError.setText(msg));
+        if (lblError != null) {
+            lblError.setText(msg);
+        }
     }
 
     private void clearError() {
-        if (lblError != null)
+        if (lblError != null) {
             lblError.setText("");
-    }
-
-    private void setFormDisabled(boolean off) {
-        Platform.runLater(() -> {
-            tname.setDisable(off);
-            tpass.setDisable(off);
-            btnCon.setDisable(off);
-            btnSignUp.setDisable(off);
-        });
+        }
     }
 }
