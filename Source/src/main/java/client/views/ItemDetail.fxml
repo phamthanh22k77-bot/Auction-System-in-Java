@@ -10,7 +10,7 @@
 <BorderPane
     xmlns="http://javafx.com/javafx/17"
     xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="controllers.bidder.ItemDetailController"
+    fx:controller="client.controllers.ItemDetailController"
     style="-fx-background-color: #F5F5F5;">
 
     <!-- ===== TOP BAR ===== -->
@@ -146,7 +146,8 @@
                     </VBox>
 
                     <!-- Action -->
-                    <Button text="Vào phòng đấu giá →"
+                    <Button fx:id="btnEnterBidding"
+                            text="Vào phòng đấu giá →"
                             onAction="#handleEnterBidding"
                             maxWidth="Infinity"
                             style="-fx-background-color: #C62828; -fx-text-fill: white;

@@ -4,31 +4,16 @@ import java.io.Serializable;
 import java.util.Objects;
 
 // Payload dùng để gửi hành động đặt giá (bid) từ client → server
-// 👉 Client tạo object này khi user nhập giá và bấm "Bid"
-// 👉 Server nhận để xử lý logic đấu giá (kiểm tra hợp lệ, cập nhật highest bid,...)
 public class MakeBidPayload implements Serializable {
 
-    // ===== Attributes =====
-
-    // ID của auction mà user đang bid
-    // 👉 Server dùng để xác định đúng phiên đấu giá
     private String auctionID;
+    private double highestBid;
 
-    // Giá mà user muốn đặt (bid mới)
-    // 👉 Phải lớn hơn highestBid hiện tại (server sẽ validate)
-    private float highestBid;
-
-    // ===== Constructor =====
-
-    // Khởi tạo payload với auctionID và giá bid
-    public MakeBidPayload(String auctionID, float highestBid) {
+    public MakeBidPayload(String auctionID, double highestBid) {
         this.auctionID = auctionID;
         this.highestBid = highestBid;
     }
 
-    // ===== Getter & Setter =====
-
-    // Lấy auctionID
     public String getAuctionID() {
         return auctionID;
     }
@@ -37,43 +22,34 @@ public class MakeBidPayload implements Serializable {
         this.auctionID = auctionID;
     }
 
-    // Lấy giá bid user gửi lên
-    public float getHighestBid() {
+    public double getHighestBid() {
         return highestBid;
     }
 
-    public void setHighestBid(float highestBid) {
+    public void setHighestBid(double highestBid) {
         this.highestBid = highestBid;
     }
 
-    // ===== Methods =====
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true; // cùng object
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
 
         MakeBidPayload that = (MakeBidPayload) o;
 
         // So sánh cả auctionID và giá bid
-        return Objects.equals(auctionID, that.auctionID) &&
-                Float.compare(that.highestBid, highestBid) == 0;
+        return Objects.equals(auctionID, that.auctionID) && Double.compare(that.highestBid, highestBid) == 0;
     }
 
     @Override
     public int hashCode() {
-        // Hash dựa trên auctionID + giá bid
         return Objects.hash(auctionID, highestBid);
     }
 
     @Override
     public String toString() {
-        // 👉 Nếu log payload:
-        // System.out.println(payload);
-        // → sẽ in ra thông tin bid được gửi lên server
-        return "BidCreatePayload{" +
-                "auctionID=" + auctionID +
-                ", bidPrice=" + highestBid +
-                '}';
+        return "MakeBidPayload{" + "auctionID='" + auctionID + '\'' + ", highestBid=" + highestBid + '}';
     }
 }

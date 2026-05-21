@@ -1,52 +1,45 @@
 package server.payload;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-//Class được dùng để đóng gói thông tin khi nâng giá thành công trong một phiên đấu giá
-public class ConfirmAuctionBidPayload {
+// Class được dùng để đóng gói thông tin khi nâng giá thành công trong một phiên đấu giá
+public class ConfirmAuctionBidPayload implements Serializable {
 
-    //Attributes
-    private String auctionID;
-    // 👉 Controller (client) dùng để xác định bid thuộc auction nào
-    // 👉 Thường dùng khi server xác nhận bid đã được chấp nhận
+    private static final long serialVersionUID = 1L;
 
-    //Constructors
+    private String auctionID; // ID phiên đấu giá mà bid được chấp nhận
+
     public ConfirmAuctionBidPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
-    //Setters and Getters
     public String getAuctionID() {
         return auctionID;
-        // 👉 Controller dùng để cập nhật UI của auction tương ứng (bid thành công)
     }
 
     public void setAuctionID(String auctionID) {
         this.auctionID = auctionID;
-        // 👉 Controller có thể cập nhật lại trước khi gửi nếu cần
     }
 
-    //Methods
+    // Methods
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof ConfirmAuctionBidPayload)) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         ConfirmAuctionBidPayload that = (ConfirmAuctionBidPayload) o;
-        return Objects.equals(getAuctionID(), that.getAuctionID());
-        // 👉 So sánh 2 payload dựa trên auctionID (dùng trong backend)
+        return Objects.equals(auctionID, that.auctionID);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getAuctionID());
-        // 👉 Dùng khi object nằm trong HashMap/HashSet
+        return Objects.hash(auctionID);
     }
 
     @Override
     public String toString() {
-        // 👉 Controller có thể log payload này khi nhận xác nhận bid thành công
-        return "ConfirmCancelingAuctionPayload{" +
-                "auctionID=" + auctionID +
-                '}';
+        return "ConfirmAuctionBidPayload{" + "auctionID='" + auctionID + '\'' + '}';
     }
 }

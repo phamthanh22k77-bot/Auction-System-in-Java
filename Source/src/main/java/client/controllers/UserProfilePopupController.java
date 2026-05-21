@@ -1,5 +1,9 @@
 package client.controllers;
 
+import client.message.MessageType;
+import client.message.PacketMessage;
+import client.network.ClientSocketManager;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,6 +15,8 @@ import javafx.scene.control.*;
 import javafx.scene.layout.VBox;
 import javafx.scene.shape.Circle;
 import javafx.stage.Stage;
+import server.payload.AuctionListItem;
+import server.payload.AuctionListPayload;
 
 import java.io.IOException;
 import java.net.URL;
@@ -23,27 +29,15 @@ import java.util.ResourceBundle;
  * UserProfilePopupController
  * FXML: UserProfilePopup.fxml
  *
- * Cach su dung tu BidderDashboardController (hoac SellerDashboardController):
- *
- * FXMLLoader loader = new FXMLLoader(
- * getClass().getResource("/client/views/UserProfilePopup.fxml"));
- * Parent root = loader.load();
- * UserProfilePopupController ctrl = loader.getController();
- *
- * // Truyen du lieu thuc te vao:
- * ctrl.setUserInfo("Nguyen Van A", "a@email.com", 5, 1_500_000L);
- * ctrl.setOwnerStage(mainStage); // de logout co the dong popup va quay ve
- * Login
- *
- * Stage popup = new Stage();
- * popup.initOwner(mainStage);
- * popup.initStyle(StageStyle.UNDECORATED);
- * popup.setScene(new Scene(root));
- * popup.show();
+ * Quản lý thông tin tài khoản cá nhân, hạng thành viên, lịch sử đơn hàng và tài chính của người dùng.
+ * - Giải phóng bộ nhớ tối ưu, chống rò rỉ Socket Listener khi đóng Popup.
+ * - Hỗ trợ nạp tiền ảo và đồng bộ hóa thời gian thực lên máy chủ.
  */
 public class UserProfilePopupController implements Initializable {
 
-    // ── Sidebar ───────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════
+    // FXML — SIDEBAR HỒ SƠ
+    // ════════════════════════════════════════════════════════
     @FXML
     private Circle avatarCircle;
     @FXML
@@ -53,7 +47,9 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private Label lblSidebarRank;
 
-    // ── Nav buttons ───────────────────────────────────────────
+    // ════════════════════════════════════════════════════════
+    // FXML — NÚT ĐIỀU HƯỚNG SIDEBAR
+    // ════════════════════════════════════════════════════════
     @FXML
     private Button btnNavInfo;
     @FXML
@@ -63,7 +59,9 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private Button btnNavSettings;
 
-    // ── Panes ─────────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════
+    // FXML — CÁC PHÂN KHU GIAO DIỆN (PANES)
+    // ════════════════════════════════════════════════════════
     @FXML
     private VBox paneInfo;
     @FXML
@@ -73,7 +71,9 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private VBox paneSettings;
 
-    // ── Pane Info ─────────────────────────────────────────────
+    // ════════════════════════════════════════════════════════
+    // FXML — THÔNG TIN CHI TIẾT TÀI KHOẢN (PANE INFO)
+    // ════════════════════════════════════════════════════════
     @FXML
     private Label lblRankIcon;
     @FXML
@@ -81,9 +81,9 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private Label lblRankDesc;
     @FXML
-    private Label lblName; // <-- Ho ten hien thi
+    private Label lblName;
     @FXML
-    private Label lblEmail; // <-- Email hien thi
+    private Label lblEmail;
     @FXML
     private Label lblOrdersCount;
     @FXML
@@ -91,7 +91,9 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private ProgressBar progressRank;
 
-    // ── Pane Orders ───────────────────────────────────────────
+    // ════════════════════════════════════════════════════════
+    // FXML — LỊCH SỬ ĐƠN HÀNG (PANE ORDERS)
+    // ════════════════════════════════════════════════════════
     @FXML
     private Button btnOrdAll;
     @FXML
@@ -103,7 +105,9 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private Label lblOrdersEmpty;
 
-    // ── Pane Finance ──────────────────────────────────────────
+    // ════════════════════════════════════════════════════════
+    // FXML — TÀI CHÍNH & GIAO DỊCH (PANE FINANCE)
+    // ════════════════════════════════════════════════════════
     @FXML
     private Label lblBalance;
     @FXML
@@ -111,7 +115,9 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private ListView<String> listTransactions;
 
-    // ── Pane Settings ─────────────────────────────────────────
+    // ════════════════════════════════════════════════════════
+    // FXML — THIẾT LẬP BẢO MẬT & THÔNG BÁO (PANE SETTINGS)
+    // ════════════════════════════════════════════════════════
     @FXML
     private Label lblPassError;
     @FXML
@@ -121,58 +127,110 @@ public class UserProfilePopupController implements Initializable {
     @FXML
     private CheckBox chkNotifyEnd;
 
-    // ── State noi bo ──────────────────────────────────────────
-    /** Du lieu user duoc truyen vao tu man hinh goi */
+    // ════════════════════════════════════════════════════════
+    // DỮ LIỆU & TRẠNG THÁI NỘI BỘ (STATE & PROPERTIES)
+    // ════════════════════════════════════════════════════════
     private String currentName;
     private String currentEmail;
     private int totalOrders;
-    private long balance; // don vi: dong VND
+    private long balance;
 
-    /** Cua so chinh (BidderDashboard) de logout co the quay ve Login */
     private Stage ownerStage;
-
-    /** Button nav dang active */
+    private final ObservableList<String> transactionData = FXCollections.observableArrayList();
     private Button activeNavBtn;
+    private List<AuctionListItem> allMyAuctions = new java.util.ArrayList<>();
 
-    // Style cho nav button
-    private static final String NAV_ACTIVE = "-fx-background-color: #E8F4FD; -fx-text-fill: #1A5276;" +
-            "-fx-background-radius: 8; -fx-cursor: hand;" +
-            "-fx-padding: 9 8; -fx-font-size: 11; -fx-font-weight: bold;" +
-            "-fx-alignment: CENTER_LEFT;";
-    private static final String NAV_INACTIVE = "-fx-background-color: transparent; -fx-text-fill: #5D6D7E;" +
-            "-fx-background-radius: 8; -fx-cursor: hand;" +
-            "-fx-padding: 9 8; -fx-font-size: 11;" +
-            "-fx-alignment: CENTER_LEFT;";
+    // Bộ lắng nghe sự kiện mạng (Được quản lý để giải phóng bộ nhớ triệt để)
+    private java.util.function.Consumer<PacketMessage> socketListener;
 
-    // Format tien VND
+    // Định dạng giao diện CSS cho các nút Sidebar
+    private static final String NAV_ACTIVE = "-fx-background-color: #E8F4FD; -fx-text-fill: #1A5276;"
+            + "-fx-background-radius: 8; -fx-cursor: hand;"
+            + "-fx-padding: 9 8; -fx-font-size: 11; -fx-font-weight: bold;" + "-fx-alignment: CENTER_LEFT;";
+    private static final String NAV_INACTIVE = "-fx-background-color: transparent; -fx-text-fill: #5D6D7E;"
+            + "-fx-background-radius: 8; -fx-cursor: hand;" + "-fx-padding: 9 8; -fx-font-size: 11;"
+            + "-fx-alignment: CENTER_LEFT;";
+
+    // Định dạng tiền tệ VND chuẩn Việt Nam
     private static final NumberFormat VND = NumberFormat.getNumberInstance(Locale.forLanguageTag("vi-VN"));
 
     // ═════════════════════════════════════════════════════════
-    // INITIALIZE
+    // KHỞI TẠO HỆ THỐNG (INITIALIZE)
     // ═════════════════════════════════════════════════════════
-
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Hien pane Info mac dinh, active nut tuong ung
+        // Hiển thị Pane thông tin cá nhân mặc định
         showPane(paneInfo, btnNavInfo);
 
-        // Tai du lieu don hang va giao dich mau (thay bang server sau)
-        loadOrdersMock();
+        // Khởi tạo và đăng ký Bộ lắng nghe mạng an toàn chống leak
+        socketListener = this::handleServerMessage;
+        ClientSocketManager.getInstance().addMessageListener(socketListener);
+
+        // Yêu cầu danh sách phiên đấu giá cá nhân của tôi từ Server
+        requestMyAuctions();
+
+        // Tải danh sách giao dịch
         loadTransactionsMock();
     }
 
-    // ═════════════════════════════════════════════════════════
-    // PUBLIC API — goi tu BidderDashboardController
-    // ═════════════════════════════════════════════════════════
+    private void requestMyAuctions() {
+        System.out.println("[Profile] Đang gửi yêu cầu lấy danh sách đấu giá cá nhân...");
+        ClientSocketManager.getInstance().sendPacket(new PacketMessage(MessageType.REQUEST_MY_AUCTIONS, null));
+    }
 
-    /**
-     * Nhan thong tin user tu man hinh goi va dien vao toan bo giao dien.
-     *
-     * @param name        Ho ten day du cua user
-     * @param email       Dia chi email
-     * @param ordersCount Tong so don dau gia thanh cong
-     * @param balance     So du hien tai (dong VND)
-     */
+    private void handleServerMessage(PacketMessage msg) {
+        if (msg.getType() == MessageType.SEND_MY_AUCTIONS) {
+            AuctionListPayload payload = (AuctionListPayload) msg.getPayload();
+            if (payload != null) {
+                this.allMyAuctions = payload.getAuctionList();
+                Platform.runLater(() -> renderOrders(this.allMyAuctions));
+            }
+        }
+    }
+
+    private void renderOrders(List<AuctionListItem> auctions) {
+        ObservableList<String> items = FXCollections.observableArrayList();
+        int wonCount = 0;
+        String myUser = SessionManager.getInstance().getUsername();
+
+        for (AuctionListItem a : auctions) {
+            String status = a.getStatus();
+            String statusIcon = "🏃";
+            String resultText = "Đang diễn ra";
+
+            boolean isFinished = "FINISHED".equalsIgnoreCase(status) || "PAID".equalsIgnoreCase(status);
+            boolean isWinner = a.getHighestBidderId() != null && a.getHighestBidderId().equalsIgnoreCase(myUser);
+
+            if (isFinished) {
+                if (isWinner) {
+                    statusIcon = "✅";
+                    resultText = "Thắng";
+                    wonCount++;
+                } else {
+                    statusIcon = "❌";
+                    resultText = "Thua";
+                }
+            } else if ("CANCELED".equalsIgnoreCase(status)) {
+                statusIcon = "🚫";
+                resultText = "Đã hủy";
+            }
+
+            items.add(String.format("%s %s — %s ₫ (%s)", statusIcon, a.getItemName(), VND.format(a.getHighestBid()),
+                    resultText));
+        }
+        listOrders.setItems(items);
+        lblOrdersEmpty.setVisible(items.isEmpty());
+        lblOrdersEmpty.setManaged(items.isEmpty());
+
+        // Cập nhật lại tổng số đơn thắng thực tế và số dư đồng bộ từ Session
+        this.totalOrders = wonCount;
+        this.balance = (long) SessionManager.getInstance().getBalance();
+        applyUserInfoToUI();
+    }
+
+    // ═════════════════════════════════════════════════════════
+    // PUBLIC API — TRUYỀN DỮ LIỆU TỪ DASHBOARD CHÍNH
+    // ═════════════════════════════════════════════════════════
     public void setUserInfo(String name, String email, int ordersCount, long balance) {
         this.currentName = name != null ? name : "";
         this.currentEmail = email != null ? email : "";
@@ -182,55 +240,32 @@ public class UserProfilePopupController implements Initializable {
         applyUserInfoToUI();
     }
 
-    /**
-     * Truyen stage chinh de handleLogout co the dong popup va quay ve Login.
-     * Neu khong set, logout chi dong popup.
-     */
     public void setOwnerStage(Stage ownerStage) {
         this.ownerStage = ownerStage;
     }
 
     // ═════════════════════════════════════════════════════════
-    // AP DUNG DU LIEU LEN GIAO DIEN
+    // ÁNH XẠ DỮ LIỆU LÊN GIAO DIỆN (UI BINDING)
     // ═════════════════════════════════════════════════════════
-
-    /**
-     * Dien tat ca Label/ProgressBar theo currentName, currentEmail, totalOrders,
-     * balance.
-     * Duoc goi lai moi khi setUserInfo() duoc cap nhat.
-     */
     private void applyUserInfoToUI() {
-
-        // ── Sidebar ──────────────────────────────────────────
-        // Initial (chu cai dau cua ten)
+        // ── Sidebar ──
         String initial = currentName.isEmpty() ? "?" : String.valueOf(currentName.charAt(0)).toUpperCase();
         lblAvatarInitial.setText(initial);
         lblSidebarName.setText(currentName);
 
-        // ── Pane Info: Ho ten & Email ─────────────────────────
-        // Day la 2 truong chinh duoc ket noi data theo yeu cau
+        // ── Thông tin chi tiết ──
         lblName.setText(currentName.isEmpty() ? "—" : currentName);
         lblEmail.setText(currentEmail.isEmpty() ? "—" : currentEmail);
 
-        // ── Pane Info: So don & hang thanh vien ───────────────
-        lblOrdersCount.setText(totalOrders + " đơn");
+        // ── Hạng thành viên ──
+        lblOrdersCount.setText(totalOrders + " đơn thắng");
         applyRank(totalOrders);
 
-        // ── Pane Finance: So du ───────────────────────────────
+        // ── Số dư tài chính ──
         lblBalance.setText(VND.format(balance) + " ₫");
-        // frozenBalance hien tai hardcode 0; thay bang server sau
         lblFrozenBalance.setText("Đang đặt cọc: 0 ₫");
     }
 
-    /**
-     * Tinh hang thanh vien dua tren so don thanh cong:
-     * 0–9 : Dong (can 10 don de len hang)
-     * 10–29 : Bac (can 30 don de len hang)
-     * 30–59 : Vang (can 60 don de len hang)
-     * 60+ : Kim Cuong
-     *
-     * TODO: thay nguong bang gia tri lay tu server/config.
-     */
     private void applyRank(int orders) {
         String icon, title, desc, sidebarRank;
         int current, next;
@@ -240,21 +275,21 @@ public class UserProfilePopupController implements Initializable {
             title = "Hạng Đồng";
             current = orders;
             next = 10;
-            desc = "Cần thêm " + (next - orders) + " đơn để lên Hạng Bạc";
+            desc = "Cần thêm " + (next - orders) + " đơn thắng để lên Hạng Bạc";
             sidebarRank = "Hạng Đồng";
         } else if (orders < 30) {
             icon = "🥈";
             title = "Hạng Bạc";
             current = orders - 10;
-            next = 20; // 20 don trong hang Bac
-            desc = "Cần thêm " + (30 - orders) + " đơn để lên Hạng Vàng";
+            next = 20;
+            desc = "Cần thêm " + (30 - orders) + " đơn thắng để lên Hạng Vàng";
             sidebarRank = "Hạng Bạc";
         } else if (orders < 60) {
             icon = "🥇";
             title = "Hạng Vàng";
             current = orders - 30;
             next = 30;
-            desc = "Cần thêm " + (60 - orders) + " đơn để lên Kim Cương";
+            desc = "Cần thêm " + (60 - orders) + " đơn thắng để lên Kim Cương";
             sidebarRank = "Hạng Vàng";
         } else {
             icon = "💎";
@@ -274,69 +309,79 @@ public class UserProfilePopupController implements Initializable {
     }
 
     // ═════════════════════════════════════════════════════════
-    // NAVIGATION
+    // SIDEBAR NAVIGATION HANDLERS
     // ═════════════════════════════════════════════════════════
-
     @FXML
     private void handleNav(javafx.event.ActionEvent event) {
         Button src = (Button) event.getSource();
-        if (src == btnNavInfo)
+        if (src == btnNavInfo) {
             showPane(paneInfo, btnNavInfo);
-        else if (src == btnNavOrders)
+        } else if (src == btnNavOrders) {
             showPane(paneOrders, btnNavOrders);
-        else if (src == btnNavFinance)
+        } else if (src == btnNavFinance) {
             showPane(paneFinance, btnNavFinance);
-        else if (src == btnNavSettings)
+        } else if (src == btnNavSettings) {
             showPane(paneSettings, btnNavSettings);
+        }
     }
 
     private void showPane(VBox target, Button navBtn) {
-        // An tat ca pane
         for (VBox pane : List.of(paneInfo, paneOrders, paneFinance, paneSettings)) {
             pane.setVisible(false);
             pane.setManaged(false);
         }
-        // Hien pane duoc chon
         target.setVisible(true);
         target.setManaged(true);
 
-        // Cap nhat style nav button
-        if (activeNavBtn != null)
+        if (activeNavBtn != null) {
             activeNavBtn.setStyle(NAV_INACTIVE);
+        }
         navBtn.setStyle(NAV_ACTIVE);
         activeNavBtn = navBtn;
     }
 
     // ═════════════════════════════════════════════════════════
-    // HANDLER: DONG POPUP
+    // GIAO DIỆN HỦY/ĐÓNG POPUP (CLEAN UP LIFE CYCLE)
     // ═════════════════════════════════════════════════════════
-
     @FXML
     private void handleClose() {
+        // Hủy đăng ký listener ngay lập tức trước khi đóng cửa sổ để tránh leak bộ nhớ
+        if (socketListener != null) {
+            ClientSocketManager.getInstance().removeMessageListener(socketListener);
+        }
         Stage popup = (Stage) btnNavInfo.getScene().getWindow();
         popup.close();
     }
 
     // ═════════════════════════════════════════════════════════
-    // HANDLER: DANG XUAT
+    // THAO TÁC ĐĂNG XUẤT (LOGOUT)
     // ═════════════════════════════════════════════════════════
-
     @FXML
     private void handleLogout() {
-        // Dong popup truoc
         Stage popup = (Stage) btnNavInfo.getScene().getWindow();
         popup.close();
 
-        if (ownerStage == null)
-            return;
+        // Gỡ bỏ Listener mạng ngầm bảo toàn bộ nhớ
+        if (socketListener != null) {
+            ClientSocketManager.getInstance().removeMessageListener(socketListener);
+        }
 
-        // Quay ve man hinh Login
+        if (ownerStage == null) {
+            return;
+        }
+
         try {
-            Parent root = FXMLLoader.load(
-                    getClass().getResource("/client/views/Login.fxml"));
+            // Ngắt kết nối socket mạng và xóa Session sạch sẽ
+            String username = SessionManager.getInstance().getUsername();
+            ClientSocketManager.getInstance().sendPacket(new PacketMessage(MessageType.DISCONNECT, username));
+            ClientSocketManager.getInstance().disconnect();
+            SessionManager.getInstance().clear();
+
+            // Quay về màn hình Login với kích thước đồng bộ 900x600 chuẩn của dự án
+            Parent root = FXMLLoader.load(getClass().getResource("/client/views/Login.fxml"));
             ownerStage.setScene(new Scene(root));
-            ownerStage.setWidth(480);
-            ownerStage.setHeight(520);
+            ownerStage.setWidth(900);
+            ownerStage.setHeight(600);
             ownerStage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();
@@ -344,98 +389,127 @@ public class UserProfilePopupController implements Initializable {
     }
 
     // ═════════════════════════════════════════════════════════
-    // HANDLER: DON HANG — loc tab
+    // BỘ LỌC ĐƠN HÀNG ĐẤU GIÁ (ORDER TABS)
     // ═════════════════════════════════════════════════════════
-
     @FXML
     private void handleOrderFilter(javafx.event.ActionEvent event) {
-        // TODO: thay bang loc server thuc (gui userId + filter len server)
         Button src = (Button) event.getSource();
         styleOrderTab(src);
 
-        ObservableList<String> items;
-        if (src == btnOrdWon) {
-            items = FXCollections.observableArrayList(
-                    "✅ iPhone 15 Pro — 17,500,000 ₫ (15/04)",
-                    "✅ Tranh Sơn Dầu — 8,500,000 ₫ (12/04)");
-        } else if (src == btnOrdLost) {
-            items = FXCollections.observableArrayList(
-                    "❌ Samsung TV 65\" — Thua (14/04)");
-        } else {
-            // Tab "Tat ca"
-            items = FXCollections.observableArrayList(
-                    "✅ iPhone 15 Pro — 17,500,000 ₫ (15/04)",
-                    "✅ Tranh Sơn Dầu — 8,500,000 ₫ (12/04)",
-                    "❌ Samsung TV 65\" — Thua (14/04)");
+        if (allMyAuctions == null || allMyAuctions.isEmpty()) {
+            return;
         }
 
-        listOrders.setItems(items);
-        boolean isEmpty = items.isEmpty();
-        lblOrdersEmpty.setVisible(isEmpty);
-        lblOrdersEmpty.setManaged(isEmpty);
+        List<AuctionListItem> filtered;
+        String myUser = SessionManager.getInstance().getUsername();
+
+        if (src == btnOrdWon) {
+            filtered = allMyAuctions.stream()
+                    .filter(a -> ("FINISHED".equalsIgnoreCase(a.getStatus()) || "PAID".equalsIgnoreCase(a.getStatus()))
+                            && myUser.equalsIgnoreCase(a.getHighestBidderId()))
+                    .toList();
+        } else if (src == btnOrdLost) {
+            filtered = allMyAuctions.stream()
+                    .filter(a -> ("FINISHED".equalsIgnoreCase(a.getStatus()) || "PAID".equalsIgnoreCase(a.getStatus()))
+                            && !myUser.equalsIgnoreCase(a.getHighestBidderId()))
+                    .toList();
+        } else {
+            filtered = allMyAuctions;
+        }
+
+        renderOrders(filtered);
     }
 
-    /** Cap nhat style 3 nut tab loc don hang */
     private void styleOrderTab(Button active) {
-        String ACTIVE_STYLE = "-fx-background-color: #2C3E50; -fx-text-fill: white;" +
-                "-fx-background-radius: 20; -fx-cursor: hand;" +
-                "-fx-padding: 4 14; -fx-font-size: 11;";
-        String INACTIVE_STYLE = "-fx-background-color: #ECF0F1; -fx-text-fill: #5D6D7E;" +
-                "-fx-background-radius: 20; -fx-cursor: hand;" +
-                "-fx-padding: 4 14; -fx-font-size: 11;";
+        String ACTIVE_STYLE = "-fx-background-color: #2C3E50; -fx-text-fill: white;"
+                + "-fx-background-radius: 20; -fx-cursor: hand;" + "-fx-padding: 4 14; -fx-font-size: 11;";
+        String INACTIVE_STYLE = "-fx-background-color: #ECF0F1; -fx-text-fill: #5D6D7E;"
+                + "-fx-background-radius: 20; -fx-cursor: hand;" + "-fx-padding: 4 14; -fx-font-size: 11;";
         for (Button btn : List.of(btnOrdAll, btnOrdWon, btnOrdLost)) {
             btn.setStyle(btn == active ? ACTIVE_STYLE : INACTIVE_STYLE);
         }
     }
 
     // ═════════════════════════════════════════════════════════
-    // HANDLER: TAI CHINH
+    // GIAO DỊCH TÀI CHÍNH (FINANCIAL OPERATIONS)
     // ═════════════════════════════════════════════════════════
-
     @FXML
     private void handleTopUp() {
-        // TODO: mo dialog nap tien, goi server.topUp(userId, amount)
-        showInfo("Nạp tiền", "Tính năng nạp tiền đang được phát triển.");
+        TextInputDialog dialog = new TextInputDialog("1000000");
+        dialog.setTitle("Nạp tiền vào tài khoản");
+        dialog.setHeaderText("Hệ thống nạp tiền ảo siêu tốc");
+        dialog.setContentText("Nhập số tiền muốn nạp (VNĐ):");
+
+        java.util.Optional<String> result = dialog.showAndWait();
+        result.ifPresent(amountStr -> {
+            try {
+                double amount = Double.parseDouble(amountStr);
+                if (amount <= 0) {
+                    showError("Lỗi giao dịch", "Số tiền nạp phải là số dương lớn hơn 0.");
+                    return;
+                }
+
+                // 1. Cập nhật số dư vào Session dùng chung
+                server.models.user.User currentUser = SessionManager.getInstance().getCurrentUser();
+                if (currentUser instanceof server.models.user.Bidder) {
+                    server.models.user.Bidder bidder = (server.models.user.Bidder) currentUser;
+                    double newBalance = bidder.getBalance() + amount;
+                    bidder.setBalance(newBalance);
+
+                    // 2. Cập nhật lại số dư trên cửa sổ Popup hiện tại
+                    this.balance = (long) newBalance;
+
+                    // 3. Làm mới UI của Popup
+                    applyUserInfoToUI();
+
+                    // 4. Đồng bộ hóa số dư tức thời lên Server qua Socket
+                    ClientSocketManager.getInstance()
+                            .sendPacket(new PacketMessage(MessageType.BALANCE_UPDATE, currentUser));
+
+                    // 5. Ghi nhận lịch sử giao dịch thành công
+                    String dateStr = java.time.LocalDate.now()
+                            .format(java.time.format.DateTimeFormatter.ofPattern("dd/MM"));
+                    transactionData.add(0, "+ " + VND.format(amount) + " ₫  Nạp tiền (" + dateStr + ")");
+
+                    // Thông báo thành công tới người dùng
+                    showInfo("Thành công", "Đã nạp thành công " + VND.format(amount) + " ₫.\nSố dư khả dụng mới: "
+                            + VND.format(newBalance) + " ₫");
+                }
+            } catch (NumberFormatException e) {
+                showError("Lỗi định dạng", "Vui lòng nhập số tiền hợp lệ (ví dụ: 1000000).");
+            }
+        });
+    }
+
+    private void showError(String title, String content) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
     }
 
     @FXML
     private void handleWithdraw() {
-        // TODO: mo dialog rut tien, goi server.withdraw(userId, amount)
-        showInfo("Rút tiền", "Tính năng rút tiền đang được phát triển.");
+        showInfo("Rút tiền", "Tính năng liên kết ngân hàng rút tiền đang được phát triển.");
+    }
+
+    @FXML
+    private void handleChangePassword() {
+        showInfo("Bảo mật", "Tính năng thay đổi mật khẩu đang được phát triển.");
     }
 
     // ═════════════════════════════════════════════════════════
-    // MOCK DATA — thay bang dao/server thuc
+    // LỊCH SỬ GIAO DỊCH (MOCK & LIFECYCLE)
     // ═════════════════════════════════════════════════════════
-
-    /**
-     * Dien danh sach don hang mau.
-     * TODO: thay bang List<OrderItem> lay tu server.getOrders(userId)
-     */
-    private void loadOrdersMock() {
-        listOrders.setItems(FXCollections.observableArrayList(
-                "✅ iPhone 15 Pro — 17,500,000 ₫ (15/04)",
-                "✅ Tranh Sơn Dầu — 8,500,000 ₫ (12/04)",
-                "❌ Samsung TV 65\" — Thua (14/04)"));
-        lblOrdersEmpty.setVisible(false);
-        lblOrdersEmpty.setManaged(false);
-    }
-
-    /**
-     * Dien danh sach giao dich mau.
-     * TODO: thay bang List<Transaction> lay tu server.getTransactions(userId)
-     */
     private void loadTransactionsMock() {
-        listTransactions.setItems(FXCollections.observableArrayList(
-                "+ 2,000,000 ₫  Nạp tiền (10/04)",
-                "− 500,000 ₫   Đặt cọc phiên AUC001 (11/04)",
-                "+ 500,000 ₫   Hoàn cọc AUC002 (13/04)"));
+        transactionData.clear();
+        listTransactions.setItems(transactionData);
     }
 
     // ═════════════════════════════════════════════════════════
-    // HELPER
+    // HỘ TRỢ HIỂN THỊ (UI HELPERS)
     // ═════════════════════════════════════════════════════════
-
     private void showInfo(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);

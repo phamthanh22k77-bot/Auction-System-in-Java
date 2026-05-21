@@ -3,45 +3,46 @@ package server.payload;
 import java.io.Serializable;
 import java.util.Objects;
 
-
-// Class này đại diện cho 1 item trong danh sách auction (dùng để hiển thị list cho client)
-// Implement Serializable để gửi qua mạng (socket)
+// Lớp đại diện cho 1 phiên đấu giá trong danh sách truyền tải qua Socket
 public class AuctionListItem implements Serializable {
 
-    // ===== Attributes =====
+    private static final long serialVersionUID = 1L;
 
-    // ID của auction
     private String auctionID;
-
-    // Giá khởi điểm của item
     private double itemStartingPrice;
-
-    // Tên item
     private String itemName;
-
-    // Mô tả item
     private String itemDescription;
-
-    // IP của người tạo auction
     private String auctionOwnerIP;
-
-    // Giá bid cao nhất hiện tại
     private double highestBid;
+    private String category;
+    private String startTime;
+    private String endTime;
+    private String status;
+    private String highestBidderId;
 
-    // ===== Constructor =====
-
-    // Khởi tạo đầy đủ thông tin của 1 auction item
-    public AuctionListItem(String auctionID, double itemStartingPrice, String itemName,
-                           String itemDescription, String auctionOwnerIP, double highestBid) {
+    public AuctionListItem(String auctionID, double itemStartingPrice, String itemName, String itemDescription,
+                           String auctionOwnerIP, double highestBid, String category, String startTime, String endTime, String status,
+                           String highestBidderId) {
         this.auctionID = auctionID;
         this.itemStartingPrice = itemStartingPrice;
         this.itemName = itemName;
         this.itemDescription = itemDescription;
         this.auctionOwnerIP = auctionOwnerIP;
         this.highestBid = highestBid;
+        this.category = category;
+        this.startTime = startTime;
+        this.endTime = endTime;
+        this.status = status;
+        this.highestBidderId = highestBidderId;
     }
 
-    // ===== Getter & Setter =====
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
 
     public String getAuctionID() {
         return auctionID;
@@ -55,7 +56,7 @@ public class AuctionListItem implements Serializable {
         return itemStartingPrice;
     }
 
-    public void setItemStartingPrice(float itemStartingPrice) {
+    public void setItemStartingPrice(double itemStartingPrice) {
         this.itemStartingPrice = itemStartingPrice;
     }
 
@@ -87,47 +88,82 @@ public class AuctionListItem implements Serializable {
         return highestBid;
     }
 
-    public void setHighestBid(float highestBid) {
+    public void setHighestBid(double highestBid) {
         this.highestBid = highestBid;
     }
 
-    // ===== Methods =====
+    public String getCategory() {
+        return category;
+    }
 
-    // So sánh 2 object có giống nhau không
-    // → phải giống toàn bộ thuộc tính
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getHighestBidderId() {
+        return highestBidderId;
+    }
+
+    public void setHighestBidderId(String highestBidderId) {
+        this.highestBidderId = highestBidderId;
+    }
+
+
+    // So sánh 2 đối tượng đồng nhất dựa trên TẤT CẢ các thuộc tính dữ liệu
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true; // cùng object
-        if (o == null || getClass() != o.getClass()) return false; // khác kiểu
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
 
         AuctionListItem that = (AuctionListItem) o;
 
-        return Objects.equals(auctionID, that.auctionID) && // so ID
-                Double.compare(that.itemStartingPrice, itemStartingPrice) == 0 && // so float an toàn
+        return Double.compare(that.itemStartingPrice, itemStartingPrice) == 0 &&
                 Double.compare(that.highestBid, highestBid) == 0 &&
-                Objects.equals(itemName, that.itemName) && // so String
+                Objects.equals(auctionID, that.auctionID) &&
+                Objects.equals(itemName, that.itemName) &&
                 Objects.equals(itemDescription, that.itemDescription) &&
-                Objects.equals(auctionOwnerIP, that.auctionOwnerIP);
+                Objects.equals(auctionOwnerIP, that.auctionOwnerIP) &&
+                Objects.equals(category, that.category) &&
+                Objects.equals(endTime, that.endTime) &&
+                Objects.equals(status, that.status) &&
+                Objects.equals(highestBidderId, that.highestBidderId);
     }
 
-    // HashCode dùng cho HashMap, HashSet
-    // Phải đồng bộ với equals
+    // Đồng bộ mã băm (hashCode) với equals để tránh lỗi khi dùng Map/Set
     @Override
     public int hashCode() {
-        return Objects.hash(auctionID, itemStartingPrice, itemName,
-                itemDescription, auctionOwnerIP, highestBid);
+        return Objects.hash(auctionID, itemStartingPrice, itemName, itemDescription,
+                auctionOwnerIP, highestBid, category, endTime, status, highestBidderId);
     }
 
-    // Dùng debug/log → in object ra dạng chuỗi
+    // Định dạng chuỗi đại diện hiển thị đầy đủ thông tin nhất để phục vụ in log debug
     @Override
     public String toString() {
         return "AuctionListItem{" +
-                "auctionID=" + auctionID +
-                ", itemStartingPrice=" + itemStartingPrice +
+                "auctionID='" + auctionID + '\'' +
                 ", itemName='" + itemName + '\'' +
-                ", itemDescription='" + itemDescription + '\'' +
-                ", auctionOwnerIP='" + auctionOwnerIP + '\'' +
+                ", category='" + category + '\'' +
+                ", itemStartingPrice=" + itemStartingPrice +
                 ", highestBid=" + highestBid +
+                ", highestBidderId='" + highestBidderId + '\'' +
+                ", status='" + status + '\'' +
+                ", endTime='" + endTime + '\'' +
                 '}';
     }
 }

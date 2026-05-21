@@ -3,28 +3,36 @@ package server.network;
 import server.models.auction.Auction;
 import server.models.item.Item;
 import server.models.network.*;
+import server.models.auction.*;
+import server.models.network.ServerNoAuctionException;
+import server.auction.AuctionLowBidException;
 import server.auction.*;
 import client.message.PacketMessage;
 import server.payload.*;
-import server.models.auction.*;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+
 
 public class AuctionServer {
 
     private static ExecutorService pool = Executors.newFixedThreadPool(10);
     private static ServerSocket serverSocket;
-    private static Map<String, ClientHandler> clientHandlers = new HashMap<>();
+    // Quản lý các Client kết nối bằng ConcurrentHashMap để an toàn đa luồng (Thread-safe)
+    private static Map<String, ClientHandler> clientHandlers = new ConcurrentHashMap<>();
     private static AuctionServer instance;
-    private static Map<String, Auction> auctions = new HashMap<>();
+    private static ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
     private static boolean isAcceptingAuctions = false;
     private static boolean isListening = false;
 
@@ -37,7 +45,7 @@ public class AuctionServer {
             e.printStackTrace();
         }
     }
-    //Getters and Setters
+
     public ExecutorService getPool() {
         return pool;
     }
@@ -70,14 +78,7 @@ public class AuctionServer {
         AuctionServer.clientHandlers = clientHandlers;
     }
 
-    public Map<String, Auction> getAuctions() {
-        return auctions;
-    }
-
-    public void setAuctions(Map<String, Auction> auctions) {
-        this.auctions = auctions;
-    }
-
+    // Mọi truy cập đều thông qua AuctionManager.
     public boolean isAcceptingAuctions() {
         return isAcceptingAuctions;
     }
@@ -105,180 +106,146 @@ public class AuctionServer {
         isListening = true;
         System.out.println("[Server] Đang lắng nghe kết nối...");
 
+        // Khởi động tác vụ tự động cập nhật trạng thái đấu giá mỗi giây
+        scheduler.scheduleAtFixedRate(() -> {
+            try {
+                AuctionManager.getInstance().capNhatTrangThai();
+            } catch (Exception e) {
+                System.err.println("[Server] Lỗi cập nhật trạng thái: " + e.getMessage());
+            }
+        }, 1, 1, TimeUnit.SECONDS);
+
         while (isListening) {
             Socket clientSocket = serverSocket.accept();
             AuctionClient client = new AuctionClient(clientSocket);
             ClientHandler clientThread = new ClientHandler(client);
-            
+
             // Lưu handler theo địa chỉ IP/Port để quản lý
             String clientKey = clientSocket.getInetAddress().getHostAddress() + ":" + clientSocket.getPort();
             clientHandlers.put(clientKey, clientThread);
-            
+
             pool.execute(clientThread);
             System.out.println("[Server] Client mới kết nối: " + clientKey);
         }
     }
 
-    public synchronized void joinAuction(String auctionID, AuctionClient client) throws ServerNoAuctionException {
-        // Lấy Auction từ AuctionManager (Nguồn dữ liệu duy nhất)
-        Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
+    public synchronized void joinAuction(String auctionID, AuctionClient client) throws ServerNoAuctionException,
+            server.auction.AuctionAlreadyRegisteredException, server.auction.AuctionClientIsOwnerException {
+        // Lấy đúng instance duy nhất từ AuctionManager
+        String targetID = auctionID;
+
+        Auction auction = AuctionManager.getInstance().timTheoId(targetID);
 
         if (auction != null) {
-            try {
-                auction.addClient(client);
-                System.out.println("[Server] Client " + client.getSocketAddress() + " đã tham gia phiên: " + auctionID);
-            } catch (Exception e) {
-                System.err.println("[Server] Lỗi khi tham gia phiên: " + e.getMessage());
-            }
+            auction.addClient(client);
+            System.out.println(
+                    "[Server] Client " + client.getSocketAddress() + " đã tham gia vào PHIÊN THỰC TẾ: " + auctionID);
         } else {
-            throw new ServerNoAuctionException("Không tìm thấy phiên đấu giá với ID: " + auctionID);
+            throw new ServerNoAuctionException("Không tìm thấy phiên: " + auctionID);
         }
     }
 
-    /*
-    Điều kiện trước: Phương thức yêu cầu nhận một đối tượng Client và một đối tượng PacketMessage.
-
-    Điều kiện sau: Phương thức gửi packet PacketMessage được cung cấp tới client phù hợp
-    dựa trên đối tượng Client. Packet sẽ được gửi thông qua instance ClientHandler tương ứng
-    với đối tượng Client được dùng làm khóa trong cấu trúc dữ liệu clientHandlers.
-
-    Phương thức không trả về giá trị nào.
-
-    LƯU Ý:
-    Nếu packet không thể được gửi qua socket thì sẽ ném ra ngoại lệ IOException.
-*/
-    public void sendPacket(AuctionClient client, PacketMessage packet)
-            throws IOException {
-        //Check if the client connection exists
-        String clientKey =
-                client.getSocket().getInetAddress().getHostAddress()
-                        + ":" +
-                        client.getSocket().getPort();
+    // Gửi gói tin tới một Client cụ thể dựa trên thông tin IP:Port kết nối.
+    // Ném ra IOException nếu kết nối socket bị lỗi.
+    public void sendPacket(AuctionClient client, PacketMessage packet) throws IOException {
+        // Check if the client connection exists
+        String clientKey = client.getSocket().getInetAddress().getHostAddress() + ":" + client.getSocket().getPort();
 
         if (clientHandlers.containsKey(clientKey)) {
             clientHandlers.get(clientKey).sendPacket(packet);
         }
     }
 
-    /*
-    Điều kiện trước: Phương thức yêu cầu nhận một LinkedList kiểu Client
-    và một đối tượng PacketMessage.
-
-    Điều kiện sau: Phương thức gửi packet PacketMessage được cung cấp tới
-    tất cả các đối tượng Client có trong tham số LinkedList clients.
-    Packet sẽ được gửi tới từng Client bằng cách gọi phương thức sendPackets.
-
-    Phương thức không trả về giá trị nào.
-*/
+    // Gửi gói tin tới danh sách các Client đang tham gia bằng cách lặp và gửi cho từng người.
     public void sendPackets(List<AuctionClient> clients, PacketMessage packet) {
-        //Loop through all clients
+        // Loop through all clients
         for (AuctionClient client : clients) {
             try {
-                //Send client the provided packet parameter
+                // Send client the provided packet parameter
                 sendPacket(client, packet);
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
     }
-    /*
-    Điều kiện trước: Không có.
 
-    Điều kiện sau:
-    - Phương thức trả về một LinkedList chứa các đối tượng AuctionListItem.
-    - Mỗi AuctionListItem được tạo dựa trên thông tin của từng phiên đấu giá hiện có
-      trong biến auctions.
-*/
+    // Gửi gói tin tới tất cả các client đang kết nối
+    public void broadcast(PacketMessage packet) {
+        for (ClientHandler handler : clientHandlers.values()) {
+            try {
+                handler.sendPacket(packet);
+            } catch (IOException e) {
+                System.err.println("[Server] Lỗi broadcast tới " + handler.getClient().getIP());
+            }
+        }
+    }
+
+    // Trả về danh sách thông tin rút gọn của toàn bộ các phiên đấu giá đang hoạt động.
     public LinkedList<AuctionListItem> getAllAuctions() {
-
         LinkedList<AuctionListItem> auctionsItemsPayload = new LinkedList<>();
 
-        // Duyệt qua tất cả các phiên đấu giá hiện đang hoạt động
-        for (Auction auction : auctions.values()) {
+        // Luôn lấy từ AuctionManager (Nguồn duy nhất)
+        for (Auction auction : AuctionManager.getInstance().getAuctions()) {
+            auction.updateStatus();
 
-            Item auctionItem = auction.getItem();
+            Item item = server.auction.ItemManager.getInstance().timTheoId(auction.getItemId());
+            String itemName = item != null ? item.getName() : "Unknown Item";
+            String itemDesc = item != null ? item.getDescription() : "No description";
+            String category = item != null ? item.getCategory().name() : "Other";
 
-            // Tìm mức giá đấu cao nhất hiện tại của phiên đấu giá (nếu có)
-            double highestBidPrice = auction.findHighestItemPrice();
+            double highestBidPrice = auction.getCurrentHighestBid();
 
-            auctionsItemsPayload.add(
-                    new AuctionListItem(
-                            auction.getId(),
-                            auctionItem.getStartingPrice(),
-                            auctionItem.getName(),
-                            auctionItem.getDescription(),
-                            auction.getSellerId(),
-                            highestBidPrice
-                    )
-            );
+            auctionsItemsPayload.add(new AuctionListItem(auction.getId(), auction.getStartingPrice(), itemName,
+                    itemDesc, auction.getSellerId(), highestBidPrice, category, auction.getStartTime().toString(), auction.getEndTime().toString(),
+                    auction.getStatus().name(), auction.getHighestBidderId()));
         }
 
         return auctionsItemsPayload;
     }
-    /*
-    Điều kiện trước:
-    - Phương thức nhận vào một tham số kiểu int dùng làm mã định danh cho
-      một phiên đấu giá đang tồn tại trong cấu trúc dữ liệu auctions.
-    - Đồng thời nhận vào một đối tượng Client đã đăng ký tham gia phiên đấu giá đó.
 
-    Điều kiện sau:
-    - Client được xóa khỏi phiên đấu giá tương ứng với auctionID được cung cấp.
-    - Phương thức không trả về giá trị nào.
+    public LinkedList<AuctionListItem> getMyAuctions(String username) {
+        LinkedList<AuctionListItem> myAuctionsItems = new LinkedList<>();
 
-    Lưu ý:
-    - ServerNoAuctionException được ném ra nếu không tìm thấy phiên đấu giá
-      tương ứng với auctionID được cung cấp.
-    - AuctionHighBidException được ném ra nếu Client đang giữ mức giá đấu cao nhất
-      trong phiên đấu giá được yêu cầu.
-    - AuctionNotRegisteredException được ném ra nếu Client chưa đăng ký
-      trong phiên đấu giá được chỉ định.
-*/
+        for (Auction auction : AuctionManager.getInstance().getAuctions()) {
+            // Kiểm tra xem user có phải seller hoặc là người bid cao nhất không
+            boolean isSeller = auction.getSellerId() != null && auction.getSellerId().equals(username);
+            boolean isBidder = auction.getHighestBidderId() != null && auction.getHighestBidderId().equals(username);
+
+            if (isSeller || isBidder) {
+                auction.updateStatus();
+                Item item = server.auction.ItemManager.getInstance().timTheoId(auction.getItemId());
+
+                myAuctionsItems.add(new AuctionListItem(auction.getId(), auction.getStartingPrice(),
+                        item != null ? item.getName() : auction.getItemId(),
+                        item != null ? item.getDescription() : "Đơn hàng/Phiên của tôi", auction.getSellerId(),
+                        auction.getCurrentHighestBid(), item != null ? item.getCategory().name() : "PERSONAL",
+                        auction.getStartTime().toString(), auction.getEndTime().toString(), auction.getStatus().name(), auction.getHighestBidderId()));
+            }
+        }
+        return myAuctionsItems;
+    }
+
+    // Hủy đăng ký (rời phiên) của Client khỏi phiên đấu giá.
+    // Chặn không cho rời nếu client đang giữ giá cao nhất hoặc chưa từng đăng ký.
     public void leaveAuction(String auctionID, AuctionClient client)
-            throws ServerNoAuctionException,
-            AuctionHighBidException,
-            AuctionNotRegisteredException {
+            throws ServerNoAuctionException, AuctionHighBidException, AuctionNotRegisteredException {
 
-        // Kiểm tra xem phiên đấu giá có tồn tại hay không
-        if (auctions.containsKey(auctionID)) {
-
+        // [FIX] Kiểm tra từ AuctionManager
+        Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
+        if (auction != null) {
             // Hủy đăng ký client khỏi phiên đấu giá
-            auctions.get(auctionID).removeClient(client);
-
+            auction.removeClient(client);
         } else {
-
-            throw new ServerNoAuctionException(
-                    "Phiên đấu giá không tồn tại. Hành động không được phép."
-            );
+            throw new ServerNoAuctionException("Phiên đấu giá không tồn tại. Hành động không được phép.");
         }
     }
-    /*
-    Điều kiện trước:
-    - Phương thức nhận vào một đối tượng Client đang tham gia một kết nối hoạt động
-      (được quản lý bởi một luồng ClientHandler trong biến clientHandlers).
 
-    Điều kiện sau:
-    - Đối tượng Client được xóa khỏi cấu trúc dữ liệu clientHandlers.
-    - Luồng ClientHandler tương ứng được dừng thực thi.
-    - Phương thức không trả về giá trị nào.
-
-    Lưu ý:
-    - Nếu Client đang giữ mức giá đấu cao nhất trong một hoặc nhiều phiên đấu giá,
-      client sẽ không bị xóa.
-    - ServerHasHighBidException được ném ra nếu Client đang giữ mức giá đấu cao nhất
-      trong một phiên đấu giá.
-    - IOException được ném ra nếu không thể đóng kết nối socket.
-    - ServerClientHandlerDoesNotExistException được ném ra nếu Client được cung cấp
-      hiện không có kết nối hoạt động trong cấu trúc dữ liệu clientHandlers.
-*/
+    // Dừng luồng xử lý và giải phóng tài nguyên của Client khỏi Server.
+    // Chặn ngắt kết nối nếu client đang giữ giá cao nhất trong phiên đấu giá.
     public void removeClient(AuctionClient client)
-            throws IOException,
-            ServerClientHandlerDoesNotExistException,
-            ServerHasHighBidException {
+            throws IOException, ServerClientHandlerDoesNotExistException, ServerHasHighBidException {
 
-        String clientKey =
-                client.getSocket().getInetAddress().getHostAddress()
-                        + ":" +
-                        client.getSocket().getPort();
+        String clientKey = client.getSocket().getInetAddress().getHostAddress() + ":" + client.getSocket().getPort();
         // Kiểm tra xem client có tồn tại hay không
         if (clientHandlers.containsKey(clientKey)) {
 
@@ -287,104 +254,59 @@ public class AuctionServer {
 
         } else {
 
-            throw new ServerClientHandlerDoesNotExistException(
-                    "ClientHandler không tồn tại"
-            );
+            throw new ServerClientHandlerDoesNotExistException("ClientHandler không tồn tại");
         }
     }
-    /*
-    Điều kiện trước:
-    - Phương thức nhận vào một giá trị int dùng để định danh
-      một phiên đấu giá đang tồn tại trong biến auctions.
 
-    Điều kiện sau:
-    - Phương thức trả về một đối tượng Bid là mức giá đấu cao nhất
-      hiện tại của phiên đấu giá được chỉ định.
+    // Trả về lượt giao dịch đặt giá cao nhất hiện tại của phiên đấu giá.
+    // Ném ra ngoại lệ nếu phiên đấu giá không tồn tại.
+    public BidTransaction getHighestBid(String auctionID) throws ServerNoAuctionException {
 
-    Lưu ý:
-    - ServerNoAuctionException được ném ra nếu phiên đấu giá được chỉ định
-      không tồn tại.
-*/
-    public BidTransaction getHighestBid(String auctionID)
-            throws ServerNoAuctionException {
-
-        // Khởi tạo thuộc tính
-        Auction auction;
+        // [FIX] Lấy từ AuctionManager
+        Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
 
         // Kiểm tra xem phiên đấu giá có tồn tại hay không
-        if (auctions.containsKey(auctionID)) {
-
-            // Lấy phiên đấu giá cụ thể
-            auction = auctions.get(auctionID);
-
+        if (auction != null) {
             // Yêu cầu phiên đấu giá trả về mức giá đấu cao nhất
             return auction.findHighestBid();
-
         } else {
-
-            throw new ServerNoAuctionException(
-                    "Phiên đấu giá không tồn tại. Hành động không được phép."
-            );
+            throw new ServerNoAuctionException("Phiên đấu giá không tồn tại. Hành động không được phép.");
         }
     }
-    /*
-    Điều kiện trước:
-    - Phương thức nhận vào một đối tượng Auction.
 
-    Điều kiện sau:
-    - Đối tượng Auction được thêm vào cấu trúc dữ liệu auctions.
-    - Phương thức không trả về giá trị nào.
-*/
+    // Thêm một phiên đấu giá mới vào hệ thống quản lý.
     public void addAuction(Auction auction) {
-
-        // Thêm phiên đấu giá mới vào HashMap auctions
-        auctions.put(auction.getId(), auction);
+        // [FIX] Thêm vào AuctionManager để đồng bộ
+        AuctionManager.getInstance().getAuctions().add(auction);
+        try {
+            new server.dao.AuctionDAO().them(auction);
+            System.out.println("[Server] Đã lưu phiên đấu giá mới vào file JSON thành công: " + auction.getId());
+        } catch (IOException e) {
+            System.err.println("[Server] Lỗi khi lưu phiên đấu giá mới vào file JSON: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
-    /*
-    Điều kiện trước:
-    - Phương thức nhận vào:
-        + Một giá trị int dùng để định danh một phiên đấu giá tồn tại trong biến auctions.
-        + Một đối tượng BidTransaction đại diện cho lượt trả giá cần thực hiện.
-        + Một đối tượng Client đại diện cho client thực hiện trả giá.
 
-    Điều kiện sau:
-    - Phương thức yêu cầu phiên đấu giá được chỉ định thêm lượt trả giá
-      bằng đối tượng BidTransaction và Client được cung cấp.
-    - Phương thức không trả về giá trị nào.
+    // Tiến hành xử lý lượt đặt giá mới cho phiên đấu giá.
+    // Kiểm tra đầy đủ các điều kiện (mức giá hợp lệ, tư cách tham gia, sở hữu) trước khi chấp nhận.
+    public void auctionBid(String auctionID, BidTransaction bid, AuctionClient client)
+            throws AuctionLowBidException, ServerNoAuctionException {
 
-    Lưu ý:
-    - AuctionLowBidException được ném ra nếu BidTransaction có mức giá
-      thấp hơn mức giá hợp lệ hiện tại của phiên đấu giá.
-    - AuctionNotRegisteredException được ném ra nếu Client chưa đăng ký
-      tham gia phiên đấu giá được chỉ định.
-    - AuctionClientIsOwnerException được ném ra nếu Client là chủ sở hữu
-      của phiên đấu giá.
-    - ServerNoAuctionException được ném ra nếu phiên đấu giá không tồn tại.
-*/
-    public void auctionBid(
-            String auctionID,
-            BidTransaction bid,
-            AuctionClient client
-    )
-            throws AuctionLowBidException,
-            AuctionNotRegisteredException,
-            AuctionClientIsOwnerException,
-            ServerNoAuctionException {
-
-        // Kiểm tra xem phiên đấu giá có tồn tại hay không
-        if (auctions.containsKey(auctionID)) {
-
-            // Yêu cầu auction xử lý bid mới
-            //auctions.get(auctionID).addBid(bid, client);
-            /* Do phần addBid có phương thức hoạt động tương tự với datGia và Antisniping
-            của Kiệt nên sẽ làm thêm sau
-             */
-
+        // Lấy auction từ AuctionManager để đảm bảo đồng bộ
+        Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
+        if (auction != null) {
+            try {
+                // Thực hiện đặt giá thông qua AuctionManager
+                boolean success = AuctionManager.getInstance().datGia(bid);
+                if (success) {
+                    System.out.println(
+                            "[Server] Đặt giá thành công: " + bid.getBidAmount() + " bởi " + bid.getBidderId());
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         } else {
-
-            throw new ServerNoAuctionException(
-                    "Auction doesn't exist. Action not permitted."
-            );
+            throw new ServerNoAuctionException("Auction doesn't exist: " + auctionID);
         }
     }
 }

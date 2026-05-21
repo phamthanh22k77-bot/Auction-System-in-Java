@@ -22,6 +22,10 @@ public class Bidder extends User {
         return balance;
     }
 
+    public void setBalance(double balance) {
+        this.balance = balance;
+    }
+
     public BidTransaction placeBid(Auction auction, double bidAmount) {
         if (bidAmount > balance) {
             System.out.println("Số dư không đủ để thực hiện lượt đặt giá này!");
