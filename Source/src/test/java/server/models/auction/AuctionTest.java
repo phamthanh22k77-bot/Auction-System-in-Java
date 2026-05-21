@@ -19,7 +19,8 @@ class AuctionTest {
         assertEquals(100.0, auction.getStartingPrice(), "Gán sai startingPrice");
         assertEquals(100.0, auction.getCurrentHighestBid(), "Giá hiện tại ban đầu phải bằng giá khởi điểm");
         assertEquals(10.0, auction.getMinimumBidIncrement(), "Gán sai minimumBidIncrement");
-        assertEquals(Auction.AuctionStatus.OPEN, auction.getStatus(), "Phiên đấu giá mới tạo phải ở trạng thái OPEN (chờ đấu)");
+        assertEquals(Auction.AuctionStatus.OPEN, auction.getStatus(),
+                "Phiên đấu giá mới tạo phải ở trạng thái OPEN (chờ đấu)");
     }
 
     @Test
