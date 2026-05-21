@@ -6,13 +6,14 @@ public abstract class User extends Entity {
     private String username;
     private String email;
     private String password; // Trong thực tế nên được mã hóa
-    // Constructor này dành cho người mới
+    private boolean isLocked = false; // Trạng thái khóa tài khoản
 
     public User(String username, String email, String password) {
         super();
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isLocked = false;
     }
 
     // cái thứ 2 dành cho DataBase và Networking
@@ -21,6 +22,7 @@ public abstract class User extends Entity {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.isLocked = false;
     }
 
     public String getUsername() {
@@ -54,5 +56,13 @@ public abstract class User extends Entity {
     // Getter cho password (chỉ dùng nội bộ hoặc cho DAO)
     public String getPassword() {
         return password;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        isLocked = locked;
     }
 }

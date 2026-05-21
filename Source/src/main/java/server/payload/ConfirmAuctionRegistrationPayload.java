@@ -1,31 +1,30 @@
 package server.payload;
 
-import java.util.Objects;
+import java.io.Serializable;
+import java.util.List;
+import server.models.auction.BidTransaction;
 
-// Payload dùng để xác nhận việc đăng ký tham gia auction
-// 👉 Server gửi payload này về client sau khi user đăng ký thành công
-// 👉 Controller có thể đọc class này để biết auction nào đã được đăng ký
-public class ConfirmAuctionRegistrationPayload {
+// Payload dùng để xác nhận việc đăng ký tham gia auction. Chứa thêm lịch sử và trạng thái hiện tại để đồng bộ UI ngay khi vào phòng.
 
-    // ===== Attributes =====
+public class ConfirmAuctionRegistrationPayload implements Serializable {
 
-    // ID của auction mà user vừa đăng ký
-    // 👉 Controller có thể dùng ID này để:
-    //    - Hiển thị thông báo "Đăng ký thành công"
-    //    - Hoặc cập nhật UI (ví dụ: disable nút Register)
     private String auctionID;
+    private double currentPrice;
+    private String highestBidderId;
+    private List<BidTransaction> bidHistory;
 
-    // ===== Constructor =====
-
-    // Khởi tạo payload với auctionID cụ thể
     public ConfirmAuctionRegistrationPayload(String auctionID) {
         this.auctionID = auctionID;
     }
 
-    // ===== Getter & Setter =====
+    public ConfirmAuctionRegistrationPayload(String auctionID, double currentPrice, String highestBidderId,
+                                             List<BidTransaction> bidHistory) {
+        this.auctionID = auctionID;
+        this.currentPrice = currentPrice;
+        this.highestBidderId = highestBidderId;
+        this.bidHistory = bidHistory;
+    }
 
-    // Controller gọi hàm này để lấy auctionID
-    // 👉 Dùng để xác định auction nào đã được đăng ký
     public String getAuctionID() {
         return auctionID;
     }
@@ -34,32 +33,34 @@ public class ConfirmAuctionRegistrationPayload {
         this.auctionID = auctionID;
     }
 
-    // ===== Methods =====
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true; // cùng object
-        if (!(o instanceof ConfirmAuctionRegistrationPayload)) return false;
-
-        ConfirmAuctionRegistrationPayload that = (ConfirmAuctionRegistrationPayload) o;
-
-        // So sánh 2 payload có cùng auctionID không
-        return Objects.equals(getAuctionID(), that.getAuctionID());
+    public double getCurrentPrice() {
+        return currentPrice;
     }
 
-    @Override
-    public int hashCode() {
-        // Hash dựa trên auctionID
-        return Objects.hash(getAuctionID());
+    public void setCurrentPrice(double currentPrice) {
+        this.currentPrice = currentPrice;
+    }
+
+    public String getHighestBidderId() {
+        return highestBidderId;
+    }
+
+    public void setHighestBidderId(String highestBidderId) {
+        this.highestBidderId = highestBidderId;
+    }
+
+    public List<BidTransaction> getBidHistory() {
+        return bidHistory;
+    }
+
+    public void setBidHistory(List<BidTransaction> bidHistory) {
+        this.bidHistory = bidHistory;
     }
 
     @Override
     public String toString() {
-        // 👉 Nếu controller in trực tiếp object này:
-        // System.out.println(payload);
-        // → sẽ in ra thông tin auction đã đăng ký
-        return "ConfirmCancelingAuctionPayload{" +
-                "auctionID=" + auctionID +
-                '}';
+        return "ConfirmAuctionRegistrationPayload{" + "auctionID='" + auctionID + '\'' + ", currentPrice="
+                + currentPrice + ", highestBidderId='" + highestBidderId + '\'' + ", historySize="
+                + (bidHistory != null ? bidHistory.size() : 0) + '}';
     }
 }

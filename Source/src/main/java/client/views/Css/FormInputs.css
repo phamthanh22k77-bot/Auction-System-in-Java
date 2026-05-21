@@ -1,39 +1,27 @@
-/* ═══════════════════════════════════════════════════════════
-   5. FORM INPUTS
-═══════════════════════════════════════════════════════════ */
-
-/* TextField chung cho cac form */
 .input-field {
-    -fx-border-color: #BDBDBD;
+    -fx-border-color: #bdbdbd;
     -fx-border-radius: 4;
     -fx-background-radius: 4;
     -fx-padding: 7 10;
     -fx-font-size: 13;
-    -fx-background-color: white;
+    -fx-background-color: white
 }
-
 .input-field:focused {
-    -fx-border-color: #1A237E;
-    -fx-border-width: 1.5;
+    -fx-border-color: #1a237e;
+    -fx-border-width: 1.5
 }
-
-/* TextArea */
 .text-area-field {
-    -fx-border-color: #BDBDBD;
+    -fx-border-color: #bdbdbd;
     -fx-border-radius: 4;
     -fx-background-radius: 4;
     -fx-padding: 7 10;
-    -fx-font-size: 13;
+    -fx-font-size: 13
 }
-
-/* Label thong bao loi */
 .label-error {
-    -fx-text-fill: #C62828;
-    -fx-font-size: 12;
+    -fx-text-fill: #c62828;
+    -fx-font-size: 12
 }
-
-/* Label thong bao thanh cong */
 .label-success {
-    -fx-text-fill: #2E7D32;
-    -fx-font-size: 12;
+    -fx-text-fill: #2e7d32;
+    -fx-font-size: 12
 }

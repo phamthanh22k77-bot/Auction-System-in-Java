@@ -4,42 +4,34 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.Objects;
 
-//Class này dùng để đóng gói dữ liệu khi phiên đấu giá update thêm lượt đấu giá
+// Class dùng để đóng gói dữ liệu truyền mạng khi phiên đấu giá có cập nhật lượt đặt giá mới
 public class AuctionUpdatePayload implements Serializable {
 
-    //Attributes
+    private static final long serialVersionUID = 1L;
+
     private String auctionID;
-    // 👉 Controller dùng để xác định auction nào cần update UI
-
-    private LocalDateTime bidCreationDate;
-    // 👉 Controller dùng để hiển thị thời điểm đặt giá mới nhất
-
+    private LocalDateTime bidCreationDate; // Thời điểm đặt giá mới nhất
     private double highestBid;
-    // 👉 Controller dùng để hiển thị giá cao nhất hiện tại
-
     private String itemName;
-    // 👉 Controller dùng để hiển thị tên item
-
-    private String highestBidderIP;
-    // 👉 Controller dùng để hiển thị người đang giữ giá cao nhất
-
+    private String highestBidderIP;  // Người/IP đang giữ giá cao nhất
     private String itemDescription;
-    // 👉 Controller có thể dùng để hiển thị mô tả item
+    private LocalDateTime endTime;   // Thời gian kết thúc
+    private int antiSnipeCount;      // Số lần đã tự động gia hạn đấu giá
 
-    //Constructors
-    public AuctionUpdatePayload(String auctionID, LocalDateTime bidCreationDate, double highestBid, String itemName, String highestBidderIP, String itemDescription) {
+    public AuctionUpdatePayload(String auctionID, LocalDateTime bidCreationDate, double highestBid, String itemName,
+                                String highestBidderIP, String itemDescription, LocalDateTime endTime, int antiSnipeCount) {
         this.auctionID = auctionID;
         this.bidCreationDate = bidCreationDate;
         this.highestBid = highestBid;
         this.itemName = itemName;
         this.highestBidderIP = highestBidderIP;
         this.itemDescription = itemDescription;
+        this.endTime = endTime;
+        this.antiSnipeCount = antiSnipeCount;
     }
 
-    //Setters and Getters
     public String getAuctionID() {
         return auctionID;
-        // 👉 Controller gọi để biết cần update auction nào
     }
 
     public void setAuctionID(String auctionID) {
@@ -48,7 +40,6 @@ public class AuctionUpdatePayload implements Serializable {
 
     public LocalDateTime getBidCreationDate() {
         return bidCreationDate;
-        // 👉 Controller dùng để hiển thị thời gian bid mới nhất
     }
 
     public void setBidCreationDate(LocalDateTime bidCreationDate) {
@@ -57,16 +48,14 @@ public class AuctionUpdatePayload implements Serializable {
 
     public double getHighestBid() {
         return highestBid;
-        // 👉 Controller dùng để cập nhật giá cao nhất trên UI
     }
 
-    public void setHighestBid(float highestBid) {
+    public void setHighestBid(double highestBid) {
         this.highestBid = highestBid;
     }
 
     public String getItemName() {
         return itemName;
-        // 👉 Controller hiển thị tên item
     }
 
     public void setItemName(String itemName) {
@@ -75,7 +64,6 @@ public class AuctionUpdatePayload implements Serializable {
 
     public String getHighestBidderIP() {
         return highestBidderIP;
-        // 👉 Controller hiển thị người đang dẫn đầu
     }
 
     public void setHighestBidderIP(String highestBidderIP) {
@@ -84,42 +72,62 @@ public class AuctionUpdatePayload implements Serializable {
 
     public String getItemDescription() {
         return itemDescription;
-        // 👉 Controller hiển thị mô tả nếu cần
     }
 
     public void setItemDescription(String itemDescription) {
         this.itemDescription = itemDescription;
     }
 
-    //Methods
+    public LocalDateTime getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(LocalDateTime endTime) {
+        this.endTime = endTime;
+    }
+
+    public int getAntiSnipeCount() {
+        return antiSnipeCount;
+    }
+
+    public void setAntiSnipeCount(int antiSnipeCount) {
+        this.antiSnipeCount = antiSnipeCount;
+    }
+
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o)
+            return true;
+        if (o == null || getClass() != o.getClass())
+            return false;
         AuctionUpdatePayload that = (AuctionUpdatePayload) o;
-        return Objects.equals(auctionID, that.auctionID) &&
+        return antiSnipeCount == that.antiSnipeCount &&
                 Double.compare(that.highestBid, highestBid) == 0 &&
+                Objects.equals(auctionID, that.auctionID) &&
                 Objects.equals(bidCreationDate, that.bidCreationDate) &&
                 Objects.equals(itemName, that.itemName) &&
                 Objects.equals(highestBidderIP, that.highestBidderIP) &&
-                Objects.equals(itemDescription, that.itemDescription);
+                Objects.equals(itemDescription, that.itemDescription) &&
+                Objects.equals(endTime, that.endTime);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(auctionID, bidCreationDate, highestBid, itemName, highestBidderIP, itemDescription);
+        return Objects.hash(auctionID, bidCreationDate, highestBid, itemName,
+                highestBidderIP, itemDescription, endTime, antiSnipeCount);
     }
 
     @Override
     public String toString() {
-        // 👉 Controller có thể log payload này để debug khi nhận update từ server
         return "AuctionUpdatePayload{" +
-                "auctionID=" + auctionID +
-                ", createdAt=" + bidCreationDate +
-                ", bidPrice=" + highestBid +
+                "auctionID='" + auctionID + '\'' +
+                ", bidCreationDate=" + bidCreationDate +
+                ", highestBid=" + highestBid +
                 ", itemName='" + itemName + '\'' +
                 ", highestBidderIP='" + highestBidderIP + '\'' +
                 ", itemDescription='" + itemDescription + '\'' +
+                ", endTime=" + endTime +
+                ", antiSnipeCount=" + antiSnipeCount +
                 '}';
     }
 }

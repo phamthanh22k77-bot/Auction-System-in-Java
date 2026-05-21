@@ -7,6 +7,7 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -37,7 +38,7 @@
         revenueChart.addBidPoint("T2", 1_500_000);
 -->
 
-<BorderPane prefHeight="720.0" prefWidth="1100.0" style="-fx-background-color: #F5F6FA;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.SellerDashboardController">
+<BorderPane prefHeight="720.0" prefWidth="1100.0" style="-fx-background-color: #F5F6FA;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.SellerDashboardController">
 
     <!-- ══ TOP BAR ══════════════════════════════════════════ -->
     <top>
@@ -65,9 +66,15 @@
 
             <Button fx:id="btnSellerUser"
                     text="👤"
-                    onAction="#handleLogout"
+                    onAction="#handleSellerProfile"
                     style="-fx-background-color: transparent; -fx-text-fill: #2C3E50;
                            -fx-cursor: hand; -fx-font-size: 13;"/>
+
+            <Button onAction="#handleLogout"
+                    text="🚪 Đăng xuất"
+                    style="-fx-background-color: #E74C3C; -fx-text-fill: white;
+                           -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 16;
+                           -fx-font-weight: bold; -fx-font-size: 12;"/>
         </HBox>
     </top>
 
@@ -87,9 +94,8 @@
             <Button fx:id="btnNavStats" maxWidth="Infinity" onAction="#handleSellerNav" style="-fx-background-color: transparent; -fx-text-fill: #5D6D7E;                            -fx-alignment: CENTER_LEFT; -fx-background-radius: 8;                            -fx-cursor: hand; -fx-padding: 10 14; -fx-font-size: 13;" text="📈  Hiệu suất" />
             <Button fx:id="btnNavShop" maxWidth="Infinity" onAction="#handleSellerNav" style="-fx-background-color: transparent; -fx-text-fill: #5D6D7E;                            -fx-alignment: CENTER_LEFT; -fx-background-radius: 8;                            -fx-cursor: hand; -fx-padding: 10 14; -fx-font-size: 13;" text="🏪  Shop" />
 
-            <Region VBox.vgrow="ALWAYS" />
             <Separator />
-            <Button maxWidth="Infinity" onAction="#handleLogout" style="-fx-background-color: transparent; -fx-text-fill: #E74C3C;                            -fx-alignment: CENTER_LEFT; -fx-background-radius: 8;                            -fx-cursor: hand; -fx-padding: 10 14; -fx-font-size: 13;" text="Đăng xuất" />
+            <Button maxWidth="Infinity" onAction="#handleLogout" style="-fx-background-color: transparent; -fx-text-fill: #E74C3C;                            -fx-alignment: CENTER_LEFT; -fx-background-radius: 8;                            -fx-cursor: hand; -fx-padding: 10 14; -fx-font-size: 13;" text="🚪  Đăng xuất" />
         </VBox>
     </left>
 
@@ -224,46 +230,71 @@
                     <Label style="-fx-text-fill: #2C3E50; -fx-font-size: 18;                                   -fx-font-weight: bold;" text="Quản lý sản phẩm" />
                     <Region HBox.hgrow="ALWAYS" />
                     <TextField fx:id="txtSearchProduct" onAction="#handleSearchProduct" promptText="🔍 Tìm sản phẩm..." style="-fx-pref-width: 200; -fx-border-color: #DDE1E7;                                       -fx-border-radius: 6; -fx-background-radius: 6;                                       -fx-padding: 6 10;" />
-                    <ComboBox fx:id="cmbCategory" onAction="#handleCategoryChange" promptText="Danh mục" style="-fx-background-color: white; -fx-border-color: #DDE1E7;                                      -fx-border-radius: 6; -fx-background-radius: 6;" />
+                    <ComboBox fx:id="cmbFilterCategory" onAction="#handleCategoryChange" promptText="Danh mục" style="-fx-background-color: white; -fx-border-color: #DDE1E7;                                      -fx-border-radius: 6; -fx-background-radius: 6;" />
                     <Button onAction="#handleNew" style="-fx-background-color: #27AE60; -fx-text-fill: white;                                    -fx-background-radius: 6; -fx-cursor: hand; -fx-padding: 7 14;" text="+ Thêm mới" />
                 </HBox>
 
                 <HBox spacing="16" VBox.vgrow="ALWAYS">
-                    <!-- Form them/sua -->
-                    <VBox prefWidth="260" spacing="10" style="-fx-background-color: white; -fx-padding: 16;                                  -fx-background-radius: 12;                                  -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.06),6,0,0,2);">
-                        <Label fx:id="lblFormTitle" style="-fx-font-size: 14; -fx-font-weight: bold;                                       -fx-text-fill: #2C3E50;" text="Thêm sản phẩm mới" />
-                        <Separator />
-                        <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Tên sản phẩm *" />
-                        <TextField fx:id="txtName" promptText="Nhập tên..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                           -fx-background-radius: 4; -fx-padding: 7 10;" />
-                        <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Mô tả" />
-                        <TextArea fx:id="txtDescription" prefRowCount="3" promptText="Mô tả ngắn..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                          -fx-background-radius: 4; -fx-padding: 7 10;" wrapText="true" />
+                    <!-- Form them/sua boc trong ScrollPane de de bam nut Luu -->
+                    <ScrollPane fitToWidth="true" hbarPolicy="NEVER" prefWidth="280" style="-fx-background-color: transparent; -fx-background: transparent; -fx-padding: 0;">
+                        <VBox spacing="10" style="-fx-background-color: white; -fx-padding: 16;                                      -fx-background-radius: 12;                                      -fx-effect: dropshadow(gaussian,rgba(0,0,0,0.06),6,0,0,2);">
+                            <Label fx:id="lblFormTitle" style="-fx-font-size: 14; -fx-font-weight: bold;                                           -fx-text-fill: #2C3E50;" text="Thêm sản phẩm mới" />
+                            <Separator />
+                            <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Tên sản phẩm *" />
+                            <TextField fx:id="txtName" promptText="Nhập tên..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
+                            <TextArea fx:id="txtDescription" prefRowCount="3" promptText="Mô tả ngắn..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                              -fx-background-radius: 4; -fx-padding: 7 10;" wrapText="true" />
+                            
+                            <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Danh mục *" />
+                            <ComboBox fx:id="cmbFormCategory" maxWidth="Infinity" promptText="Chọn danh mục..." style="-fx-background-color: white; -fx-border-color: #DDE1E7; -fx-border-radius: 4;" />
+    
+                            <!-- Fields dong theo loai -->
+                            <VBox fx:id="vboxElectronics" managed="false" spacing="6" visible="false">
+                                <TextField fx:id="txtBrand" promptText="Thương hiệu..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                                   -fx-background-radius: 4; -fx-padding: 7 10;" />
+                                <TextField fx:id="txtWarranty" promptText="Bảo hành (tháng)..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                                   -fx-background-radius: 4; -fx-padding: 7 10;" />
+                            </VBox>
+                            <VBox fx:id="vboxArt" managed="false" spacing="6" visible="false">
+                                <TextField fx:id="txtArtist" promptText="Nghệ sĩ..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                                   -fx-background-radius: 4; -fx-padding: 7 10;" />
+                                <TextField fx:id="txtMedium" promptText="Chất liệu..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                                   -fx-background-radius: 4; -fx-padding: 7 10;" />
+                            </VBox>
+                            <VBox fx:id="vboxVehicle" managed="false" spacing="6" visible="false">
+                                <TextField fx:id="txtEngineType" promptText="Loại động cơ..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                                   -fx-background-radius: 4; -fx-padding: 7 10;" />
+                                <TextField fx:id="txtModelYear" promptText="Năm sản xuất..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                                   -fx-background-radius: 4; -fx-padding: 7 10;" />
+                            </VBox>
+    
+                            <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Giá khởi điểm (₫) *" />
+                            <TextField fx:id="txtStartingPrice" promptText="VD: 500000" style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
+                            <VBox spacing="6">
+                                <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Ngày bắt đầu *" />
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <DatePicker fx:id="datePickerStart" prefWidth="115" style="-fx-border-color: #DDE1E7; -fx-border-radius: 4; -fx-background-radius: 4;" />
+                                    <HBox alignment="CENTER" spacing="0" style="-fx-border-color: #DDE1E7; -fx-border-radius: 4; -fx-background-color: white; -fx-padding: 0 2;">
+                                        <TextField fx:id="txtHourStart" alignment="CENTER" prefWidth="38" promptText="00" style="-fx-background-color: transparent; -fx-padding: 7 2; -fx-font-size: 12;" text="00" />
+                                        <Label style="-fx-text-fill: #BDC3C7; -fx-font-weight: bold;" text=":" />
+                                        <TextField fx:id="txtMinStart" alignment="CENTER" prefWidth="38" promptText="00" style="-fx-background-color: transparent; -fx-padding: 7 2; -fx-font-size: 12;" text="00" />
+                                    </HBox>
+                                </HBox>
+                            </VBox>
 
-                        <!-- Fields dong theo loai -->
-                        <VBox fx:id="vboxElectronics" managed="false" spacing="6" visible="false">
-                            <TextField fx:id="txtBrand" promptText="Thương hiệu..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
-                            <TextField fx:id="txtWarranty" promptText="Bảo hành (tháng)..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
+                            <VBox spacing="6">
+                                <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Ngày kết thúc *" />
+                                <HBox alignment="CENTER_LEFT" spacing="8">
+                                    <DatePicker fx:id="datePickerEnd" prefWidth="115" style="-fx-border-color: #DDE1E7; -fx-border-radius: 4; -fx-background-radius: 4;" />
+                                    <HBox alignment="CENTER" spacing="0" style="-fx-border-color: #DDE1E7; -fx-border-radius: 4; -fx-background-color: white; -fx-padding: 0 2;">
+                                        <TextField fx:id="txtHourEnd" alignment="CENTER" prefWidth="38" promptText="23" style="-fx-background-color: transparent; -fx-padding: 7 2; -fx-font-size: 12;" text="23" />
+                                        <Label style="-fx-text-fill: #BDC3C7; -fx-font-weight: bold;" text=":" />
+                                        <TextField fx:id="txtMinEnd" alignment="CENTER" prefWidth="38" promptText="59" style="-fx-background-color: transparent; -fx-padding: 7 2; -fx-font-size: 12;" text="59" />
+                                    </HBox>
+                                </HBox>
+                            </VBox>
+    
+                            <Region minHeight="20" VBox.vgrow="ALWAYS" />
+                            <Label fx:id="lblFormError" style="-fx-text-fill: #E74C3C; -fx-font-size: 12;" text="" wrapText="true" />
+                            <HBox spacing="8">
+                                <Button fx:id="btnSave" maxWidth="Infinity" onAction="#handleSave" style="-fx-background-color: #27AE60; -fx-text-fill: white;                                                -fx-background-radius: 6; -fx-cursor: hand;                                                -fx-padding: 9; -fx-font-weight: bold;" text="💾 Lưu" HBox.hgrow="ALWAYS" />
+                                <Button fx:id="btnCancel" onAction="#handleCancel" style="-fx-background-color: #F0F3F7; -fx-text-fill: #5D6D7E;                                                -fx-background-radius: 6; -fx-cursor: hand;                                                -fx-padding: 9 16;" text="Huỷ" />
+                            </HBox>
                         </VBox>
-                        <VBox fx:id="vboxArt" managed="false" spacing="6" visible="false">
-                            <TextField fx:id="txtArtist" promptText="Nghệ sĩ..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
-                            <TextField fx:id="txtMedium" promptText="Chất liệu..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
-                        </VBox>
-                        <VBox fx:id="vboxVehicle" managed="false" spacing="6" visible="false">
-                            <TextField fx:id="txtEngineType" promptText="Loại động cơ..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
-                            <TextField fx:id="txtModelYear" promptText="Năm sản xuất..." style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                               -fx-background-radius: 4; -fx-padding: 7 10;" />
-                        </VBox>
-
-                        <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Giá khởi điểm (₫) *" />
-                        <TextField fx:id="txtStartingPrice" promptText="VD: 500000" style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;                                           -fx-background-radius: 4; -fx-padding: 7 10;" />
-                        <Label style="-fx-text-fill: #7F8C8D; -fx-font-size: 12;" text="Ngày kết thúc *" />
-                        <DatePicker fx:id="datePicker" maxWidth="Infinity" style="-fx-border-color: #DDE1E7; -fx-border-radius: 4;" />
-
-                        <Region VBox.vgrow="ALWAYS" />
-                        <Label fx:id="lblFormError" style="-fx-text-fill: #E74C3C; -fx-font-size: 12;" text="" wrapText="true" />
-                        <HBox spacing="8">
-                            <Button fx:id="btnSave" maxWidth="Infinity" onAction="#handleSave" style="-fx-background-color: #27AE60; -fx-text-fill: white;                                            -fx-background-radius: 6; -fx-cursor: hand;                                            -fx-padding: 9; -fx-font-weight: bold;" text="💾 Lưu" HBox.hgrow="ALWAYS" />
-                            <Button fx:id="btnCancel" onAction="#handleCancel" style="-fx-background-color: #F0F3F7; -fx-text-fill: #5D6D7E;                                            -fx-background-radius: 6; -fx-cursor: hand;                                            -fx-padding: 9 16;" text="Huỷ" />
-                        </HBox>
-                    </VBox>
+                    </ScrollPane>
 
                     <!-- Table san pham -->
                     <VBox spacing="8" HBox.hgrow="ALWAYS">

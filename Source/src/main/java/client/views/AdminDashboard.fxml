@@ -17,7 +17,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<BorderPane prefHeight="754.0" prefWidth="953.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/25" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.AdminDashboardController">
+<BorderPane prefHeight="754.0" prefWidth="953.0" style="-fx-background-color: #F0F2F5;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="client.controllers.AdminDashboardController">
 
     <!-- ===== TOP BAR ===== -->
     <top>
@@ -28,7 +28,7 @@
             </font></Label>
             <Region HBox.hgrow="ALWAYS" />
             <Label fx:id="lblAdminName" style="-fx-text-fill: #64748B; -fx-font-size: 13;" text="Admin" />
-            <Button fx:id="btnLogout" onAction="#handleLogout" style="-fx-background-color: transparent;                            -fx-text-fill: #EF4444;                            -fx-border-color: #EF4444; -fx-border-radius: 6;                            -fx-background-radius: 6;                            -fx-cursor: hand; -fx-padding: 5 14; -fx-font-size: 12;" text="Đăng xuất" />
+            <Button fx:id="btnLogout" onAction="#handleLogout" style="-fx-background-color: #E74C3C; -fx-text-fill: white;                            -fx-background-radius: 20; -fx-cursor: hand; -fx-padding: 6 18;                            -fx-font-weight: bold; -fx-font-size: 12;" text="🚪 Đăng xuất" />
         </HBox>
     </top>
 
@@ -114,11 +114,10 @@
 
                 <TableView fx:id="tblUsers" style="-fx-background-color: white;                                   -fx-border-color: #E2E8F0;                                   -fx-border-radius: 10; -fx-background-radius: 10;" VBox.vgrow="ALWAYS">
                     <columns>
-                        <TableColumn fx:id="colUserId" prefWidth="80" text="ID" />
-                        <TableColumn fx:id="colUName" prefWidth="160" text="Username" />
-                        <TableColumn fx:id="colEmail" prefWidth="200" text="Email" />
-                        <TableColumn fx:id="colRole" prefWidth="100" text="Vai trò" />
-                        <TableColumn fx:id="colUserAct" prefWidth="140" text="Hành động" />
+                        <TableColumn fx:id="colUserId" prefWidth="100" text="ID" />
+                        <TableColumn fx:id="colUName" prefWidth="200" text="Username" />
+                        <TableColumn fx:id="colRole" prefWidth="120" text="Vai trò" />
+                        <TableColumn fx:id="colUserAct" prefWidth="150" text="Hành động" />
                     </columns>
                 </TableView>
             </VBox>

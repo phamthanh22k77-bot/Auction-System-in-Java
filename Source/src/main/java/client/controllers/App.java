@@ -9,15 +9,19 @@ public class App extends Application {
 
     @Override
     public void start(Stage stage) throws Exception {
-        FXMLLoader loader = new FXMLLoader(
-            getClass().getResource("/client/views/Login.fxml")
-        );
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/client/views/Login.fxml"));
         Scene scene = new Scene(loader.load());
         stage.setTitle("AuctionApp");
         stage.setScene(scene);
         stage.setResizable(true);
         stage.centerOnScreen();
         stage.show();
+    }
+
+    @Override
+    public void stop() throws Exception {
+        client.network.ClientSocketManager.getInstance().disconnect();
+        super.stop();
     }
 
     public static void main(String[] args) {
