@@ -2,7 +2,7 @@
     {
         "itemId":  "ITEM001",
         "sellerId":  "gv_son_uet",
-        "startTime":  "2026-06-01T01:00:00",
+        "startTime":  "2026-06-01T01:00:01",
         "endTime":  "2026-06-03T01:00:00",
         "startingPrice":  35000000,
         "currentHighestBid":  35000000,
