@@ -377,11 +377,10 @@ public class UserProfilePopupController implements Initializable {
             ClientSocketManager.getInstance().disconnect();
             SessionManager.getInstance().clear();
 
-            // Quay về màn hình Login với kích thước đồng bộ 900x600 chuẩn của dự án
+            // Quay về màn hình Login với kích thước theo cấu hình FXML của Login.fxml
             Parent root = FXMLLoader.load(getClass().getResource("/client/views/Login.fxml"));
             ownerStage.setScene(new Scene(root));
-            ownerStage.setWidth(900);
-            ownerStage.setHeight(600);
+            ownerStage.sizeToScene();
             ownerStage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();
