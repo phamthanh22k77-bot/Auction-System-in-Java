@@ -109,5 +109,33 @@
     "isLocked": false,
     "id": "U012",
     "role": "BIDDER"
+  },
+  {
+    "companyName": "",
+    "rating": 5.0,
+    "username": "mit1",
+    "email": "",
+    "password": "123",
+    "isLocked": false,
+    "id": "e5bda042-74fb-4505-a8f0-1c17e6e79cf8",
+    "role": "SELLER"
+  },
+  {
+    "balance": 1.05E9,
+    "username": "pitde",
+    "email": "",
+    "password": "123",
+    "isLocked": false,
+    "id": "06e620f0-55fc-43f1-8bd8-77bac90892e6",
+    "role": "BIDDER"
+  },
+  {
+    "balance": 1.04E9,
+    "username": "bidder2",
+    "email": "",
+    "password": "123",
+    "isLocked": false,
+    "id": "7a51c869-82a3-49ec-9dcd-a986ff19a7c5",
+    "role": "BIDDER"
   }
 ]

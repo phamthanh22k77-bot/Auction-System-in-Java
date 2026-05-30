@@ -1,275 +1,410 @@
-[
-  {
-    "itemId": "ITEM001",
-    "sellerId": "gv_son_uet",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 3.5E7,
-    "currentHighestBid": 3.5E7,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 500000.0,
-    "id": "AUC001"
-  },
-  {
-    "itemId": "ITEM002",
-    "sellerId": "gv_dung_uet",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 4.8E7,
-    "currentHighestBid": 4.8E7,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 500000.0,
-    "id": "AUC002"
-  },
-  {
-    "itemId": "ITEM003",
-    "sellerId": "uet_clb_robocon",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 1500000.0,
-    "currentHighestBid": 1500000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 50000.0,
-    "id": "AUC003"
-  },
-  {
-    "itemId": "ITEM004",
-    "sellerId": "uet_clb_robocon",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 300000.0,
-    "currentHighestBid": 300000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 10000.0,
-    "id": "AUC004"
-  },
-  {
-    "itemId": "ITEM005",
-    "sellerId": "uet_vp_khoa_dtvt",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 8000000.0,
-    "currentHighestBid": 8000000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 100000.0,
-    "id": "AUC005"
-  },
-  {
-    "itemId": "ITEM006",
-    "sellerId": "gv_son_uet",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 1.8E7,
-    "currentHighestBid": 1.8E7,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 200000.0,
-    "id": "AUC010"
-  },
-  {
-    "itemId": "ITEM007",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 800000.0,
-    "currentHighestBid": 800000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 50000.0,
-    "id": "AUC006"
-  },
-  {
-    "itemId": "ITEM008",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 500000.0,
-    "currentHighestBid": 500000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 20000.0,
-    "id": "AUC007"
-  },
-  {
-    "itemId": "ITEM009",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 3000000.0,
-    "currentHighestBid": 3000000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 100000.0,
-    "id": "AUC011"
-  },
-  {
-    "itemId": "ITEM010",
-    "sellerId": "gv_dung_uet",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 4500000.0,
-    "currentHighestBid": 4500000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 100000.0,
-    "id": "AUC017"
-  },
-  {
-    "itemId": "ITEM011",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 1.6E7,
-    "currentHighestBid": 1.6E7,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 200000.0,
-    "id": "AUC012"
-  },
-  {
-    "itemId": "ITEM012",
-    "sellerId": "uet_vp_khoa_dtvt",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 9000000.0,
-    "currentHighestBid": 9000000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 100000.0,
-    "id": "AUC015"
-  },
-  {
-    "itemId": "ITEM013",
-    "sellerId": "uet_clb_robocon",
-    "startTime": "2026-05-18T11:15:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 4000000.0,
-    "currentHighestBid": 4000000.0,
-    "status": "OPEN",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 100000.0,
-    "id": "AUC016"
-  },
-  {
-    "itemId": "ITEM014",
-    "sellerId": "uet_vp_khoa_dtvt",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 2.8E7,
-    "currentHighestBid": 2.8E7,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 500000.0,
-    "id": "AUC013"
-  },
-  {
-    "itemId": "ITEM015",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 2500000.0,
-    "currentHighestBid": 2500000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 50000.0,
-    "id": "AUC018"
-  },
-  {
-    "itemId": "e6dfc7f2-cef4-4ed7-89a7-de9d5e0c8a2d",
-    "sellerId": "gv_son_uet",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 100000.0,
-    "currentHighestBid": 100000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 5000.0,
-    "id": "AUC021"
-  },
-  {
-    "itemId": "2f5b3eb2-6ca9-4571-854c-ea901e65060e",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 1.0E9,
-    "currentHighestBid": 1.0E9,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 1.0E7,
-    "id": "AUC022"
-  },
-  {
-    "itemId": "ITEM016",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 1200000.0,
-    "currentHighestBid": 1200000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 50000.0,
-    "id": "AUC023"
-  },
-  {
-    "itemId": "ITEM017",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 500000.0,
-    "currentHighestBid": 500000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 20000.0,
-    "id": "AUC024"
-  },
-  {
-    "itemId": "16fd5bdd-f63d-41ba-9202-639f4bfa7f0a",
-    "sellerId": "gv_son_uet",
-    "startTime": "2026-05-18T08:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 1000.0,
-    "currentHighestBid": 1000.0,
-    "status": "RUNNING",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 100.0,
-    "id": "AUC025"
-  },
-  {
-    "itemId": "2fd3dc61-bb51-4155-82a3-af5de9e0dc19",
-    "sellerId": "uet_doan_thanhnien",
-    "startTime": "2026-05-18T10:00:00",
-    "endTime": "2026-05-18T23:59:00",
-    "startingPrice": 1.0,
-    "currentHighestBid": 1.0,
-    "status": "OPEN",
-    "antiSnipeCount": 0,
-    "bidHistory": [],
-    "minimumBidIncrement": 0.0,
-    "id": "57ce54df-7838-4de6-b136-b87f339e55e1"
-  }
+﻿[
+    {
+        "itemId":  "ITEM001",
+        "sellerId":  "gv_son_uet",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  35000000,
+        "currentHighestBid":  35000000,
+        "status":  "CANCELED",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  500000.0,
+        "id":  "AUC001"
+    },
+    {
+        "itemId":  "ITEM002",
+        "sellerId":  "gv_dung_uet",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  48000000,
+        "currentHighestBid":  48000000,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  500000.0,
+        "id":  "AUC002"
+    },
+    {
+        "itemId":  "ITEM003",
+        "sellerId":  "uet_clb_robocon",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  1500000.0,
+        "currentHighestBid":  1500000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  50000.0,
+        "id":  "AUC003"
+    },
+    {
+        "itemId":  "ITEM004",
+        "sellerId":  "uet_clb_robocon",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  300000.0,
+        "currentHighestBid":  300000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  10000.0,
+        "id":  "AUC004"
+    },
+    {
+        "itemId":  "ITEM005",
+        "sellerId":  "uet_vp_khoa_dtvt",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  8000000.0,
+        "currentHighestBid":  8000000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  100000.0,
+        "id":  "AUC005"
+    },
+    {
+        "itemId":  "ITEM006",
+        "sellerId":  "gv_son_uet",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  18000000,
+        "currentHighestBid":  18000000,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  200000.0,
+        "id":  "AUC010"
+    },
+    {
+        "itemId":  "ITEM007",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  800000.0,
+        "currentHighestBid":  800000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  50000.0,
+        "id":  "AUC006"
+    },
+    {
+        "itemId":  "ITEM008",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  500000.0,
+        "currentHighestBid":  500000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  20000.0,
+        "id":  "AUC007"
+    },
+    {
+        "itemId":  "ITEM009",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  3000000.0,
+        "currentHighestBid":  3000000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  100000.0,
+        "id":  "AUC011"
+    },
+    {
+        "itemId":  "ITEM010",
+        "sellerId":  "gv_dung_uet",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  4500000.0,
+        "currentHighestBid":  4500000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  100000.0,
+        "id":  "AUC017"
+    },
+    {
+        "itemId":  "ITEM011",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  16000000,
+        "currentHighestBid":  16000000,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  200000.0,
+        "id":  "AUC012"
+    },
+    {
+        "itemId":  "ITEM012",
+        "sellerId":  "uet_vp_khoa_dtvt",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  9000000.0,
+        "currentHighestBid":  9000000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  100000.0,
+        "id":  "AUC015"
+    },
+    {
+        "itemId":  "ITEM013",
+        "sellerId":  "uet_clb_robocon",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  4000000.0,
+        "currentHighestBid":  4000000.0,
+        "status":  "OPEN",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  100000.0,
+        "id":  "AUC016"
+    },
+    {
+        "itemId":  "ITEM014",
+        "sellerId":  "uet_vp_khoa_dtvt",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  28000000,
+        "currentHighestBid":  28000000,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  500000.0,
+        "id":  "AUC013"
+    },
+    {
+        "itemId":  "ITEM015",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  2500000.0,
+        "currentHighestBid":  2500000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  50000.0,
+        "id":  "AUC018"
+    },
+    {
+        "itemId":  "e6dfc7f2-cef4-4ed7-89a7-de9d5e0c8a2d",
+        "sellerId":  "gv_son_uet",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  100000.0,
+        "currentHighestBid":  100000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  5000.0,
+        "id":  "AUC021"
+    },
+    {
+        "itemId":  "2f5b3eb2-6ca9-4571-854c-ea901e65060e",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  1000000000,
+        "currentHighestBid":  1000000000,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  10000000,
+        "id":  "AUC022"
+    },
+    {
+        "itemId":  "ITEM016",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  1200000.0,
+        "currentHighestBid":  1200000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  50000.0,
+        "id":  "AUC023"
+    },
+    {
+        "itemId":  "ITEM017",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  500000.0,
+        "currentHighestBid":  500000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  20000.0,
+        "id":  "AUC024"
+    },
+    {
+        "itemId":  "16fd5bdd-f63d-41ba-9202-639f4bfa7f0a",
+        "sellerId":  "gv_son_uet",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  1000.0,
+        "currentHighestBid":  1000.0,
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  100.0,
+        "id":  "AUC025"
+    },
+    {
+        "itemId":  "2fd3dc61-bb51-4155-82a3-af5de9e0dc19",
+        "sellerId":  "uet_doan_thanhnien",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  1.0,
+        "currentHighestBid":  1.0,
+        "status":  "OPEN",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  0.0,
+        "id":  "57ce54df-7838-4de6-b136-b87f339e55e1"
+    },
+    {
+        "itemId":  "3c3da4f0-7be0-49fd-877e-696181bcd100",
+        "sellerId":  "mit1",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  400000000,
+        "currentHighestBid":  415600000,
+        "highestBidderId":  "pitde",
+        "status":  "CANCELED",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+                           {
+                               "auctionId":  "aca4ee40-8cb6-400c-a968-4996a4df647b",
+                               "bidderId":  "pitde",
+                               "bidAmount":  405000000,
+                               "timestamp":  "2026-05-30T19:59:35.3248831",
+                               "status":  "ACCEPTED",
+                               "id":  "b373a141-fb7c-47cc-821d-907ef9196be6"
+                           },
+                           {
+                               "auctionId":  "aca4ee40-8cb6-400c-a968-4996a4df647b",
+                               "bidderId":  "bidder2",
+                               "bidAmount":  405500000,
+                               "timestamp":  "2026-05-30T20:01:05.0853116",
+                               "status":  "ACCEPTED",
+                               "id":  "1e1ff2eb-830b-4f23-87f0-b90ea07fa628"
+                           },
+                           {
+                               "auctionId":  "aca4ee40-8cb6-400c-a968-4996a4df647b",
+                               "bidderId":  "bidder2",
+                               "bidAmount":  405600000,
+                               "timestamp":  "2026-05-30T20:01:37.7094555",
+                               "status":  "ACCEPTED",
+                               "id":  "61ff8797-e06b-48c7-8581-ad436528f495"
+                           },
+                           {
+                               "auctionId":  "aca4ee40-8cb6-400c-a968-4996a4df647b",
+                               "bidderId":  "bidder2",
+                               "bidAmount":  410600000,
+                               "timestamp":  "2026-05-30T20:02:35.6397646",
+                               "status":  "ACCEPTED",
+                               "id":  "70609414-4c3a-462c-9ec7-7c5326bc2dc7"
+                           },
+                           {
+                               "auctionId":  "aca4ee40-8cb6-400c-a968-4996a4df647b",
+                               "bidderId":  "pitde",
+                               "bidAmount":  415600000,
+                               "timestamp":  "2026-05-30T20:03:38.8136344",
+                               "status":  "ACCEPTED",
+                               "id":  "ee9e0961-e22b-4716-82db-076a97754fdc"
+                           }
+                       ],
+        "minimumBidIncrement":  0.0,
+        "id":  "aca4ee40-8cb6-400c-a968-4996a4df647b"
+    },
+    {
+        "itemId":  "5c49a53a-3beb-4bfd-8c2b-d3260eedeaec",
+        "sellerId":  "mit1",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  30000.0,
+        "currentHighestBid":  30000.0,
+        "status":  "CANCELED",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+
+                       ],
+        "minimumBidIncrement":  0.0,
+        "id":  "af9b7e1e-a895-4e7c-8c1f-0243d8118f5b"
+    },
+    {
+        "itemId":  "fd186f5e-d5cc-4e1b-ba9a-ec480768d3c9",
+        "sellerId":  "mit1",
+        "startTime":  "2026-06-01T01:00:00",
+        "endTime":  "2026-06-03T01:00:00",
+        "startingPrice":  5000000.0,
+        "currentHighestBid":  10000000,
+        "highestBidderId":  "bidder2",
+        "status":  "RUNNING",
+        "antiSnipeCount":  0,
+        "bidHistory":  [
+                           {
+                               "auctionId":  "eaebdaf8-5f54-4950-b5d9-fde34bc74103",
+                               "bidderId":  "bidder2",
+                               "bidAmount":  10000000,
+                               "timestamp":  "2026-05-30T20:14:38.6751048",
+                               "status":  "ACCEPTED",
+                               "id":  "9ad91283-aa5e-468e-a7ea-81c2fbcbfb59"
+                           }
+                       ],
+        "minimumBidIncrement":  0.0,
+        "id":  "eaebdaf8-5f54-4950-b5d9-fde34bc74103"
+    }
 ]

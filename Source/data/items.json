@@ -189,5 +189,38 @@
     "currentPrice": 500000.0,
     "id": "ITEM017",
     "category": "ART"
+  },
+  {
+    "brand": "fafa",
+    "model": "fafa",
+    "warranty": 0,
+    "name": "Thành",
+    "description": "123",
+    "startingPrice": 4.0E8,
+    "currentPrice": 4.0E8,
+    "id": "3c3da4f0-7be0-49fd-877e-696181bcd100",
+    "category": "ELECTRONICS"
+  },
+  {
+    "brand": "thành",
+    "model": "thành",
+    "warranty": 12,
+    "name": "mít",
+    "description": "123",
+    "startingPrice": 30000.0,
+    "currentPrice": 30000.0,
+    "id": "5c49a53a-3beb-4bfd-8c2b-d3260eedeaec",
+    "category": "ELECTRONICS"
+  },
+  {
+    "brand": "thành",
+    "model": "thành",
+    "warranty": 12,
+    "name": "mít",
+    "description": "bánh xe",
+    "startingPrice": 5000000.0,
+    "currentPrice": 5000000.0,
+    "id": "fd186f5e-d5cc-4e1b-ba9a-ec480768d3c9",
+    "category": "ELECTRONICS"
   }
 ]
