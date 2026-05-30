@@ -1,194 +1,150 @@
-# 🏆 Online Auction System
+# 🏆 Hệ Thống Đấu Giá Trực Tuyến (Online Auction System)
 
-> **Hệ Thống Đấu Giá Trực Tuyến** — Bài Tập Lớn Lập Trình Nâng Cao
-> UET — Nhóm 4 người
-
-<div align="center">
-
-![Java](https://img.shields.io/badge/Java-17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![JavaFX](https://img.shields.io/badge/JavaFX-21-blue?style=for-the-badge&logo=java&logoColor=white)
-![Maven](https://img.shields.io/badge/Maven-3.9+-C71A36?style=for-the-badge&logo=apache-maven&logoColor=white)
-![JUnit](https://img.shields.io/badge/JUnit5-5.10-25A162?style=for-the-badge&logo=junit5&logoColor=white)
-![Socket](https://img.shields.io/badge/TCP_Socket-Protocol-orange?style=for-the-badge)
-
-</div>
+> **Dự án Bài Tập Lớn môn Lập Trình Nâng Cao**  
+> **Trường Đại học Công nghệ - ĐHQGHN (UET - VNU)**  
+> **Kiến trúc: Client-Server qua TCP Socket & Mô hình MVC JavaFX**
 
 ---
 
-## 📌 Mô tả dự án
+## 📝 1. Mô tả bài toán và Phạm vi hệ thống
 
-Hệ thống đấu giá trực tuyến cho phép **nhiều người dùng** tham gia đấu giá các mặt hàng theo **thời gian thực** thông qua kết nối mạng mạng Client-Server (TCP/Socket). Hệ thống phân quyền chặt chẽ với 3 vai trò: **Bidder** (người đặt giá), **Seller** (người bán) và **Admin** (quản trị viên).
+### Mô tả bài toán:
+Hệ thống mô phỏng một sàn giao dịch đấu giá trực tuyến thời gian thực (tương tự như eBay), cho phép nhiều người dùng từ các máy tính khác nhau kết nối mạng và đồng thời tham gia đấu thầu sản phẩm. Hệ thống tự động xác định người chiến thắng khi hết thời gian đếm ngược và đảm bảo tính an toàn tài chính cũng như tính đồng bộ dữ liệu đa luồng.
+
+### Phạm vi hệ thống (3 Vai trò chính):
+*   **Bidder (Người đặt giá):** Đăng ký, đăng nhập, xem danh sách phiên đang chạy, nạp tiền vào tài khoản, đặt giá thầu thời gian thực (Make Bid), theo dõi biến động biểu đồ giá và lịch sử thầu trực quan.
+*   **Seller (Người bán):** Tạo sản phẩm đấu giá thuộc 3 danh mục (Đồ điện tử, Nghệ thuật, Xe cộ), thiết lập thời gian bắt đầu/kết thúc, giá khởi điểm, bước nhảy thầu tối thiểu; quản lý và có quyền hủy phiên đấu giá của mình trước khi kết thúc.
+*   **Admin (Quản trị viên):** Xem danh sách toàn bộ người dùng và lịch sử thầu hệ thống; có quyền khóa/mở khóa tài khoản người dùng ngay lập tức (cưỡng chế ngắt kết nối nếu tài khoản bị khóa đang online).
 
 ---
 
-## ✨ Tính năng & Phân công công việc
+## ✨ 2. Tính năng & Phân công công việc
 
 Dự án được chia làm 4 mảng công việc lớn, giao cụ thể cho từng thành viên:
 
 ### 👤 Thành — OOP Design & Architecture Lead
-- Xây dựng **Class Diagram**: Các thực thể `Entity`, `User` (Bidder/Seller/Admin), `Item` (Electronics/Art/Vehicle), `Auction`, `BidTransaction`.
-- Áp dụng 4 nguyên tắc OOP (Đóng gói, Kế thừa, Đa hình, Trừu tượng).
-- Implement **Factory Method Pattern** để khởi tạo các loại `Item`.
-- Quản lý GitHub, Conventional Commits, viết file báo cáo quá trình làm việc.
+*   Xây dựng **Class Diagram**: Các thực thể `Entity`, `User` (Bidder/Seller/Admin), `Item` (Electronics/Art/Vehicle), `Auction`, `BidTransaction`.
+*   Áp dụng 4 nguyên tắc OOP (Đóng gói, Kế thừa, Đa hình, Trừu tượng).
+*   Implement **Factory Method Pattern** để khởi tạo các loại `Item`.
+*   Quản lý GitHub, Conventional Commits, viết file báo cáo quá trình làm việc.
 
 ### ⚙️ Kiệt — Backend, Business Logic & Concurrency
-- Thiết kế Data Access Object (DAO) lưu trữ dữ liệu.
-- Quản lý CRUD Sản phẩm và Logic phiên đấu (Chuyển trạng thái OPEN → RUNNING → FINISHED → PAID/CANCELED).
-- Trọng tâm xử lý **Đa luồng (Concurrency)**: Xử lý đấu giá đồng thời để tránh Lost Update (bằng `synchronized` hoặc `ReentrantLock`).
-- Implement **Singleton Pattern** cho `AuctionManager`.
-- **Tính năng nâng cao (1đ)**: Thiết kế Logic `Auto-Bidding` bằng PriorityQueue và thuật toán `Anti-sniping` gia hạn giờ phút chót.
-- Viết Unit Test (JUnit).
+*   Thiết kế Data Access Object (DAO) lưu trữ dữ liệu.
+*   Quản lý CRUD Sản phẩm và Logic phiên đấu (Chuyển trạng thái OPEN → RUNNING → FINISHED → PAID/CANCELED).
+*   Trọng tâm xử lý **Đa luồng (Concurrency)**: Xử lý đấu giá đồng thời để tránh Lost Update (bằng `synchronized` hoặc `ReentrantLock`).
+*   Implement **Singleton Pattern** cho `AuctionManager`.
+*   **Tính năng nâng cao (1đ)**: Thiết kế Logic `Auto-Bidding` bằng PriorityQueue và thuật toán `Anti-sniping` gia hạn giờ phút chót.
+*   Viết Unit Test (JUnit).
 
 ### 🌐 Hoàng — Networking & Real-time Communication
-- Thiết kế mạng Client–Server bằng Socket TCP.
-- Implement **Observer Pattern** (phía server) để notify toàn bộ client khi có Bid mới.
-- Xử lý Đa luồng Socket: Multi-thread per client, xử lý khi client ngắt kết nối.
-- Thiết lập CI/CD chạy test tự động.
-- Áp dụng chuẩn code Google Java Style.
+*   Thiết kế mạng Client–Server bằng Socket TCP.
+*   Implement **Observer Pattern** (phía server) để notify toàn bộ client khi có Bid mới.
+*   Xử lý Đa luồng Socket: Multi-thread per client, xử lý khi client ngắt kết nối.
+*   Thiết lập CI/CD chạy test tự động.
+*   Áp dụng chuẩn code Google Java Style.
 
 ### 🖥️ Thảo — Frontend JavaFX & Visualization
-- Áp dụng kiến trúc MVC cho giao diện (JavaFX + FXML + Controllers).
-- Thiết kế Form đa dạng phân quyền: Màn hình Login/Register, Màn hình Bidder, Màn hình Seller, Màn hình Admin.
-- Tích hợp Server-Client real-time lên giao diện.
-- **Tính năng nâng cao (0.5đ)**: Visualization bằng Line Chart thể hiện lịch sử giá trị của phiên đấu giá theo thời gian thực.
+*   Áp dụng kiến trúc MVC cho giao diện (JavaFX + FXML + Controllers).
+*   Thiết kế Form đa dạng phân quyền: Màn hình Login/Register, Màn hình Bidder, Màn hình Seller, Màn hình Admin.
+*   Tích hợp Server-Client real-time lên giao diện.
+*   **Tính năng nâng cao (0.5đ)**: Visualization bằng Line Chart thể hiện lịch sử giá trị của phiên đấu giá theo thời gian thực.
 
 ---
 
-## 🔒 Cơ chế phiên đấu giá & Anti-Sniping
+## 🛠️ 3. Công nghệ sử dụng & Yêu cầu hệ thống
 
-- **Đóng phiên cơ bản**: Một phiên chạy theo khoảng **thời gian cố định** (Time-based). Người có giá cao nhất (`currentHighestBid`) khi thời gian đếm ngược kết thúc (`endTime`) sẽ là Winner.
-- **Thuật toán Anti-sniping (Kiệt phụ trách)**: Nếu có bất kỳ người dùng nào đặt giá (`Bid`) ở những giây X cuối cùng của phiên đấu giá, hệ thống tự động **cộng thêm (gia hạn)** thời gian đếm ngược. Mục đích chặn những người dùng rình mò đợi giây cuối mới tung giá (snipers).
+### Công nghệ sử dụng:
+*   **Ngôn ngữ chính:** Java 17+
+*   **Giao diện:** JavaFX 21 + FXML (MVC Pattern)
+*   **Giao tiếp mạng:** TCP Socket, Java Object Serialization (truyền nhận PacketMessage định dạng sẵn)
+*   **Cơ sở dữ liệu:** Lưu trữ dạng file cấu trúc JSON (đọc/ghi qua Gson thư viện)
+*   **Công cụ build:** Maven 3.9+
+*   **Kiểm thử:** JUnit 5 cho logic nghiệp vụ
 
----
-
-## 🏗️ Kiến trúc hệ thống
-
-```
-┌─────────────────────────────────────────────────────┐
-│                   CLIENT SIDE                       │
-│  JavaFX UI  ──►  Controller  ──►  Network Layer     │
-│  (FXML Views)    (MVC)            (Socket Client)   │
-└─────────────────────┬───────────────────────────────┘
-                      │  TCP Socket
-                      │  Protocol: Object / JSON
-┌─────────────────────▼───────────────────────────────┐
-│                   SERVER SIDE                       │
-│  ServerSocket  ──►  ClientHandler (Thread)          │
-│                          │                          │
-│                     AuctionManager ◄── Singleton    │
-│                          │                          │
-│                     Auction (Subject) ──► Observer  │
-│                          │                          │
-│                  Business Logic Layer               │
-│                  (Validate, Concurrency)            │
-└─────────────────────────────────────────────────────┘
-```
+### Yêu cầu cài đặt môi trường chạy:
+*   Đã cài đặt JDK 17 trở lên và cấu hình biến môi trường `JAVA_HOME`.
+*   Đã cài đặt Apache Maven (để tự động biên dịch và nạp thư viện JavaFX).
 
 ---
 
-## 📡 Giao thức truyền tin (Application Protocol)
-*Theo thiết kế trong file `Se vờ 3.drawio`*
-
-Hệ thống giao tiếp thông qua Message Object truyền qua TCP với các Lệnh Cốt Lõi được thiết kế như sau:
-
-### Lệnh gửi từ Client đến Server:
-- `CREATE_AUCTION`: Seller gửi yêu cầu tạo một mặt hàng đấu giá mới.
-- `REQUEST_ACTIVE_AUCTION_LIST`: Lấy danh sách các phiên đang mở.
-- `REGISTER_IN_AUCTION`: Ghi danh làm thành viên tham dự vào 1 phiên đấu giá cụ thể.
-- `UNREGISTER_FROM_AUCTION` / `CANCEL_AUCTION`: Rút danh tham dự hoặc hủy phiên.
-- `MAKE_BID`: Thực hiện nâng giá (Cần Validate của Người 2).
-- `REQUEST_HIGHER_BID` / `REQUEST_AUCTION`: Truy vấn thông tin giá / thông tin cấu trúc phiên.
-- `DISCONNECT`: Thoát phiên làm việc.
-
-### Lệnh phản hồi từ Server về Client:
-- Các sự kiện Broadcast (Báo về mọi người): `JOIN`, `BID` (có người mới nâng quá), `LEAVE`.
-- `ERROR`: Ném trả lỗi hệ thống (như `AuctionLowBidException` nếu đặt giá thấp hơn hiện tại, `AuctionAlreadyRegisteredException`, `ServerHasHighBidException`...).
-
----
-
-## 📐 Class Diagram OOP
-*Bám sát file `Class Diagram OOP.drawio`*
-
-```
-Entity (abstract)
-├── User (abstract)           [username, email, password]
-│   ├── Bidder                [balance]
-│   ├── Seller                [companyName, rating]
-│   └── Admin                 [department]
-├── Item (abstract)           [name, description, startingPrice, currentPrice]
-│   ├── Electronics           [warranty, brand, model]
-│   ├── Art                   [artist, medium, year]
-│   └── Vehicle               [engineType, modelYear, mileage, licensePlate]
-├── Auction                   [item, seller, startTime, endTime, status, winner]
-└── BidTransaction            [bidder, auctionId, amount, timestamp]
-
-AutoBid                       [maxBid, bidStep, isActive]
-Enum AuctionStatus            [OPEN, RUNNING, FINISHED, PAID, CANCELED]
-```
-
-**Mẫu thiết kế áp dụng (Design Patterns):**
-1. **Factory Method** (`ItemFactory`): Tự động tạo `Electronics`, `Art` hoặc `Vehicle` không cần new trực tiếp đối tượng class.
-2. **Singleton** (`AuctionManager`): Giữ tính đồng nhất bộ nhớ ở tầng quản lý phiên cấm conflict Đa luồng.
-3. **Observer** (`BidObserver` / `SendPacket`): Tự động lắng nghe và Notify lên các `ClientHandler`.
-
----
-
-## 📦 Cấu trúc thư mục (Chuẩn hóa)
+## 📦 4. Cấu trúc thư mục (Module chính)
 
 ```
 Auction-System-in-Java/
-├── Helpful Docs/                  # Chứa tài liệu thiết kế
-│   ├── Class Diagram OOP.drawio   # Bản vẽ thiết kế OOP (Thành)
-│   ├── Design Pattern.drawio      # Bản vẽ sơ đồ mẫu thiết kế
-│   └── Se vờ 3.drawio             # Sơ đồ Networking
+├── Helpful Docs/                  # Chứa tài liệu thiết kế hệ thống
+│   ├── Class Diagram OOP.drawio   # Bản vẽ thiết kế Class Diagram OOP (Thành)
+│   └── Design Pattern.drawio      # Bản vẽ sơ đồ áp dụng Singleton, Factory, Observer
 └── Source/
-    └── src/main/java/
-        ├── client/                # Hoàng, Thảo
-        │   ├── controllers/       
-        │   ├── network/           
-        │   └── views/             
-        ├── common/                # Shared Protocol (Ai cũng đọc)
-        │   ├── protocol/          
-        │   └── utils/             
-        └── server/                # Thành, Kiệt, Hoàng
-            ├── auction/           # AuctionManager, ItemFactory (Design Patterns)
-            ├── dao/               # Tương tác Database
-            ├── models/            # Entity, User, Bidder, Admin, Item...
-            └── network/           # Socket Server, ClientHandler
+    ├── src/main/java/
+    │   ├── client/                # Mã nguồn phía Client (Hoàng, Thảo)
+    │   │   ├── controllers/       # Lớp điều khiển xử lý sự kiện giao diện FXML
+    │   │   ├── message/           # Chứa PacketMessage, MessageType chung
+    │   │   ├── network/           # Kết nối mạng TCP Socket phía Client
+    │   │   └── views/             # Giao diện người dùng thiết kế FXML
+    │   └── server/                # Mã nguồn phía Server (Thành, Kiệt, Hoàng)
+    │       ├── auction/           # Quản lý đấu giá (AuctionManager, ItemFactory, Observers)
+    │       ├── dao/               # Tương tác Database file JSON (UserDAO, AuctionDAO...)
+    │       ├── models/            # Thực thể Entity, User, Item, Auction, BidTransaction
+    │       ├── network/           # Socket Server lắng nghe kết nối, ClientHandler đa luồng
+    │       └── payload/           # Các Payload đóng gói dữ liệu truyền qua Socket
+    └── pom.xml                    # File cấu hình Maven Dependencies (JavaFX, Gson, JUnit)
 ```
 
 ---
 
-## 🚀 Hướng dẫn cài đặt & chạy
+## 💿 5. Vị trí các file .jar sau khi đóng gói
 
-### Yêu cầu hệ thống
-- Java 17+ (OpenJDK 17 hoặc mới hơn)
-- Maven 3.9+
-- JavaFX 21
+Khi bạn thực hiện đóng gói dự án thông qua Maven (sử dụng **IntelliJ Maven tool** -> chọn **clean** -> **package**), hệ thống sẽ biên dịch và tạo ra các file `.jar` có khả năng tự chạy (Fat JAR) tại thư mục sau:
 
-### Clone project
+*   **Thư mục chứa file `.jar`:** `Auction-System-in-Java/Source/target/`
+*   **Các file `.jar` được tạo ra:** 
+    *   `AuctionServer.jar`: Bản build đóng gói đầy đủ phía Server (chứa sẵn thư viện Gson).
+    *   `AuctionClient.jar`: Bản build đóng gói đầy đủ phía Client (chứa sẵn thư viện JavaFX và Gson).
+
+---
+
+## 🚀 6. Hướng dẫn đóng gói và chạy hệ thống bằng Terminal
+
+Để chạy hệ thống ổn định và tải được dữ liệu tài khoản/phiên đấu giá từ file JSON, bạn cần tuân thủ thứ tự: **Khởi động Server trước, sau đó khởi động các Client**.
+
+### 📦 Bước 1: Đóng gói dự án (Nếu có thay đổi mã nguồn)
+1. Mở **IntelliJ IDEA**.
+2. Mở tab **Maven** ở góc phải màn hình.
+3. Chọn dự án `BigProjectAuctionSystem` -> click đúp vào **clean**, sau đó click đúp vào **package**.
+4. Maven sẽ tự động build và tạo ra 2 file `AuctionServer.jar` và `AuctionClient.jar` bên trong thư mục `Source/target`.
+
+### 🖥️ Bước 2: Chạy Server (Bắt buộc chạy trước)
+> [!IMPORTANT]
+> **Lưu ý cực kỳ quan trọng về Thư mục hoạt động (Working Directory):**
+> Bạn **không nên** `cd` vào tận thư mục `Source/target` để chạy lệnh `java -jar AuctionServer.jar`. Nếu làm vậy, JVM sẽ coi `Source/target` là thư mục gốc và tìm thư mục `data/` ở đó (gây lỗi không tìm thấy tài khoản admin và báo *"Sai tài khoản hoặc mật khẩu"*).
+>
+> **Cách chạy chuẩn xác nhất:** Mở terminal tại thư mục **`Source`** và chạy lệnh:
 ```bash
-git clone https://github.com/phamthanh22k77-bot/Auction-System-in-Java.git
-cd Auction-System-in-Java/Source
+# Đứng tại thư mục Source để chạy Server
+java -jar target/AuctionServer.jar
 ```
 
-### Build project
+### 💻 Bước 3: Chạy Client (Chạy sau khi Server đã mở cổng)
+Bạn có thể mở nhiều cửa sổ terminal khác nhau để khởi động nhiều Client cùng lúc (mỗi Client đại diện cho một người tham gia đấu giá).
+*   Mở terminal tại thư mục **`Source`** và chạy lệnh:
 ```bash
-mvn clean install
-```
-
-### Chạy Server (Mảng của Kiệt & Hoàng)
-```bash
-mvn exec:java -Dexec.mainClass="server.network.AuctionServerApp" -Dexec.args="9090"
-```
-
-### Chạy Client UI (Mảng của Thảo)
-```bash
-mvn exec:java -Dexec.mainClass="client.controllers.App"
+# Đứng tại thư mục Source để chạy Client
+java -jar target/AuctionClient.jar
 ```
 
 ---
 
-## 📄 Giấy phép
+## 🎯 7. Danh sách chức năng đã hoàn thành
 
-Dự án phục vụ mục đích học tập — UET, môn Lập Trình Nâng Cao.
+### Nhóm chức năng bắt buộc (Mandatory - Hoàn thành 100%):
+*   **Đăng ký / Đăng nhập & Phân quyền:** Hỗ trợ 3 vai trò: Bidder, Seller, Admin. Phân luồng giao diện FXML động theo quyền hạn.
+*   **Quản lý người dùng:** Khóa/mở khóa tài khoản thời gian thực (Admin).
+*   **Quản lý sản phẩm (CRUD):** Thêm, sửa, xóa sản phẩm thuộc 3 danh mục khác nhau.
+*   **Nghiệp vụ Đấu giá Realtime:** Người dùng đặt giá, hệ thống kiểm duyệt 3 quy tắc thầu an toàn và cập nhật giá lập tức tới toàn bộ phòng đấu thầu bằng Socket Broadcast.
+*   **Xử lý đa luồng an toàn (Concurrency):** Sử dụng khối đồng bộ mịn `synchronized(auction)` để ngăn chặn triệt để lỗi **Lost Update** và **Race Condition** khi nhiều người cùng bid 1 sản phẩm.
+*   **Tự động kết thúc phiên:** Sử dụng bộ quét định kỳ (Scheduler) quét 1 giây/lần ở Server để tự cập nhật trạng thái phiên thầu, khóa đặt giá và thông báo người chiến thắng.
+*   **Lưu trữ dữ liệu:** Persist dữ liệu an toàn dạng file JSON (`users.json`, `auctions.json`, `items.json`) qua DAO Pattern.
+
+### Nhóm chức năng nâng cao (Advanced):
+*   **Thuật toán Anti-Sniping (Chống bắn tỉa giây cuối):** Tự động gia hạn thêm 30 giây thời gian đếm ngược nếu có lượt bid phát sinh trong 30 giây cuối cùng của phiên (giới hạn tối đa 5 lần gia hạn).
+*   **Trực quan hóa diễn biến giá (Visualization):** Vẽ biểu đồ đường (`Line Chart`) thể hiện diễn biến giá thầu tăng dần theo thời gian thực mà không cần tải lại trang.
