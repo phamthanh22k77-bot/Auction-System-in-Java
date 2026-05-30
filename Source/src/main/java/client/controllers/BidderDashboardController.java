@@ -589,6 +589,7 @@ public class BidderDashboardController implements Initializable {
             Parent root = FXMLLoader.load(getClass().getResource("/client/views/Login.fxml"));
             Stage stage = (Stage) btnTabAll.getScene().getWindow();
             stage.setScene(new Scene(root));
+            stage.sizeToScene();
             stage.setTitle("Auction - Login");
             stage.centerOnScreen();
         } catch (IOException e) {

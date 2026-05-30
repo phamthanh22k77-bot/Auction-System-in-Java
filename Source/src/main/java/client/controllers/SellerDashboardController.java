@@ -1163,8 +1163,7 @@ public class SellerDashboardController implements Initializable {
             Parent root = FXMLLoader.load(getClass().getResource("/client/views/Login.fxml"));
             Stage stage = (Stage) btnNavOverview.getScene().getWindow();
             stage.setScene(new Scene(root));
-            stage.setWidth(900);
-            stage.setHeight(600);
+            stage.sizeToScene();
             stage.centerOnScreen();
         } catch (IOException e) {
             e.printStackTrace();

@@ -318,6 +318,8 @@ public class AuctionListController implements Initializable {
             Parent root = FXMLLoader.load(getClass().getResource("/client/views/Login.fxml"));
             Stage stage = (Stage) btnLogout.getScene().getWindow();
             stage.setScene(new Scene(root));
+            stage.sizeToScene();
+            stage.centerOnScreen();
         } catch (IOException ex) {
             ex.printStackTrace();
         }
