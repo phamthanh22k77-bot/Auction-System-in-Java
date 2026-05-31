@@ -148,12 +148,30 @@ java -jar target/AuctionClient.jar
 
 ### # Chạy hệ thống trên nhiều máy tính khác nhau (Mạng LAN)
 
-
 **Yêu cầu bắt buộc:** Máy chạy Server và các máy tính chạy Client phải kết nối chung một mạng Wi-Fi (hoặc chung mạng LAN).
 
-*(Phần hướng dẫn chi tiết đang được cập nhật...)*
+### Bước 1: Cài đặt VPN và chuyển tiếp Port (Chỉ làm trên máy Client)
+1. Cài đặt Radmin VPN, xin tên phòng và mật khẩu từ người mở Server để Join vào.
+2. Lấy địa chỉ IP Radmin (dải `26.x.x.x`) của máy Server.
+3. Mở Terminal (cmd) bằng quyền Run as administrator và chạy lệnh:
+```bash
+netsh interface portproxy add v4tov4 listenport=9090 listenaddress=127.0.0.1 connectport=9090 connectaddress=<IP_RADMIN_SERVER>
+```
 
----
+### Bước 2: Chạy Server (Cho máy chạy Server)
+
+```bash
+# Đứng tại thư mục Source để chạy Server
+java -jar target/AuctionServer.jar
+```
+### Bước 3: Khởi động Client (Cho máy chạy Client)
+
+```bash
+# Đứng tại thư mục Source để chạy Client
+java -jar target/AuctionClient.jar
+```
+
+Lưu ý quan trọng: Để tránh lỗi không tìm thấy dữ liệu, hãy đảm bảo thư mục chứa dự án trên máy Client được đặt ở vị trí giống hệt máy Server (Ví dụ: Cùng giải nén trực tiếp ra ổ `C:\`). Khi mở CMD (Terminal), phải chú ý thư mục hiện tại đang đứng ở đúng bên trong thư mục Source.
 
 ## 7. Danh sách chức năng đã hoàn thành
 
