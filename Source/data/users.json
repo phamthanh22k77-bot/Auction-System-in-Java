@@ -137,5 +137,14 @@
     "isLocked": false,
     "id": "7a51c869-82a3-49ec-9dcd-a986ff19a7c5",
     "role": "BIDDER"
+  },
+  {
+    "balance": 5.0E7,
+    "username": "bidder",
+    "email": "",
+    "password": "123",
+    "isLocked": false,
+    "id": "ff812adf-6140-4989-aef2-8cdc4944b3ed",
+    "role": "BIDDER"
   }
 ]
