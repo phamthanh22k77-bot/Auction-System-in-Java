@@ -226,7 +226,6 @@ public class AuctionServer {
     }
 
     // Hủy đăng ký (rời phiên) của Client khỏi phiên đấu giá.
-    // Chặn không cho rời nếu client đang giữ giá cao nhất hoặc chưa từng đăng ký.
     public void leaveAuction(String auctionID, AuctionClient client)
             throws ServerNoAuctionException, AuctionHighBidException, AuctionNotRegisteredException {
 
@@ -241,9 +240,8 @@ public class AuctionServer {
     }
 
     // Dừng luồng xử lý và giải phóng tài nguyên của Client khỏi Server.
-    // Chặn ngắt kết nối nếu client đang giữ giá cao nhất trong phiên đấu giá.
     public void removeClient(AuctionClient client)
-            throws IOException, ServerClientHandlerDoesNotExistException, ServerHasHighBidException {
+            throws IOException, ServerClientHandlerDoesNotExistException {
 
         String clientKey = client.getSocket().getInetAddress().getHostAddress() + ":" + client.getSocket().getPort();
         // Kiểm tra xem client có tồn tại hay không

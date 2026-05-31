@@ -169,7 +169,7 @@ public class ClientHandler extends Thread {
                         // Server nhận được gói tin yêu cầu ngắt kết nối khỏi server
                         try {
                             disconnectFromServer();
-                        } catch (ServerHasHighBidException | AuctionHighBidException e) {
+                        } catch (AuctionHighBidException e) {
                             sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(e.getMessage())));
                         }
                         break;
@@ -357,33 +357,22 @@ public class ClientHandler extends Thread {
 
     // Ngắt kết nối của Client, đóng socket và gỡ bỏ Handler khỏi danh sách quản lý
     // của Server.
-    // Chặn hành động nếu Client đang dẫn đầu mức giá của phiên đấu giá nào đó.
-    public void stopRunning() throws ServerHasHighBidException, IOException {
+    public void stopRunning() throws IOException {
 
-        // Kiểm tra xem client có đang giữ giá đấu cao nhất trong phiên đấu giá nào
-        // không
-        if (client.getNumberOfHighBids() <= 0) {
+        // Dừng việc lắng nghe các gói tin từ client
+        isRunning = false;
 
-            // Dừng việc lắng nghe các gói tin từ client
-            isRunning = false;
+        // Đóng socket của client
+        client.getSocket().close();
 
-            // Đóng socket của client
-            client.getSocket().close();
+        // Lấy instance của server
+        AuctionServer server = AuctionServer.getInstance();
 
-            // Lấy instance của server
-            AuctionServer server = AuctionServer.getInstance();
+        // Xóa chính ClientHandler hiện tại khỏi danh sách quản lý
+        String clientKey = client.getSocket().getInetAddress().getHostAddress() + ":"
+                + client.getSocket().getPort();
 
-            // Xóa chính ClientHandler hiện tại khỏi danh sách quản lý
-            String clientKey = client.getSocket().getInetAddress().getHostAddress() + ":"
-                    + client.getSocket().getPort();
-
-            server.getClientHandlers().remove(clientKey);
-
-        } else {
-
-            throw new ServerHasHighBidException(
-                    "Không thể ngắt kết nối vì client đang giữ mức giá đấu cao nhất trong ít nhất một phiên đấu giá. Hành động không được phép.");
-        }
+        server.getClientHandlers().remove(clientKey);
     }
 
     // Hủy đăng ký của Client khỏi một phiên đấu giá.
@@ -411,9 +400,7 @@ public class ClientHandler extends Thread {
     }
 
     // Rút client khỏi toàn bộ các phiên đang tham gia và ngắt kết nối khỏi Server.
-    // Không cho phép thoát nếu Client đang là người giữ giá cao nhất ở bất kỳ phiên
-    // nào.
-    public void disconnectFromServer() throws ServerHasHighBidException, AuctionHighBidException {
+    public void disconnectFromServer() throws AuctionHighBidException {
 
         // Lấy instance tạm thời của server
         AuctionServer server = AuctionServer.getInstance();
@@ -437,7 +424,7 @@ public class ClientHandler extends Thread {
             server.removeClient(client);
             client.getSocket().close();
 
-        } catch (IOException | ServerClientHandlerDoesNotExistException | ServerHasHighBidException e) {
+        } catch (IOException | ServerClientHandlerDoesNotExistException e) {
 
             e.printStackTrace();
         }
