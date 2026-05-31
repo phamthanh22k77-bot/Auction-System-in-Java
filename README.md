@@ -150,6 +150,13 @@ Bạn có thể mở nhiều cửa sổ terminal khác nhau để khởi động
 java -jar target/AuctionClient.jar
 ```
 
+### # Chạy hệ thống trên nhiều máy tính khác nhau (Mạng LAN)
+
+
+**Yêu cầu bắt buộc:** Máy chạy Server và các máy tính chạy Client phải kết nối chung một mạng Wi-Fi (hoặc chung mạng LAN).
+
+*(Phần hướng dẫn chi tiết đang được cập nhật...)*
+
 ---
 
 ## 7. Danh sách chức năng đã hoàn thành
