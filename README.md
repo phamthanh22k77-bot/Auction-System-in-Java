@@ -128,11 +128,7 @@ Khi bạn thực hiện đóng gói dự án thông qua Maven (sử dụng **Int
 
 ### Bước 2: Chạy Server (Bắt buộc chạy trước)
 
-> [!IMPORTANT]
-> **Lưu ý cực kỳ quan trọng về Thư mục hoạt động (Working Directory):**
-> Bạn **không nên** `cd` vào tận thư mục `Source/target` để chạy lệnh `java -jar AuctionServer.jar`. Nếu làm vậy, JVM sẽ coi `Source/target` là thư mục gốc và tìm thư mục `data/` ở đó (gây lỗi không tìm thấy tài khoản admin và báo *"Sai tài khoản hoặc mật khẩu"*).
->
-> **Cách chạy chuẩn xác nhất:** Mở terminal tại thư mục **`Source`** và chạy lệnh:
+**Cách chạy chuẩn xác nhất:** Mở terminal tại thư mục **`Source`** và chạy lệnh:
 
 ```bash
 # Đứng tại thư mục Source để chạy Server
