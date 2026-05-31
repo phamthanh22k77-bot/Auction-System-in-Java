@@ -30,7 +30,8 @@ public class Auction extends Entity {
     private AuctionStatus status; // Trạng thái phiên đấu giá
     private int antiSnipeCount = 0; // Số lần đã gia hạn Anti-Sniping
     private List<BidTransaction> bidHistory = new ArrayList<>(); // Lịch sử đặt giá
-    private transient List<AuctionClient> clientList = new CopyOnWriteArrayList<>(); // Tạo danh sách các client có trong một phiên đấu giá
+    private transient List<AuctionClient> clientList = new CopyOnWriteArrayList<>(); // Tạo danh sách các client có
+                                                                                     // trong một phiên đấu giá
 
     // Mức giá tăng tối thiểu mỗi lần bid (Bước giá - Step)
     private double minimumBidIncrement;
@@ -41,7 +42,7 @@ public class Auction extends Entity {
 
     // 1. Constructor khởi tạo phiên đấu giá mới
     public Auction(String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime, double startingPrice,
-                   double minimumBidIncrement) {
+            double minimumBidIncrement) {
         super(); // Khởi tạo ID (UUID) từ base class Entity
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -55,8 +56,8 @@ public class Auction extends Entity {
 
     // 2. Constructor dùng khi load dữ liệu từ Database
     public Auction(String id, String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime,
-                   double startingPrice, double currentHighestBid, String highestBidderId, double minimumBidIncrement,
-                   AuctionStatus status) {
+            double startingPrice, double currentHighestBid, String highestBidderId, double minimumBidIncrement,
+            AuctionStatus status) {
         super(id);
         this.itemId = itemId;
         this.sellerId = sellerId;
@@ -186,7 +187,6 @@ public class Auction extends Entity {
         return Item.getCurrentItem();
     }
 
-
     public BidTransaction placeBid(Bidder bidder, double bidAmount) {
         // 1. Khởi tạo một giao dịch mới
         BidTransaction transaction = new BidTransaction(this.getId(), bidder.getId(), bidAmount);
@@ -234,7 +234,8 @@ public class Auction extends Entity {
 
         // 1. Kiểm tra xem client có phải chủ sở hữu phiên không
         if (sellerId != null && sellerId.equals(client.getUsername())) {
-            throw new AuctionClientIsOwnerException("Chủ sở hữu của phiên không thể đăng ký vào chính auction của mình");
+            throw new AuctionClientIsOwnerException(
+                    "Chủ sở hữu của phiên không thể đăng ký vào chính auction của mình");
         }
 
         // 2. Kiểm tra xem client đã đăng ký trước đó chưa
@@ -258,7 +259,8 @@ public class Auction extends Entity {
         }
 
         // 2. Kiểm tra xem client có đang giữ giá cao nhất không (so sánh với Username)
-        // Dùng getLast() vì lịch sử được thêm vào cuối, lượt mới nhất = người dẫn đầu hiện tại
+        // Dùng getLast() vì lịch sử được thêm vào cuối, lượt mới nhất = người dẫn đầu
+        // hiện tại
         if (!bidHistory.isEmpty() && bidHistory.getLast().getBidderId().equals(client.getUsername())) {
             throw new AuctionHighBidException("Người dùng đang sở hữu giá thầu cao nhất");
         }
@@ -274,29 +276,6 @@ public class Auction extends Entity {
         // 1. Kiểm tra đăng ký trước
         if (!getClientList().contains(client)) {
             throw new AuctionNotRegisteredException("Chưa được đăng ký trong phiên đấu giá");
-        }
-
-        AuctionServer server = AuctionServer.getInstance();
-
-        // 2. Xử lý nếu client bị xóa đang là người giữ giá cao nhất
-        // (Sửa lỗi thứ tự kiểm tra rỗng && So sánh Username thay vì IP)
-        // Dùng getLast() vì lịch sử được thêm vào cuối, lượt mới nhất = người dẫn đầu hiện tại
-        if (!bidHistory.isEmpty() && bidHistory.getLast().getBidderId().equals(client.getUsername())) {
-            bidHistory.removeLast(); // Xóa lượt bid cao nhất của client bị ngắt kết nối
-
-            // Lấy giá trị lớn tiếp theo trong lịch sử, nếu rỗng thì trả về giá xuất phát
-            double highestBid = this.startingPrice;
-            if (!bidHistory.isEmpty()) {
-                highestBid = bidHistory.getLast().getBidAmount();
-            }
-
-            // Gửi cập nhật chủ nhân giá cao mới tới tất cả client còn lại đang online
-            String newBidderId = !bidHistory.isEmpty() ? bidHistory.getLast().getBidderId() : "";
-            AuctionUpdatePayload auctionUpdate = new AuctionUpdatePayload(
-                    this.getId(), getStartTime(), highestBid,
-                    "", newBidderId, "", getEndTime(), getAntiSnipeCount()
-            );
-            server.sendPackets(clientList, new PacketMessage(HIGHEST_BID_OWNER_LOST, auctionUpdate));
         }
 
         // Hủy đăng ký client khỏi danh sách

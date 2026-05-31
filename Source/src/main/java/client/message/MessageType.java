@@ -12,7 +12,6 @@ public enum MessageType {
     NOTIFY_AUCTION_WINNER("Auction Winner"), NOTIFY_NO_AUCTION_WINNER("Auction Has No Winners"),
     AUCTION_CANCELLED("Confirm auction has been Canceled"), REQUEST_MY_AUCTIONS("Request the Clients Auctions"),
     SEND_MY_AUCTIONS("Send the Clients Auctions"),
-    HIGHEST_BID_OWNER_LOST("The Bidder with the Highest Bid in an Auction was Lost in Communication"),
     CONFIRM_AUCTION_REGISTRATION("Client is Registered to Auction"), LOGIN("Login Request"),
     REGISTER("Register Request"), LOGIN_SUCCESS("Login Successful"), LOGIN_FAILURE("Login Failed"),
     REGISTER_SUCCESS("Register Successful"), REGISTER_FAILURE("Register Failed"), BALANCE_UPDATE("Balance Updated"),
