@@ -229,13 +229,12 @@ public class ClientHandler extends Thread {
                             + client.getSocket().getPort();
 
                     server.getClientHandlers().remove(clientKey);
-                    for (String auctionID : client.getRegisteredAuctions()) {
+                    for (String auctionID : new java.util.ArrayList<>(client.getRegisteredAuctions())) {
                         Auction auction = AuctionManager.getInstance().timTheoId(auctionID);
                         if (auction != null) {
                             try {
-                                auction.forcefullyRemoveClient(client);
-                            } catch (AuctionNotRegisteredException auctionNotRegisteredException) {
-                                // Bỏ qua nếu client chưa đăng ký
+                                auction.removeClient(client);
+                            } catch (Exception exception) {
                             }
                         }
                     }

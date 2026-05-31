@@ -262,17 +262,7 @@ public class Auction extends Entity {
         clientList.remove(client);
     }
 
-    // Cưỡng ép xóa client khỏi phiên đấu giá (Server ngắt kết nối đột ngột).
-    public void forcefullyRemoveClient(AuctionClient client) throws AuctionNotRegisteredException {
 
-        // 1. Kiểm tra đăng ký trước
-        if (!getClientList().contains(client)) {
-            throw new AuctionNotRegisteredException("Chưa được đăng ký trong phiên đấu giá");
-        }
-
-        // Hủy đăng ký client khỏi danh sách
-        clientList.remove(client);
-    }
 
     // Tìm lượt đặt giá cao nhất (lượt mới nhất = cuối danh sách).
     public BidTransaction findHighestBid() {
