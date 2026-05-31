@@ -51,9 +51,10 @@ class ConcurrentBidTest {
         CountDownLatch sungLenhXuatPhat = new CountDownLatch(1);
         CountDownLatch choKetThuc = new CountDownLatch(100);
 
-        // Đăng ký Auction vào Manager để test (Dùng taoPhien để đảm bảo ID và đăng ký khớp)
-        Auction createdAuction = AuctionManager.getInstance().taoPhien("item", "seller",
+        // Đăng ký Auction vào Manager để test bằng cách khởi tạo trực tiếp (giống production)
+        Auction createdAuction = new Auction("item", "seller",
                 LocalDateTime.now().minusHours(1), LocalDateTime.now().plusHours(1), 100.0, 10.0);
+        AuctionManager.getInstance().getAuctions().add(createdAuction);
 
         Auction managedAuction = AuctionManager.getInstance().timTheoId(createdAuction.getId());
         assertNotNull(managedAuction, "Phiên đấu giá phải được đăng ký trong bộ quản lý");

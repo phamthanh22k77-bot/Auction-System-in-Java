@@ -82,20 +82,6 @@ public class AuctionManager {
         System.out.println("[AuctionManager] Đã nạp " + auctions.size() + " phiên đấu giá. Sẵn sàng nhận kết nối.");
     }
 
-    public Auction taoPhien(String itemId, String sellerId, LocalDateTime startTime, LocalDateTime endTime,
-                            double startingPrice, double minimumBidIncrement) throws IOException {
-
-        Auction auction = new Auction(itemId, sellerId, startTime, endTime, startingPrice, minimumBidIncrement);
-
-        auctions.add(auction);
-        dao.them(auction); // Persist ngay lập tức
-
-        System.out.printf("[AuctionManager] Tạo phiên mới [%s] — Item: %s | Seller: %s%n", auction.getId(), itemId, sellerId);
-
-        return auction;
-    }
-
-    // Xử lý lượt Bid thủ công từ người dùng.
     public boolean datGia(BidTransaction transaction)
             throws IOException, server.auction.AuctionLowBidException, server.models.network.ServerNoAuctionException {
 

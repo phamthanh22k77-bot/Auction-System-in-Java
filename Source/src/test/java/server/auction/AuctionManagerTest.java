@@ -49,8 +49,9 @@ class AuctionManagerTest {
     void testTaoPhien() throws IOException {
         int initialSize = manager.soLuongPhien();
 
-        Auction auction = manager.taoPhien("item123", "sellerA", LocalDateTime.now(), LocalDateTime.now().plusHours(1),
+        Auction auction = new Auction("item123", "sellerA", LocalDateTime.now(), LocalDateTime.now().plusHours(1),
                 100.0, 10.0);
+        manager.getAuctions().add(auction);
 
         assertNotNull(auction);
         assertEquals("item123", auction.getItemId());
@@ -63,8 +64,9 @@ class AuctionManagerTest {
 
     @Test
     void testDatGia_HopLe() throws Exception {
-        Auction auction = manager.taoPhien("item_test", "sellerX", LocalDateTime.now().minusHours(1),
+        Auction auction = new Auction("item_test", "sellerX", LocalDateTime.now().minusHours(1),
                 LocalDateTime.now().plusHours(1), 50.0, 5.0);
+        manager.getAuctions().add(auction);
         auction.setStatus(Auction.AuctionStatus.RUNNING);
 
         BidTransaction bid = new BidTransaction(auction.getId(), "bidder1", 60.0);
@@ -78,8 +80,9 @@ class AuctionManagerTest {
 
     @Test
     void testDatGia_KhongHopLe() throws Exception {
-        Auction auction = manager.taoPhien("item_test", "sellerX", LocalDateTime.now().minusHours(1),
+        Auction auction = new Auction("item_test", "sellerX", LocalDateTime.now().minusHours(1),
                 LocalDateTime.now().plusHours(1), 50.0, 5.0);
+        manager.getAuctions().add(auction);
         auction.setStatus(Auction.AuctionStatus.RUNNING);
 
         BidTransaction bid = new BidTransaction(auction.getId(), "bidder1", 40.0); // Giá thấp hơn giá hiện tại
@@ -101,7 +104,8 @@ class AuctionManagerTest {
         LocalDateTime startTime = LocalDateTime.now().minusHours(1);
         LocalDateTime endTime = LocalDateTime.now().plusSeconds(10); // Chỉ còn 10 giây
 
-        Auction auction = manager.taoPhien("item_snipe", "sellerY", startTime, endTime, 100.0, 10.0);
+        Auction auction = new Auction("item_snipe", "sellerY", startTime, endTime, 100.0, 10.0);
+        manager.getAuctions().add(auction);
         auction.setStatus(Auction.AuctionStatus.RUNNING);
 
         BidTransaction bid = new BidTransaction(auction.getId(), "bidder_sniper", 120.0);
@@ -114,12 +118,16 @@ class AuctionManagerTest {
 
     @Test
     void testUpdateAllAuctionStatuses_ChuyenTrangThaiThoiGianThuc() throws Exception {
-        Auction futureAuction = manager.taoPhien("item_future", "seller1", LocalDateTime.now().plusHours(1),
+        Auction futureAuction = new Auction("item_future", "seller1", LocalDateTime.now().plusHours(1),
                 LocalDateTime.now().plusHours(2), 10.0, 1.0);
-        Auction runningAuction = manager.taoPhien("item_running", "seller2", LocalDateTime.now().minusHours(1),
+        Auction runningAuction = new Auction("item_running", "seller2", LocalDateTime.now().minusHours(1),
                 LocalDateTime.now().plusHours(1), 10.0, 1.0);
-        Auction pastAuction = manager.taoPhien("item_past", "seller3", LocalDateTime.now().minusHours(2),
+        Auction pastAuction = new Auction("item_past", "seller3", LocalDateTime.now().minusHours(2),
                 LocalDateTime.now().minusHours(1), 10.0, 1.0);
+        //Đăng kí vào Manager sau khi tạo Object
+        manager.getAuctions().add(futureAuction);
+        manager.getAuctions().add(runningAuction);
+        manager.getAuctions().add(pastAuction);
 
         manager.updateAllAuctionStatuses();
 
@@ -130,8 +138,9 @@ class AuctionManagerTest {
 
     @Test
     void testKetThucPhien() throws Exception {
-        Auction auction = manager.taoPhien("item_test", "seller1", LocalDateTime.now().minusHours(2),
+        Auction auction = new Auction("item_test", "seller1", LocalDateTime.now().minusHours(2),
                 LocalDateTime.now().plusHours(1), 100.0, 10.0);
+        manager.getAuctions().add(auction);
 
         boolean res = manager.ketThucPhien(auction.getId(), false);
 

@@ -182,10 +182,6 @@ public class Auction extends Entity {
         this.bidHistory.add(transaction);
     }
 
-    public Item getItem() {
-        return Item.getCurrentItem();
-    }
-
     public List<AuctionClient> getClientList() {
         if (clientList == null)
             clientList = new CopyOnWriteArrayList<>();
