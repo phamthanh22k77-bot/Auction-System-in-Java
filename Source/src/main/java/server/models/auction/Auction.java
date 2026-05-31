@@ -257,14 +257,6 @@ public class Auction extends Entity {
         if (!getClientList().contains(client)) {
             throw new AuctionNotRegisteredException("Client chưa được đăng ký trong phiên đấu giá");
         }
-
-        // 2. Kiểm tra xem client có đang giữ giá cao nhất không (so sánh với Username)
-        // Dùng getLast() vì lịch sử được thêm vào cuối, lượt mới nhất = người dẫn đầu
-        // hiện tại
-        if (!bidHistory.isEmpty() && bidHistory.getLast().getBidderId().equals(client.getUsername())) {
-            throw new AuctionHighBidException("Người dùng đang sở hữu giá thầu cao nhất");
-        }
-
         // Happy Path: Xóa phiên khỏi danh sách của client và hủy đăng ký
         client.getRegisteredAuctions().remove(this.getId());
         clientList.remove(client);

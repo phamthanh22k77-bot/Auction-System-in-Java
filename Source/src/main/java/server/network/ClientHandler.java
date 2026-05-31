@@ -195,7 +195,7 @@ public class ClientHandler extends Thread {
                             }
                         } else {
                             sendPacket(new PacketMessage(ERROR, new ErrorMessagePayload(
-                                     "Hệ thống hiện không chấp nhận tạo phiên đấu giá mới vào lúc này.")));
+                                    "Hệ thống hiện không chấp nhận tạo phiên đấu giá mới vào lúc này.")));
                         }
                         break;
 
@@ -419,48 +419,28 @@ public class ClientHandler extends Thread {
         // Lấy instance tạm thời của server
         AuctionServer server = AuctionServer.getInstance();
 
-        // Kiểm tra xem client có giữ mức giá đấu cao nhất trong phiên đấu giá nào không
-        if (client.getNumberOfHighBids() > 0) {
+        // Hủy đăng ký client khỏi tất cả các phiên đấu giá đang tham gia
+        for (String auction : client.getRegisteredAuctions()) {
 
-            String errorMessage;
-
-            if (client.getNumberOfHighBids() > 1) {
-
-                errorMessage = "Client đang giữ mức giá đấu cao nhất trong " + client.getNumberOfHighBids()
-                        + " phiên đấu giá đang hoạt động";
-
-            } else {
-
-                errorMessage = "Client đang giữ mức giá đấu cao nhất trong một phiên đấu giá đang hoạt động";
-            }
-
-            throw new ServerHasHighBidException(errorMessage);
-
-        } else {
-
-            // Hủy đăng ký client khỏi tất cả các phiên đấu giá đang tham gia
-            for (String auction : client.getRegisteredAuctions()) {
-
-                try {
-
-                    server.leaveAuction(auction, client);
-
-                } catch (ServerNoAuctionException | AuctionNotRegisteredException e) {
-
-                    e.printStackTrace();
-                }
-            }
-
-            // Thử xóa client và đóng kết nối socket
             try {
 
-                server.removeClient(client);
-                client.getSocket().close();
+                server.leaveAuction(auction, client);
 
-            } catch (IOException | ServerClientHandlerDoesNotExistException | ServerHasHighBidException e) {
+            } catch (ServerNoAuctionException | AuctionNotRegisteredException e) {
 
                 e.printStackTrace();
             }
+        }
+
+        // Thử xóa client và đóng kết nối socket
+        try {
+
+            server.removeClient(client);
+            client.getSocket().close();
+
+        } catch (IOException | ServerClientHandlerDoesNotExistException | ServerHasHighBidException e) {
+
+            e.printStackTrace();
         }
     }
 
@@ -972,7 +952,8 @@ public class ClientHandler extends Thread {
                 List<server.models.user.User> updatedUsers = dao.loadAll();
                 broadcastToAdmins(new PacketMessage(SEND_ALL_USERS, new java.util.ArrayList<>(updatedUsers)));
             } catch (Exception ex) {
-                System.err.println("[Server] Lỗi cập nhật danh sách user cho Admin sau khi đăng ký: " + ex.getMessage());
+                System.err
+                        .println("[Server] Lỗi cập nhật danh sách user cho Admin sau khi đăng ký: " + ex.getMessage());
             }
         } catch (Exception e) {
             sendPacket(new PacketMessage(REGISTER_FAILURE,
