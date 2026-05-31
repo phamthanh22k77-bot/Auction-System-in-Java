@@ -26,14 +26,6 @@ public class Bidder extends User {
         this.balance = balance;
     }
 
-    public BidTransaction placeBid(Auction auction, double bidAmount) {
-        if (bidAmount > balance) {
-            System.out.println("Số dư không đủ để thực hiện lượt đặt giá này!");
-            return null;
-        }
-        return new BidTransaction(auction.getId(), this.getId(), bidAmount);
-    }
-
     public void deposit(double amount) {
         if (amount > 0) {
             this.balance += amount;

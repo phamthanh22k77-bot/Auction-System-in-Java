@@ -4,7 +4,6 @@ import server.models.Entity;
 import server.models.item.Item;
 import server.models.item.ItemCategory;
 import server.models.network.AuctionClient;
-import server.models.user.Bidder;
 import server.auction.*;
 import server.network.AuctionServer;
 import server.payload.*;
@@ -187,28 +186,6 @@ public class Auction extends Entity {
         return Item.getCurrentItem();
     }
 
-    public BidTransaction placeBid(Bidder bidder, double bidAmount) {
-        // 1. Khởi tạo một giao dịch mới
-        BidTransaction transaction = new BidTransaction(this.getId(), bidder.getId(), bidAmount);
-
-        // 2. Tự kiểm tra tính hợp lệ
-        try {
-            if (transaction.validate(this)) {
-                // 3. Nếu hợp lệ, cập nhật ngay các thông số của phiên
-                this.currentHighestBid = bidAmount;
-                this.highestBidderId = bidder.getId();
-            }
-        } catch (Exception e) {
-            // Nếu có lỗi (ví dụ: giá thấp), transaction.validate đã set status = REJECTED
-            System.err.println("[Auction] Đặt giá thất bại: " + e.getMessage());
-        }
-
-        // 4. Luôn ghi nhận vào lịch sử (dù thành hay bại)
-        this.addBidToHistory(transaction);
-
-        return transaction;
-    }
-
     public List<AuctionClient> getClientList() {
         if (clientList == null)
             clientList = new CopyOnWriteArrayList<>();
@@ -253,11 +230,11 @@ public class Auction extends Entity {
      */
     public void removeClient(AuctionClient client) throws AuctionHighBidException, AuctionNotRegisteredException {
 
-        // 1. Kiểm tra xem client đã đăng ký trong phiên chưa
+        // Kiểm tra xem client đã đăng ký trong phiên chưa
         if (!getClientList().contains(client)) {
             throw new AuctionNotRegisteredException("Client chưa được đăng ký trong phiên đấu giá");
         }
-        // Happy Path: Xóa phiên khỏi danh sách của client và hủy đăng ký
+        // Xóa phiên khỏi danh sách của client và hủy đăng ký
         client.getRegisteredAuctions().remove(this.getId());
         clientList.remove(client);
     }
